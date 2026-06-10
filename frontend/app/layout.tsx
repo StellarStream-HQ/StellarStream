@@ -1,39 +1,35 @@
 import type { Metadata } from "next";
-import { Lato, Poppins } from "next/font/google";
 import "./globals.css";
-import { Nav } from "@/components/nav";
-import { Footer } from "@/components/footer";
 import { ToastProvider } from "@/components/toast-provider";
 import { WalletProvider } from "@/lib/wallet-context";
 import { StellarProvider } from "@/lib/providers/StellarProvider";
 import { ProtocolStatusProvider } from "@/lib/use-protocol-status";
 import { EmergencyBanner } from "@/components/emergency-banner";
 import ErrorTracker from "@/components/error-tracker";
-import OnboardingTour from '@/components/OnboardingTour';
-import { ServiceWorkerRegistrar } from '@/components/ServiceWorkerRegistrar';
-
-const lato = Lato({
-  variable: "--font-lato",
-  subsets: ["latin"],
-  weight: ["100", "300", "400", "700", "900"],
-  display: "swap",
-  fallback: ["system-ui", "sans-serif"],
-});
-
-const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-  fallback: ["system-ui", "sans-serif"],
-});
+import OnboardingTour from "@/components/OnboardingTour";
+import { ServiceWorkerRegistrar } from "@/components/ServiceWorkerRegistrar";
 
 export const metadata: Metadata = {
-  title: "StellarStream",
+  title: "StellarStream – Money as a Stream",
   description:
-    "Non-custodial, second-by-second asset streaming protocol built on Soroban. Money as a Stream.",
+    "Non-custodial, second-by-second asset streaming protocol built on Soroban. Real-time payments, transparent splits, and financial autonomy.",
+  keywords: ["streaming", "payments", "cryptocurrency", "Stellar", "Soroban"],
+  authors: [{ name: "StellarStream" }],
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    title: "StellarStream",
+    description: "Money as a Stream – On-chain streaming payments.",
+    siteName: "StellarStream",
+  },
 };
 
+/**
+ * Root Layout Component
+ *
+ * Provides global context providers and shared application layout.
+ * All page routes inherit from this layout.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -41,24 +37,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${lato.variable} ${poppins.variable} antialiased flex flex-col min-h-screen`}>
+      <body
+        className="antialiased flex flex-col min-h-screen bg-black text-white"
+        style={{
+          fontFamily: "system-ui, -apple-system, sans-serif",
+        }}
+      >
         <WalletProvider>
           <StellarProvider>
             <ProtocolStatusProvider>
-              {/* High-visibility emergency banner — rendered above everything */}
               <EmergencyBanner />
-              <Nav />
-              
-              <main className="flex-1">
-                {children}
-              </main>
 
-              <Footer />
+              <main className="flex-1 w-full">{children}</main>
+
               <ToastProvider />
-
-              {/* Wave 3 Onboarding Tour - Shows only for first-time users */}
               <OnboardingTour />
               <ServiceWorkerRegistrar />
+              <ErrorTracker />
             </ProtocolStatusProvider>
           </StellarProvider>
         </WalletProvider>

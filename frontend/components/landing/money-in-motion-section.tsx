@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
+import { Caption, Paragraph, H2 } from "@/components/ui/Typography";
 
 const FLOW_PATH = "M 140 120 C 320 26, 640 216, 880 120";
 
@@ -49,16 +50,12 @@ export function MoneyInMotionSection() {
 
           <div className="relative mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="font-body text-xs tracking-[0.14em] text-white/65 uppercase">
-                Kinetic Flow
-              </p>
-              <h2 className="font-heading mt-2 text-3xl text-white md:text-5xl">
-                Money in Motion
-              </h2>
-              <p className="font-body mt-3 max-w-xl text-sm leading-7 text-white/72 md:text-base">
+              <Caption uppercase>Kinetic Flow</Caption>
+              <H2 className="mt-2">Money in Motion</H2>
+              <Paragraph className="mt-3 max-w-xl">
                 Funds stream continuously from sender to receiver. As each
                 millisecond passes, value unlocks and settles in real time.
-              </p>
+              </Paragraph>
             </div>
 
             <div className="rounded-2xl border border-white/12 bg-black/35 px-4 py-3 text-right backdrop-blur">

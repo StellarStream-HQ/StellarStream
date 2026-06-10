@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
+import { Badge } from "@/components/ui/Badge";
 
 type Asset = {
   symbol: "XLM" | "USDC" | "yXLM";
@@ -57,22 +58,21 @@ export function NeonTickerSection() {
               return (
                 <div
                   key={`${asset.symbol}-${idx}`}
-                  className="flex items-center gap-3 whitespace-nowrap"
+                  className="flex items-center gap-2 whitespace-nowrap"
                 >
-                  <span className="font-body text-xs tracking-[0.12em] text-white/70 uppercase">
+                  <Badge variant="neutral" size="sm" outline>
                     {asset.symbol}
-                  </span>
+                  </Badge>
                   <span className="font-ticker text-base text-white tabular-nums md:text-lg">
                     ${formatPrice(asset.symbol, asset.price)}
                   </span>
-                  <span
-                    className={`font-ticker text-xs tabular-nums ${
-                      isUp ? "text-[#4ADE80]" : "text-[#8A00FF]"
-                    }`}
+                  <Badge 
+                    variant={isUp ? "success" : "error"} 
+                    size="sm"
                   >
                     {isUp ? "+" : ""}
                     {(asset.delta * 100).toFixed(2)}%
-                  </span>
+                  </Badge>
                 </div>
               );
             })}

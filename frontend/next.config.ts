@@ -7,6 +7,19 @@ const nextConfig: NextConfig = {
     root: process.cwd(),
   },
 
+  // ── Experimental Features ───────────────────────────────────────────────────
+  experimental: {
+    // Optimize imports to reduce bundle size
+    optimizePackageImports: ["lucide-react", "recharts"],
+  },
+
+  // ── Production Optimizations ───────────────────────────────────────────────
+  productionBrowserSourceMaps: false,
+  poweredByHeader: false,
+  
+  // ── React Configuration ────────────────────────────────────────────────────
+  reactStrictMode: true,
+
   // ── CDN asset prefix ────────────────────────────────────────────────────────
   // When NEXT_PUBLIC_CDN_URL is set (e.g. https://cdn.stellarstream.app),
   // Next.js will rewrite all /_next/static/* and /public/* asset URLs to
@@ -92,6 +105,30 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === "production"
       ? { exclude: ["error", "warn"] }
       : false,
+  },
+
+  // ── Redirects & Rewrites ───────────────────────────────────────────────────
+  async redirects() {
+    return [
+      // Redirect old routes if needed
+      {
+        source: "/old-path",
+        destination: "/new-path",
+        permanent: true,
+      },
+    ];
+  },
+
+  async rewrites() {
+    return {
+      beforeFiles: [
+        // API rewrites
+        {
+          source: "/api/:path*",
+          destination: "/api/:path*",
+        },
+      ],
+    };
   },
 };
 

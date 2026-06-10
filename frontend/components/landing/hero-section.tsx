@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/Button";
+import { H1, Paragraph } from "@/components/ui/Typography";
 
 export function HeroSection() {
   const router = useRouter();
@@ -67,23 +69,26 @@ export function HeroSection() {
               transition={{ delay: 0.5, duration: 0.55 }}
               className="mt-8 flex flex-wrap items-center justify-center gap-3"
             >
-              <motion.button
+              <motion.div
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.98 }}
-                className="font-body rounded-full border border-white/20 bg-white/10 px-6 py-3 text-sm text-white/85"
-                type="button"
               >
-                Explore Streams
-              </motion.button>
-              <motion.button
+                <Button variant="outline" size="md">
+                  Explore Streams
+                </Button>
+              </motion.div>
+              <motion.div
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
-                className="font-body neon-glow hover:neon-glow-hover rounded-full border border-[#00F5FF]/50 bg-[#00F5FF]/14 px-7 py-3 text-sm font-semibold text-[#D1FCFF]"
-                type="button"
-                onClick={() => router.push("/dashboard")}
               >
-                Start Streaming
-              </motion.button>
+                <Button 
+                  variant="primary" 
+                  size="md"
+                  onClick={() => router.push("/dashboard")}
+                >
+                  Start Streaming
+                </Button>
+              </motion.div>
             </motion.div>
           </div>
 

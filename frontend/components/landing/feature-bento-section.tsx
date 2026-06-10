@@ -3,6 +3,9 @@
 import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import { ShieldCheck, Zap, Sprout } from "lucide-react";
+import { Card } from "@/components/ui/Card";
+import { Caption, Paragraph } from "@/components/ui/Typography";
+import { Badge } from "@/components/ui/Badge";
 
 type Feature = {
   label: string;
@@ -108,9 +111,9 @@ export function FeatureBentoSection() {
               <div className="relative z-10 flex h-full flex-col">
                 <div className="flex items-center justify-between">
                   <NeonIcon icon={feature.icon} accent={feature.accent} />
-                  <span className="font-body rounded-full border border-white/15 bg-black/35 px-3 py-1 text-[11px] tracking-[0.12em] text-white/70 uppercase">
+                  <Badge variant="neutral" size="sm" outline>
                     {feature.label}
-                  </span>
+                  </Badge>
                 </div>
 
                 <h3 className="font-heading mt-5 text-2xl leading-tight text-white md:text-3xl">
