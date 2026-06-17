@@ -47,7 +47,7 @@ export const useTransactionFeed = (): UseTransactionFeedReturn => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const attemptReconnectRef = useRef<(attempt?: number) => void>();
+  const attemptReconnectRef = useRef<((attempt?: number) => void) | null>(null);
 
   /**
    * Attempt to reconnect with exponential back-off.

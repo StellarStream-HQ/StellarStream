@@ -40,7 +40,13 @@ export function BalanceProjectionChart({ stream }: BalanceProjectionChartProps) 
     const endTime = new Date(stream.endTime).getTime();
     const now = Date.now();
     const totalDuration = endTime - startTime;
-    const points: { time: string; streamed: number; projected?: number }[] = [];
+    type ChartPoint = {
+      time: string;
+      timeMs: number;
+      streamed: number | null;
+      projected: number | null;
+    };
+    const points: ChartPoint[] = [];
 
     // Generate ~12 time points across the stream duration
     const intervals = 12;
@@ -58,12 +64,13 @@ export function BalanceProjectionChart({ stream }: BalanceProjectionChartProps) 
           month: "short",
           day: "numeric",
         }),
-        streamed: isPast ? expectedStreamed : undefined as unknown as number,
-        projected: !isPast ? expectedStreamed : undefined,
+        timeMs: t,
+        streamed: isPast ? expectedStreamed : null,
+        projected: !isPast ? expectedStreamed : null,
       });
     }
 
-    // Add current point
+    // Add current point (always in the "past" so it renders on the streamed line)
     const currentElapsed = now - startTime;
     const currentStreamed = Math.min(
       currentElapsed * stream.ratePerSecond,
@@ -72,14 +79,13 @@ export function BalanceProjectionChart({ stream }: BalanceProjectionChartProps) 
 
     points.push({
       time: "Now",
+      timeMs: now,
       streamed: currentStreamed,
+      projected: null,
     });
 
-    // Sort by time
-    return points.sort(
-      (a, b) =>
-        new Date(a.time).getTime() - new Date(b.time).getTime(),
-    );
+    // Sort by timestamp to ensure correct chronological order
+    return points.sort((a, b) => a.timeMs - b.timeMs);
   }, [stream]);
 
   const CustomTooltip = ({
