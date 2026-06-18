@@ -1,4 +1,4 @@
-import Redis from 'ioredis';
+import Redis from "ioredis";
 
 const REDIS_URL = process.env.REDIS_URL ?? 'redis://localhost:6379';
 
@@ -6,13 +6,13 @@ export const redis = new Redis(REDIS_URL, {
   maxRetriesPerRequest: null,
   enableReadyCheck: true,
   enableOfflineQueue: false,
-  retryStrategy(times) {
+  retryStrategy(times: number) {
     const delay = Math.min(times * 100, 3000);
     return delay;
   },
 });
 
-redis.on('error', (err) => {
+redis.on('error', (err: Error) => {
   console.error('[Redis] Connection error:', err.message);
 });
 

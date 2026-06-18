@@ -33,8 +33,33 @@ services:
     environment:
       DATABASE_URL: "postgresql://user:password@db:5432/stellarstream?schema=public"
       REDIS_URL: "redis://redis:6379"
+      EVENT_WATCHER_PORT: 3001
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
+
+  event-watcher:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile.event-watcher
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: "postgresql://user:password@db:5432/stellarstream?schema=public"
+      REDIS_URL: "redis://redis:6379"
+      EVENT_WATCHER_PORT: 3001
+      STELLAR_RPC_URL: ${STELLAR_RPC_URL:-https://soroban-testnet.stellar.org}
+      V3_CONTRACT_ID: ${V3_CONTRACT_ID:-}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3

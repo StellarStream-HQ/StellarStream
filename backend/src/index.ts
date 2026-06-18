@@ -30,7 +30,7 @@ import { DataIntegrityWorker } from "./data-integrity.worker.js";
 import { YieldAccrualWorker } from "./yield-accrual.worker.js";
 import { startWebhookWorker } from "./webhook-dispatcher.worker.js";
 import { XlmBufferMonitorWorker } from "./xlm-buffer-monitor.worker.js";
-import { V3SplitIngestor } from "./ingestor/v3-split-ingestor.js";
+import { EventWatcherClient } from "./services/event-watcher-client.service.js";
 import { bigintSerializer } from "./middleware/bigintSerializer.js";
 import { swaggerSpec } from "./swagger.js";
 import { swaggerV3Spec } from "./api/v3/swagger.js";
@@ -62,7 +62,7 @@ const cleanupWorker = new StaleStreamCleanupWorker();
 const dataIntegrityWorker = new DataIntegrityWorker();
 const yieldAccrualWorker = new YieldAccrualWorker();
 const xlmBufferMonitor = new XlmBufferMonitorWorker();
-const v3SplitIngestor = new V3SplitIngestor();
+const eventWatcherClient = new EventWatcherClient();
 
 // ── Security middleware ────────────────────────────────────────────────────────
 app.use(
@@ -179,6 +179,28 @@ app.get("/ws-status", (_req: Request, res: Response) => {
   });
 });
 
+// ── Event Watcher status ──────────────────────────────────────────────────────
+app.get("/event-watcher-status", async (_req: Request, res: Response) => {
+  try {
+    const isHealthy = await eventWatcherClient.isEventWatcherHealthy();
+    const latestStatus = eventWatcherClient.getLatestStatus();
+    const processingLatency = await eventWatcherClient.getProcessingLatency();
+
+    res.json({
+      healthy: isHealthy,
+      latestStatus,
+      processingLatency,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(503).json({
+      healthy: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
 // ── Sentry error handler ──────────────────────────────────────────────────────
 Sentry.setupExpressErrorHandler(app);
 
@@ -197,7 +219,9 @@ async function start(): Promise<void> {
   // Start background services
   bridgeObserver.start();
   ttlMonitor.start();
-  v3SplitIngestor.start();
+  
+  // Start event watcher client to monitor separate service
+  await eventWatcherClient.startListening();
 
   server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
@@ -205,7 +229,7 @@ async function start(): Promise<void> {
     console.log(`🔌 WebSocket ready`);
     console.log(`🌉 Bridge observer active`);
     console.log(`⏱️  TTL monitor active`);
-    console.log(`📡 V3 Split ingestor active`);
+    console.log(`📡 Event watcher client connected`);
   });
 }
 
@@ -217,7 +241,7 @@ function shutdown(signal: string): void {
   xlmBufferMonitor.stop();
   bridgeObserver.stop();
   ttlMonitor.stop();
-  v3SplitIngestor.stop();
+  eventWatcherClient.stopListening();
   closeRedis()
     .then(() => prisma.$disconnect())
     .then(() => {

@@ -6,14 +6,21 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "dev:watcher": "tsx watch src/event-watcher.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+    "start:watcher": "node dist/event-watcher.js",
+    "start:both": "concurrently \"npm run start\" \"npm run start:watcher\"",
+    "pm2:start": "pm2 start ecosystem.config.cjs",
+    "pm2:stop": "pm2 stop ecosystem.config.cjs",
+    "pm2:restart": "pm2 restart ecosystem.config.cjs",
     "lint": "eslint src/ --ignore-pattern 'src/generated/**' --ignore-pattern 'src/__tests__/**' --ignore-pattern '**/*.d.ts'",
     "type-check": "tsc --noEmit",
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
     "test:jest": "jest --config jest.config.cjs --runInBand",
+    "test:e2e": "jest --config jest.config.cjs --testPathPattern=e2e --runInBand",
     "migrate:v1-to-v2": "tsx src/scripts/migrate-v1-to-v2.ts",
     "migrate:v1-to-v2:dry": "tsx src/scripts/migrate-v1-to-v2.ts --dry-run",
     "sync": "tsx src/scripts/sync-historical-ledgers.ts"
@@ -68,6 +75,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
+    "concurrently": "^10.0.3",
     "dotenv": "^17.3.1",
     "eslint": "^8.57.1",
     "jest": "^29.7.0",
@@ -75,6 +83,6 @@
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.5",
     "tsx": "^4.7.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.9.3"
   }
 }
