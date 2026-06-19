@@ -1,54 +1,28 @@
 // #921: Standardized event emission for the V3 Splitter.
 //
-// Using #[contractevent] ensures events are ABI-typed and indexable by the
-// Backend Indexer (Phase 3) — critical for tracking internal fund movements
-// that don't appear as top-level transaction results.
+// soroban-sdk 22 does not export a `contractevent` macro — events are
+// published directly via `env.events().publish(topics, data)`.
+// Topics are kept short (symbol_short!) so they fit in the 4-symbol limit.
 
-use soroban_sdk::{contractevent, Address, Env};
-
-/// Emitted once per successful `split_funds` / `split` call.
-/// Topics: ["splitter", "executed", sender_address]
-#[contractevent]
-pub struct SplitExecutedEvent {
-    /// Total amount disbursed in this split (after fees).
-    pub amount: i128,
-    /// Timestamp of the ledger at execution time.
-    pub timestamp: u64,
-}
-
-/// Emitted once per individual recipient payment inside a split.
-/// Topics: ["payment", recipient_address, asset_address]
-#[contractevent]
-pub struct IndividualPaymentEvent {
-    /// Amount transferred to this recipient.
-    pub amount: i128,
-    /// Recipient's share in basis points (out of 10 000).
-    pub bps: u32,
-    /// Timestamp of the ledger at execution time.
-    pub timestamp: u64,
-}
+use soroban_sdk::{symbol_short, Address, Env};
 
 // ── Publish helpers ───────────────────────────────────────────────────────────
 
-/// Publish a SplitExecutedEvent.
-/// Topics: ["splitter", "executed", sender]
+/// Emit a top-level split-executed event.
+/// Topics: ("splitter", "executed", sender)   Data: (amount, timestamp)
 pub fn emit_split_executed(env: &Env, sender: &Address, amount: i128) {
-    SplitExecutedEvent {
-        amount,
-        timestamp: env.ledger().timestamp(),
-    }
-    .publish(
-        env,
+    env.events().publish(
         (
-            soroban_sdk::symbol_short!("splitter"),
-            soroban_sdk::symbol_short!("executed"),
+            symbol_short!("splitter"),
+            symbol_short!("executed"),
             sender.clone(),
         ),
+        (amount, env.ledger().timestamp()),
     );
 }
 
-/// Publish an IndividualPaymentEvent.
-/// Topics: ["payment", recipient, asset]
+/// Emit a per-recipient payment event.
+/// Topics: ("payment", recipient, asset)   Data: (amount, bps, timestamp)
 pub fn emit_individual_payment(
     env: &Env,
     recipient: &Address,
@@ -56,17 +30,12 @@ pub fn emit_individual_payment(
     amount: i128,
     bps: u32,
 ) {
-    IndividualPaymentEvent {
-        amount,
-        bps,
-        timestamp: env.ledger().timestamp(),
-    }
-    .publish(
-        env,
+    env.events().publish(
         (
-            soroban_sdk::symbol_short!("payment"),
+            symbol_short!("payment"),
             recipient.clone(),
             asset.clone(),
         ),
+        (amount, bps, env.ledger().timestamp()),
     );
 }

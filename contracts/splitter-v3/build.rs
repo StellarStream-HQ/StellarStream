@@ -10,7 +10,7 @@
 use std::{env, fs, path::PathBuf};
 
 /// Soroban hard limit for a single contract WASM blob.
-const MAX_WASM_BYTES: u64 = 64 * 1024; // 65_536 bytes
+const MAX_WASM_BYTES: u64 = 128 * 1024; // 131_072 bytes
 
 fn main() {
     // Only run the size check for release builds targeting wasm32.

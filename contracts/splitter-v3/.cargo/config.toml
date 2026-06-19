@@ -1,0 +1,19 @@
+# Run `cargo llvm-cov` to generate an HTML or LCOV coverage report.
+# Requires: cargo install cargo-llvm-cov
+#
+# Quick usage:
+#   cargo llvm-cov --html --open
+#   cargo llvm-cov --lcov --output-path coverage.lcov
+#
+# The [alias] below lets you run `cargo coverage` as a shorthand.
+
+[alias]
+coverage     = "llvm-cov --all-features --html"
+coverage-lcov = "llvm-cov --all-features --lcov --output-path coverage.lcov"
+
+# Enable source-based coverage instrumentation when running tests.
+# These flags are only active when cargo-llvm-cov injects RUSTFLAGS; this
+# section documents the expected env for local runs.
+#
+# [env]
+# RUSTFLAGS = "-C instrument-coverage"

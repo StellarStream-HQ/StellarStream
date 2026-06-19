@@ -119,7 +119,7 @@ pub struct SplitConfig {
 
 /// #922: Protocol-wide circuit-breaker state.
 #[contracttype]
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum ContractState {
     Active,
     Paused,
@@ -1028,84 +1028,87 @@ impl SplitterV3 {
                     .get(&DataKey::Whitelisted(r.address.clone()))
                     .unwrap_or(false);
                 if !is_wl {
+                    Self::_unlock(&env);
                     return Err(Error::RecipientNotWhitelisted);
                 }
             }
         }
 
         // #918: Cross-contract identity validation (default-strict: any failure reverts).
-        Self::_check_identity_validator(&env, &recipients)?;
+        if let Err(e) = Self::_check_identity_validator(&env, &recipients) {
+            Self::_unlock(&env);
+            return Err(e);
+        }
 
         // #930: Verify asset is a valid SAC token.
-        Self::_validate_sac_asset(&env, &asset)?;
+        if let Err(e) = Self::_validate_sac_asset(&env, &asset) {
+            Self::_unlock(&env);
+            return Err(e);
+        }
         let token_client = token::Client::new(&env, &asset);
 
         // ── Pre-flight: read-only balance check before any cross-contract call ─
-        Self::check_balances_bulk(&env, &token_client, &sender, total_amount)?;
+        if let Err(e) = Self::check_balances_bulk(&env, &token_client, &sender, total_amount) {
+            Self::_unlock(&env);
+            return Err(e);
+        }
 
         let contract_addr = env.current_contract_address();
 
         // #939: Pre-check all shares meet minimum
         for r in recipients.iter() {
-            let amount = total_amount
-                .checked_mul(r.share_bps as i128)
-                .ok_or(Error::Overflow)?
-                / 10_000;
+            let amount = match total_amount.checked_mul(r.share_bps as i128) {
+                Some(v) => v / 10_000,
+                None => { Self::_unlock(&env); return Err(Error::Overflow); }
+            };
             if amount > 0 && amount < MINIMUM_PAYMENT_AMOUNT {
+                Self::_unlock(&env);
                 return Err(Error::ShareBelowMinimum);
             }
         }
 
-        // #926: use try_transfer — panic on any failure to trigger atomic rollback.
-        for r in recipients.iter() {
-            let amount = total_amount
-                .checked_mul(r.share_bps as i128)
-                .ok_or(Error::Overflow)?
-                / 10_000;
-            if amount > 0 {
-                let _ = token_client
-                    .try_transfer(&contract_addr, &r.address, &amount)
-                    .map_err(|_| Error::TransferFailed)?;
-                // #921: emit per-recipient payment event
-                emit_individual_payment(&env, &r.address, &asset, amount, r.share_bps);
         // Pull funds from sender into contract first.
         let _ = token_client
             .try_transfer(&sender, &contract_addr, &total_amount)
-            .map_err(|_| Error::TransferFailed)?;
+            .map_err(|_| { Self::_unlock(&env); Error::TransferFailed })?;
 
         match mode {
             SplitMode::Push => {
                 // #926: use try_transfer — panic on any failure to trigger atomic rollback.
                 for r in recipients.iter() {
-                    let amount = total_amount
-                        .checked_mul(r.share_bps as i128)
-                        .ok_or(Error::Overflow)?
-                        / 10_000;
+                    let amount = match total_amount.checked_mul(r.share_bps as i128) {
+                        Some(v) => v / 10_000,
+                        None => { Self::_unlock(&env); return Err(Error::Overflow); }
+                    };
                     if amount > 0 {
                         let _ = token_client
                             .try_transfer(&contract_addr, &r.address, &amount)
-                            .map_err(|_| Error::TransferFailed)?;
+                            .map_err(|_| { Self::_unlock(&env); Error::TransferFailed })?;
+                        // #921: emit per-recipient payment event
+                        emit_individual_payment(&env, &r.address, &asset, amount, r.share_bps);
                     }
                 }
             }
             SplitMode::Pull => {
                 // #917: credit claimable balances — recipients must call claim().
                 for r in recipients.iter() {
-                    let amount = total_amount
-                        .checked_mul(r.share_bps as i128)
-                        .ok_or(Error::Overflow)?
-                        / 10_000;
+                    let amount = match total_amount.checked_mul(r.share_bps as i128) {
+                        Some(v) => v / 10_000,
+                        None => { Self::_unlock(&env); return Err(Error::Overflow); }
+                    };
                     if amount > 0 {
-                        Self::_credit_claimable(&env, &r.address, &asset, amount)?;
+                        if let Err(e) = Self::_credit_claimable(&env, &r.address, &asset, amount) {
+                            Self::_unlock(&env);
+                            return Err(e);
+                        }
                     }
                 }
             }
         }
 
-<<<<<<< feature/issue-913-reentrancy-guard
         // #913: release reentrancy lock after all external calls complete.
         Self::_unlock(&env);
-=======
+
         // #921: emit top-level split executed event after successful transfer loop
         emit_split_executed(&env, &sender, total_amount);
 
@@ -1184,7 +1187,6 @@ impl SplitterV3 {
             );
         }
 
->>>>>>> main
         Ok(())
     }
 

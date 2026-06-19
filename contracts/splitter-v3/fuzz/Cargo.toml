@@ -10,11 +10,17 @@ cargo-fuzz = true
 [dependencies]
 libfuzzer-sys = "0.4"
 
-# Pull in the contract lib with testutils so we can call split_funds logic directly.
+# Pull in the contract lib so we can test the same math logic directly.
 stellar-splitter-v3 = { path = "..", features = [] }
 
 [[bin]]
 name = "fuzz_split_funds"
 path = "fuzz_targets/fuzz_split_funds.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "fuzz_scheduled_split"
+path = "fuzz_targets/fuzz_scheduled_split.rs"
 test = false
 doc = false

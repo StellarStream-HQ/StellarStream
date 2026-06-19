@@ -33,14 +33,11 @@ pub enum DataKey {
     ProtocolVersion,
     // #911: protocol fee wallet (alias for Treasury used in init)
     FeeWallet,
-<<<<<<< feature/issue-913-reentrancy-guard
     // #913: reentrancy guard — set to true while split_funds is executing
     Locked,
-=======
     // #916: multi-sig admin change proposals
     AdminProposal(u64),
     NextAdminProposalId,
     /// Minimum approvals required to execute a sensitive admin action.
     AdminThreshold,
->>>>>>> main
 }
