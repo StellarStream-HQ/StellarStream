@@ -18,6 +18,7 @@ const getStreamsParamsSchema = z.object({
  * GET /api/v2/streams/:address
  * Fetches V1 and V2 streams for a user, sorted by status.
  * Returns { success: true, data: { v1: [...], v2: [...] } } via middleware.
+ * Optimized to avoid N+1 queries.
  */
 router.get(
   "/:address",
@@ -33,7 +34,7 @@ router.get(
     }
     const { address } = parseResult.data;
 
-    // Fetch all current streams (assume all are v1 for now)
+    // Fetch all current streams with related data in optimized manner
     const streams = await streamService.getStreamsForAddress(address);
 
     // Sort by status

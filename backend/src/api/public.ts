@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/db.js';
+import { searchStreamsOptimized, fetchStreamsOptimized } from '../lib/optimized-stream-queries.js';
 
 const MAX_SEARCH_LIMIT = 50;
 
@@ -93,6 +94,7 @@ async function getGlobalTvlSnapshot(): Promise<{
 /**
  * GET /search - Search streams with optional filters (rate-limited).
  * Query params: q (search in id, sender, receiver), sender, receiver, limit (cap 50), offset.
+ * OPTIMIZED: Uses fetchStreamsOptimized to prevent N+1 queries
  */
 export async function getSearch(req: Request, res: Response): Promise<void> {
   try {
@@ -106,7 +108,7 @@ export async function getSearch(req: Request, res: Response): Promise<void> {
     const sender = typeof req.query.sender === 'string' ? req.query.sender.trim() : '';
     const receiver = typeof req.query.receiver === 'string' ? req.query.receiver.trim() : '';
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // Build optimized query
     const where: any = {};
 
     if (sender) {
@@ -123,14 +125,13 @@ export async function getSearch(req: Request, res: Response): Promise<void> {
       ];
     }
 
-    const [streams, total] = await Promise.all([
-      prisma.stream.findMany({
-        where,
-        take: limit,
-        skip: offset,
-      }),
-      prisma.stream.count({ where }),
-    ]);
+    // Use optimized function that includes related data
+    const { streams, total } = await fetchStreamsOptimized({
+      where,
+      take: limit,
+      skip: offset,
+      orderBy: { createdAt: 'desc' }
+    });
 
     res.json({
       streams,

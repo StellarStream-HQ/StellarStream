@@ -57,6 +57,7 @@ interface ExportRow {
 /**
  * GET /api/v1/streams/export/:address
  * Returns downloadable CSV export for a wallet's stream history.
+ * Optimized to reduce N+1 queries.
  */
 router.get(
   "/streams/export/:address",
@@ -66,63 +67,14 @@ router.get(
   asyncHandler(async (req: Request, res: Response) => {
     const { address } = req.params;
 
-    const streams = await prisma.stream.findMany({
-      where: {
-        OR: [{ sender: address }, { receiver: address }],
-      },
-      select: {
-        streamId: true,
-        tokenAddress: true,
-        amount: true,
-        withdrawn: true,
-        duration: true,
-      },
-      orderBy: {
-        streamId: "desc",
-      },
-    });
-
-    const streamIds = streams
-      .map((stream) => stream.streamId)
-      .filter((id): id is string => typeof id === "string" && id.length > 0);
-
-    const createEvents = streamIds.length
-      ? await prisma.eventLog.findMany({
-          where: {
-            eventType: "create",
-            streamId: {
-              in: streamIds,
-            },
-          },
-          select: {
-            streamId: true,
-            ledgerClosedAt: true,
-            metadata: true,
-          },
-          orderBy: {
-            createdAt: "desc",
-          },
-        })
-      : [];
-
-    const createEventByStreamId = new Map<
-      string,
-      { ledgerClosedAt: string; metadata: string | null }
-    >();
-    for (const event of createEvents) {
-      if (!createEventByStreamId.has(event.streamId)) {
-        createEventByStreamId.set(event.streamId, {
-          ledgerClosedAt: event.ledgerClosedAt,
-          metadata: event.metadata,
-        });
-      }
-    }
-
-    const rows: ExportRow[] = streams.map((stream) => {
+    // Use optimized service method to get streams with related data
+    const streamsWithRelations = await streamService.getStreamsForAddress(address);
+    
+    const rows: ExportRow[] = streamsWithRelations.map((stream) => {
       const resolvedStreamId = stream.streamId ?? "";
-      const event = createEventByStreamId.get(resolvedStreamId);
-      const metadata = parseMetadata(event?.metadata ?? null);
-      const startDate = resolveStartDate(metadata, event?.ledgerClosedAt);
+      const eventLog = stream.eventLog;
+      const metadata = stream.metadata || {};
+      const startDate = resolveStartDate(metadata, eventLog?.ledgerClosedAt);
       const endDate = resolveEndDate(metadata, startDate, stream.duration);
 
       return {

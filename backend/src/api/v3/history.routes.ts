@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "../../lib/db.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import type { Prisma } from "../../generated/client/index.js";
+import { fetchStreamsOptimized } from "../../lib/optimized-stream-queries.js";
 
 const router = Router();
 
@@ -51,38 +52,36 @@ router.get(
 
     const skip = (query.page - 1) * PAGE_SIZE;
 
-    const [total, rows] = await Promise.all([
-      prisma.stream.count({ where }),
-      prisma.stream.findMany({
-        where,
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: PAGE_SIZE,
-        select: {
-          id: true,
-          streamId: true,
-          txHash: true,
-          sender: true,
-          receiver: true,
-          tokenAddress: true,
-          amount: true,
-          status: true,
-          withdrawn: true,
-          createdAt: true,
-          affiliateId: true,
-        },
-      }),
-    ]);
+    // Use optimized query to prevent N+1 issues
+    const { streams, total } = await fetchStreamsOptimized({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: PAGE_SIZE,
+      select: {
+        id: true,
+        streamId: true,
+        txHash: true,
+        sender: true,
+        receiver: true,
+        tokenAddress: true,
+        amount: true,
+        status: true,
+        withdrawn: true,
+        createdAt: true,
+        affiliateId: true,
+      },
+    });
 
     // Apply min_total_volume filter in-memory (amount is a string bigint).
     const filtered =
       query.min_total_volume !== undefined
-        ? rows.filter(
+        ? streams.filter(
             (r) =>
               BigInt(r.amount) >=
               BigInt(Math.round(query.min_total_volume! * 1e7)),
           )
-        : rows;
+        : streams;
 
     res.json({
       success: true,
