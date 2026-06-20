@@ -52,6 +52,57 @@ export class StreamService {
     });
   }
 
+  /**
+   * Batch variant of getStreamsForAddress: fetches streams for many addresses
+   * in a single query instead of looping per address, so callers that need
+   * streams for a set of users (e.g. a dashboard or report) don't introduce
+   * an N+1 query pattern.
+   */
+  async getStreamsBatch(
+    addresses: string[],
+    filters: StreamFilters = {},
+  ): Promise<Map<string, Awaited<ReturnType<typeof prisma.stream.findMany>>>> {
+    const byAddress = new Map<
+      string,
+      Awaited<ReturnType<typeof prisma.stream.findMany>>
+    >();
+    for (const address of addresses) {
+      byAddress.set(address, []);
+    }
+
+    if (addresses.length === 0) {
+      return byAddress;
+    }
+
+    const { direction, status, tokenAddresses } = filters;
+
+    const where: any = {
+      ...(direction === "inbound" && { receiver: { in: addresses } }),
+      ...(direction === "outbound" && { sender: { in: addresses } }),
+      ...(!direction && {
+        OR: [{ sender: { in: addresses } }, { receiver: { in: addresses } }],
+      }),
+      ...(status && { status: status.toUpperCase() as StreamStatus }),
+      ...(tokenAddresses?.length && { tokenAddress: { in: tokenAddresses } }),
+    };
+
+    const streams = await prisma.stream.findMany({
+      where,
+      orderBy: { id: "desc" },
+    });
+
+    for (const stream of streams) {
+      if (byAddress.has(stream.sender)) {
+        byAddress.get(stream.sender)!.push(stream);
+      }
+      if (stream.receiver !== stream.sender && byAddress.has(stream.receiver)) {
+        byAddress.get(stream.receiver)!.push(stream);
+      }
+    }
+
+    return byAddress;
+  }
+
   async verifyStream(streamId: string): Promise<StreamVerificationData | null> {
     const contractId = process.env.NEBULA_CONTRACT_ID;
     if (!contractId) {

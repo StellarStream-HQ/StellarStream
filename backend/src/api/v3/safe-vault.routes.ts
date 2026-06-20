@@ -1,8 +1,8 @@
 import { Router, Request, Response } from "express";
 import { z } from "zod";
-import { SafeVaultService } from "../services/safe-vault.service.js";
-import validateRequest from "../middleware/validateRequest.js";
-import asyncHandler from "../utils/asyncHandler.js";
+import { SafeVaultService } from "../../services/safe-vault.service.js";
+import validateRequest from "../../middleware/validateRequest.js";
+import asyncHandler from "../../utils/asyncHandler.js";
 
 const router = Router();
 const safeVaultService = new SafeVaultService();

@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { z } from "zod";
 import { prisma } from "../../lib/db.js";
-import asyncHandler from "../utils/asyncHandler.js";
+import asyncHandler from "../../utils/asyncHandler.js";
 import type { Prisma } from "../../generated/client/index.js";
 
 const router = Router();

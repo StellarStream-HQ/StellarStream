@@ -341,10 +341,11 @@ router.get(
     const verificationData = await streamService.verifyStream(streamId);
 
     if (!verificationData) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         error: "Stream not found or verification failed",
       });
+      return;
     }
 
     res.json({
