@@ -2,53 +2,60 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect, type ComponentType } from "react";
+import { useEffect, useMemo, useState, type ComponentType } from "react";
 import { useWallet } from "@/lib/wallet-context";
 import { isSplitterV3EnabledForNetwork } from "@/lib/feature-flags";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Activity,
+  ArrowRightLeft,
   CirclePlus,
   ClipboardCheck,
-  Gauge,
-  Inbox,
-  Settings,
-  Waves,
-  Split,
-  PanelLeftClose,
-  PanelLeftOpen,
-  History as HistoryIcon,
-  Shield,
-  TrendingDown,
-  LayoutTemplate,
-  Users,
-  ShieldAlert,
-  ShieldCheck,
-  Menu,
-  X,
-  ScrollText,
-  Rocket,
   Coins,
   FileText,
+  Gauge,
+  History as HistoryIcon,
+  Inbox,
+  LayoutTemplate,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Rocket,
+  ScrollText,
+  Settings,
   Share2,
-  ArrowRightLeft,
+  Shield,
+  ShieldAlert,
+  ShieldCheck,
+  Split,
+  TrendingDown,
+  Waves,
+  X,
 } from "lucide-react";
-import { TransactionQueueManager } from "@/components/dashboard/TransactionQueueManager";
-import { TransactionFeed } from "./TransactionFeed";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { NavSyncIndicator } from "@/components/SyncStatusIndicator";
-
 type NavItem = {
   label: string;
   href?: string;
   onClick?: () => void;
   icon: ComponentType<{ className?: string }>;
-  /** Number shown as a badge. Omit or 0 to hide. */
   badge?: number;
+};
+
+type NavGroup = {
+  label: string;
+  items: NavItem[];
 };
 
 interface SidebarProps {
   onOpenAuditLog: () => void;
+
+  /**
+   * Optional controlled collapse state.
+   * This keeps the sidebar working with the current DashboardShell,
+   * and later allows the shell to control the main content margin.
+   */
+  collapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
 }
 
 function isActive(pathname: string, href: string) {
@@ -56,134 +63,343 @@ function isActive(pathname: string, href: string) {
   return pathname.startsWith(href);
 }
 
-export function Sidebar({ onOpenAuditLog }: SidebarProps) {
-  const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
-  const { network } = useWallet();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+function SidebarProfileCard({ collapsed }: { collapsed: boolean }) {
+  return (
+    <div
+      className={`rounded-2xl border border-white/10 bg-[#232a34]/80 shadow-[0_0_22px_rgba(124,58,237,0.18)] transition-all duration-300 ease-in-out ${
+        collapsed ? "mx-auto w-12 p-1.5" : "p-3"
+      }`}
+    >
+      <div
+        className={`flex items-center ${
+          collapsed ? "justify-center" : "gap-3"
+        }`}
+      >
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#7c3aed] text-xs font-bold text-white shadow-[0_0_16px_rgba(124,58,237,0.5)]">
+          G
+        </div>
 
-  // Close mobile menu on route change
+        <div
+          className={`min-w-0 overflow-hidden transition-all duration-300 ease-in-out ${
+            collapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+          }`}
+        >
+          <p className="truncate font-body text-xs text-[#f5f3ff]/60">
+            Connected Wallet
+          </p>
+          <p className="truncate font-body text-sm font-semibold text-[#f5f3ff]">
+            GAB3...X7QP
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function Sidebar({
+  onOpenAuditLog,
+  collapsed: controlledCollapsed,
+  onCollapsedChange,
+}: SidebarProps) {
+  const pathname = usePathname();
+  const { network } = useWallet();
+
+const [internalCollapsed, setInternalCollapsed] = useState(false);
+const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+const [mounted, setMounted] = useState(false);
+
+useEffect(() => {
+  setMounted(true);
+}, []);
+
+  const collapsed = controlledCollapsed ?? internalCollapsed;
+
+  const setCollapsed = (nextCollapsed: boolean) => {
+    if (controlledCollapsed === undefined) {
+      setInternalCollapsed(nextCollapsed);
+    }
+
+    onCollapsedChange?.(nextCollapsed);
+  };
+
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
 
-  // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
     }
+
     return () => {
       document.body.style.overflow = "";
     };
   }, [mobileMenuOpen]);
 
-  const navItems: NavItem[] = [
-    { label: "Dashboard", href: "/dashboard", icon: Gauge },
-    { label: "Health", href: "/dashboard/health", icon: Activity },
-    { label: "My Streams", href: "/dashboard/streams", icon: Waves },
-    { label: "Vaults", href: "/dashboard/vaults", icon: Shield },
-    {
-      label: "Pending Approvals",
-      href: "/dashboard/pending",
-      icon: ClipboardCheck,
-      badge: 2,
-    },
-    {
-      label: "Approval Inbox",
-      href: "/dashboard/approval-inbox",
-      icon: Inbox,
-      badge: 3,
-    },
-    {
-      label: "Invoice Links",
-      href: "/dashboard/invoice-links",
-      icon: ClipboardCheck,
-    },
-    {
-      label: "Splitter",
-      href: "/dashboard/splitter",
-      icon: Share2,
-    },
-    {
-      label: "Compare Splits",
-      href: "/dashboard/split-comparison",
-      icon: ArrowRightLeft,
-    },
-    {
-      label: "Transparency",
-      href: "/dashboard/transparency",
-      icon: ShieldCheck,
-    },
-    {
-      label: "Reports",
-      href: "/dashboard/disbursement-report",
-      icon: FileText,
-    },
-    {
-      label: "History",
-      onClick: onOpenAuditLog,
-      icon: HistoryIcon,
-    },
-    {
-      label: "Create Stream",
-      href: "/dashboard/create-stream",
-      icon: CirclePlus,
-    },
-    { label: "Disbursements", href: "/dashboard/disbursements", icon: TrendingDown },
-    { label: "Templates", href: "/dashboard/templates", icon: LayoutTemplate },
-    { label: "Settings", href: "/dashboard/settings", icon: Settings },
-    { label: "Disbursements", href: "/dashboard/disbursements", icon: TrendingDown },
-    { label: "Templates", href: "/dashboard/templates", icon: LayoutTemplate },
-    {
-      label: "Approval Policies",
-      href: "/dashboard/policies",
-      icon: ScrollText,
-    },
-    {
-      label: "Security Vault",
-      href: "/dashboard/security-vault",
-      icon: ShieldAlert,
-    },
-    {
-      label: "Emergency Stop",
-      href: "/dashboard/emergency-stop",
-      icon: ShieldAlert,
-    },
-    {
-      label: "Deploy Splitter",
-      href: "/dashboard/deploy-splitter",
-      icon: Rocket,
-    },
-    {
-      label: "Dust Recovery",
-      href: "/dashboard/dust-recovery",
-      icon: Coins,
-    },
-  ];
+  const navGroups = useMemo<NavGroup[]>(() => {
+    const groups: NavGroup[] = [
+      {
+        label: "Overview",
+        items: [
+          { label: "Dashboard", href: "/dashboard", icon: Gauge },
+          { label: "Health", href: "/dashboard/health", icon: Activity },
+          {
+            label: "Transparency",
+            href: "/dashboard/transparency",
+            icon: ShieldCheck,
+          },
+          {
+            label: "History",
+            onClick: onOpenAuditLog,
+            icon: HistoryIcon,
+          },
+        ],
+      },
+      {
+        label: "Streams",
+        items: [
+          { label: "My Streams", href: "/dashboard/streams", icon: Waves },
+          {
+            label: "Create Stream",
+            href: "/dashboard/create-stream",
+            icon: CirclePlus,
+          },
+          {
+            label: "Templates",
+            href: "/dashboard/templates",
+            icon: LayoutTemplate,
+          },
+        ],
+      },
+      {
+        label: "Payments",
+        items: [
+          {
+            label: "Disbursements",
+            href: "/dashboard/disbursements",
+            icon: TrendingDown,
+          },
+          {
+            label: "Reports",
+            href: "/dashboard/disbursement-report",
+            icon: FileText,
+          },
+          {
+            label: "Invoice Links",
+            href: "/dashboard/invoice-links",
+            icon: ClipboardCheck,
+          },
+        ],
+      },
+      {
+        label: "Approvals",
+        items: [
+          {
+            label: "Pending Approvals",
+            href: "/dashboard/pending",
+            icon: ClipboardCheck,
+            badge: 2,
+          },
+          {
+            label: "Approval Inbox",
+            href: "/dashboard/approval-inbox",
+            icon: Inbox,
+            badge: 3,
+          },
+          {
+            label: "Approval Policies",
+            href: "/dashboard/policies",
+            icon: ScrollText,
+          },
+        ],
+      },
+      {
+        label: "Tools",
+        items: [
+          {
+            label: "Splitter",
+            href: "/dashboard/splitter",
+            icon: Share2,
+          },
+          {
+            label: "Compare Splits",
+            href: "/dashboard/split-comparison",
+            icon: ArrowRightLeft,
+          },
+          {
+            label: "Deploy Splitter",
+            href: "/dashboard/deploy-splitter",
+            icon: Rocket,
+          },
+          {
+            label: "Dust Recovery",
+            href: "/dashboard/dust-recovery",
+            icon: Coins,
+          },
+        ],
+      },
+      {
+        label: "Security",
+        items: [
+          { label: "Vaults", href: "/dashboard/vaults", icon: Shield },
+          {
+            label: "Security Vault",
+            href: "/dashboard/security-vault",
+            icon: ShieldAlert,
+          },
+          {
+            label: "Emergency Stop",
+            href: "/dashboard/emergency-stop",
+            icon: ShieldAlert,
+          },
+          { label: "Settings", href: "/dashboard/settings", icon: Settings },
+        ],
+      },
+    ];
 
-  const visibleNavItems: NavItem[] = isSplitterV3EnabledForNetwork(network)
-    ? [
-        ...navItems,
-        {
-          label: "Splitter V3",
-          href: "/dashboard/v3/splitter",
-          icon: Split,
-          badge: 0,
-        },
-      ]
-    : navItems;
+if (!mounted || !isSplitterV3EnabledForNetwork(network)) {
+  return groups;
+}
+
+    return groups.map((group) => {
+      if (group.label !== "Tools") return group;
+
+      return {
+        ...group,
+        items: [
+          ...group.items,
+          {
+            label: "Splitter V3",
+            href: "/dashboard/v3/splitter",
+            icon: Split,
+            badge: 0,
+          },
+        ],
+      };
+    });
+  },[mounted, network, onOpenAuditLog]);
+
+  const allNavItems = navGroups.flatMap((group) => group.items);
+  const mobileBottomItems = allNavItems.filter((item) => item.href).slice(0, 5);
+
+const renderNavItem = (
+  item: NavItem,
+  mode: "desktop" | "mobile",
+  itemKey: string
+) => {
+    const Icon = item.icon;
+    const active = item.href ? isActive(pathname, item.href) : false;
+    const isDesktop = mode === "desktop";
+
+    const content = (
+      <>
+        <span
+          className={`absolute left-0 top-2 h-[calc(100%-16px)] w-[3px] rounded-r-full transition-all duration-200 ease-in-out ${
+            active
+              ? "bg-[#7c3aed] shadow-[0_0_14px_rgba(124,58,237,0.8)]"
+              : "bg-transparent"
+          }`}
+        />
+
+        <span
+          className={`absolute inset-y-1 left-2 rounded-xl blur-md transition-all duration-200 ease-in-out ${
+            active
+              ? "w-8 bg-[#7c3aed]/35 opacity-100"
+              : "w-0 bg-transparent opacity-0 group-hover:w-8 group-hover:bg-[#7c3aed]/20 group-hover:opacity-100"
+          }`}
+        />
+
+        <Icon
+className={`relative z-10 h-4.5 w-4.5 shrink-0 transition-colors duration-200 ${
+            active
+              ? "text-[#38bdf8]"
+              : "text-[#f5f3ff]/70 group-hover:text-[#f5f3ff]"
+          }`}
+        />
+
+        <span
+          className={`relative z-10 min-w-0 flex-1 truncate font-body transition-all duration-300 ease-in-out ${
+            active
+              ? "font-semibold text-[#38bdf8]"
+              : "font-medium text-[#f5f3ff]/80 group-hover:text-[#f5f3ff]"
+          } ${
+            isDesktop && collapsed
+              ? "w-0 opacity-0"
+              : "w-auto opacity-100"
+          }`}
+        >
+          {item.label}
+        </span>
+
+        {!collapsed && item.badge && item.badge > 0 ? (
+          <span className="relative z-10 ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-[#38bdf8] px-1.5 text-[10px] font-bold leading-none text-[#07111d] shadow-[0_0_10px_rgba(56,189,248,0.55)]">
+            {item.badge}
+          </span>
+        ) : null}
+
+        {collapsed && isDesktop && item.badge && item.badge > 0 ? (
+          <span className="absolute right-3 top-1 z-20 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#38bdf8] px-1 text-[9px] font-bold leading-none text-[#07111d]">
+            {item.badge}
+          </span>
+        ) : null}
+      </>
+    );
+
+    const baseClassName =
+      "group relative flex items-center overflow-hidden rounded-xl border border-transparent transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7c3aed]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a1f27]";
+
+    const stateClassName = active
+      ? "bg-[#232a34] shadow-[0_0_18px_rgba(124,58,237,0.35)]"
+      : "hover:bg-[#232a34] hover:shadow-[0_0_14px_rgba(124,58,237,0.18)]";
+
+const sizeClassName =
+  isDesktop && collapsed
+    ? "mx-auto h-11 w-11 justify-center px-0"
+    : "w-full gap-3 px-4 py-2.5 text-left";
+
+    const className = `${baseClassName} ${stateClassName} ${sizeClassName}`;
+
+    if (item.href) {
+      return (
+ <Link
+  key={itemKey}
+  href={item.href}
+          title={collapsed && isDesktop ? item.label : undefined}
+          aria-label={`Navigate to ${item.label}`}
+          aria-current={active ? "page" : undefined}
+          className={className}
+        >
+          {content}
+        </Link>
+      );
+    }
+
+    return (
+      <button
+        key={itemKey}
+        type="button"
+        onClick={item.onClick}
+        title={collapsed && isDesktop ? item.label : undefined}
+        aria-label={item.label}
+        className={className}
+      >
+        {content}
+      </button>
+    );
+  };
 
   return (
     <>
-      {/* ── Mobile Header with Hamburger ── */}
-      <div className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-black/90 px-4 py-3 backdrop-blur-2xl md:hidden">
+      <div className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-[#1a1f27]/95 px-4 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.25)] backdrop-blur-2xl md:hidden">
         <div className="flex items-center justify-between">
           <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
-            className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-white transition hover:bg-white/[0.08]"
+            type="button"
+            onClick={() => setMobileMenuOpen((open) => !open)}
+            aria-label={mobileMenuOpen ? "Close sidebar menu" : "Open sidebar menu"}
+            aria-expanded={mobileMenuOpen}
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#232a34] text-[#f5f3ff] shadow-[0_0_14px_rgba(124,58,237,0.18)] transition duration-200 ease-in-out hover:bg-[#2d3542] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7c3aed]/70"
           >
             {mobileMenuOpen ? (
               <X className="h-5 w-5" />
@@ -192,15 +408,14 @@ export function Sidebar({ onOpenAuditLog }: SidebarProps) {
             )}
           </button>
 
-          <Link href="/" className="font-heading text-base text-white">
+          <Link href="/" className="font-heading text-base text-[#f5f3ff]">
             StellarStream
           </Link>
 
-          <div className="w-10" />
+          <div className="h-10 w-10" />
         </div>
       </div>
 
-      {/* ── Mobile Menu Overlay ── */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <>
@@ -209,7 +424,7 @@ export function Sidebar({ onOpenAuditLog }: SidebarProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+              className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm md:hidden"
               onClick={() => setMobileMenuOpen(false)}
             />
 
@@ -218,107 +433,62 @@ export function Sidebar({ onOpenAuditLog }: SidebarProps) {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed top-0 left-0 bottom-0 z-50 w-[280px] border-r border-white/10 bg-black/95 backdrop-blur-2xl md:hidden overflow-y-auto"
+              className="fixed bottom-0 left-0 top-0 z-50 flex w-[280px] max-w-[86vw] flex-col border-r border-white/10 bg-[#1a1f27] shadow-[20px_0_60px_rgba(0,0,0,0.35)] md:hidden"
+              aria-label="Mobile sidebar navigation"
             >
-              <div className="flex flex-col h-full p-4">
-                <div className="mb-6 pt-2">
+              <div
+  className={`flex min-h-0 flex-1 flex-col transition-all duration-300 ease-in-out ${
+    collapsed ? "p-3" : "p-4"
+  }`}
+>
+                <div className="mb-6 flex items-start justify-between pt-2">
                   <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-                    <p className="font-heading text-xl text-white mb-1">
+                    <p className="font-heading text-xl text-[#f5f3ff]">
                       StellarStream
                     </p>
-                    <p className="font-body text-xs text-white/60">
-                      Navigation Menu
+                    <p className="font-body text-xs uppercase tracking-[0.24em] text-[#38bdf8]">
+                      Navigation
                     </p>
                   </Link>
+
+                  <button
+                    type="button"
+                    onClick={() => setMobileMenuOpen(false)}
+                    aria-label="Close sidebar menu"
+                    className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-[#232a34] text-[#f5f3ff] transition duration-200 hover:bg-[#2d3542] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7c3aed]/70"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
 
-                <nav className="flex flex-1 flex-col gap-2">
-                  {visibleNavItems.map((item) => {
-                    const Icon = item.icon;
-                    const active = item.href
-                      ? isActive(pathname, item.href)
-                      : false;
-                    const content = (
-                      <>
-                        <span
-                          className={`absolute inset-y-1 left-2 w-8 rounded-lg blur-md transition-all duration-200 ${
-                            active ? "bg-[#8A00FF]/45 opacity-100" : "opacity-0"
-                          }`}
-                        />
-                        <Icon
-                          className={`relative h-5 w-5 shrink-0 ${
-                            active
-                              ? "text-[#E9C8FF]"
-                              : "text-white/70 group-hover:text-white"
-                          }`}
-                        />
-                        <span
-                          className={`font-body relative text-base flex-1 ${
-                            active ? "text-white font-medium" : "text-white/78"
-                          }`}
-                        >
-                          {item.label}
-                        </span>
-                        {item.badge && item.badge > 0 ? (
-                          <span className="relative ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-[#00f5ff] px-1.5 text-[11px] font-bold leading-none text-black shadow-[0_0_8px_rgba(0,245,255,0.6)]">
-                            {item.badge}
-                          </span>
-                        ) : null}
-                      </>
-                    );
+<nav
+  className={`min-h-0 flex-1 overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+    collapsed ? "space-y-3 px-0" : "space-y-5 pr-1"
+  }`}
+  aria-label="Dashboard navigation"
+>
+                  {navGroups.map((group) => (
+                    <div key={group.label}>
+                      <p className="mb-2 px-4 font-body text-[10px] font-semibold uppercase tracking-[0.22em] text-[#f5f3ff]/35">
+                        {group.label}
+                      </p>
 
-                    const className = `group relative flex items-center gap-3 rounded-xl border px-4 py-3 transition-all duration-200 ${
-                      active
-                        ? "border-white/20 bg-white/8"
-                        : "border-transparent hover:border-white/10 hover:bg-white/[0.03]"
-                    }`;
-
-                    if (item.href) {
-                      return (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          className={className}
-                          onClick={() => setMobileMenuOpen(false)}
-                        >
-                          {content}
-                        </Link>
-                      );
-                    } else {
-                      return (
-                        <button
-                          key={item.label}
-                          onClick={() => {
-                            item.onClick?.();
-                            setMobileMenuOpen(false);
-                          }}
-                          className={className}
-                        >
-                          {content}
-                        </button>
-                      );
-                    }
-                  })}
+                      <div className={collapsed ? "space-y-2" : "space-y-1.5"}>
+                        {group.items.map((item, index) =>
+  renderNavItem(
+    item,
+    "mobile",
+    `mobile-${group.label}-${item.href ?? item.label}-${index}`
+  )
+)}
+                      </div>
+                    </div>
+                  ))}
                 </nav>
 
-                <div className="mt-4">
-                  <ThemeToggle className="w-full justify-between" />
-                </div>
-
-                <div className="mt-5 rounded-2xl border border-white/10 bg-black/25 p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#00F5FF]/35 bg-[#00F5FF]/12 text-sm font-semibold text-[#CCFAFF]">
-                      G
-                    </div>
-                    <div>
-                      <p className="font-body text-xs text-white/55">
-                        Connected Wallet
-                      </p>
-                      <p className="font-body text-sm text-white">
-                        GAB3...X7QP
-                      </p>
-                    </div>
-                  </div>
+                <div className="mt-5 shrink-0 space-y-4">
+                 {mounted && <ThemeToggle className="w-full justify-between" />}
+                  <SidebarProfileCard collapsed={false} />
                 </div>
               </div>
             </motion.aside>
@@ -326,205 +496,138 @@ export function Sidebar({ onOpenAuditLog }: SidebarProps) {
         )}
       </AnimatePresence>
 
-      {/* ── Desktop / Tablet sidebar ── */}
       <aside
-        className={`hidden flex-col border-r border-white/10 bg-white/5 p-4 backdrop-blur-2xl md:flex transition-all duration-300 ease-in-out ${
-          collapsed ? "w-[72px]" : "w-[248px]"
+        className={`fixed left-0 top-0 z-40 hidden h-screen flex-col border-r border-white/10 bg-[#1a1f27] shadow-[12px_0_40px_rgba(0,0,0,0.28)] transition-[width] duration-300 ease-in-out md:flex ${
+         collapsed ? "w-[88px]" : "w-[280px]"
         }`}
+        aria-label="Dashboard sidebar navigation"
       >
-        <div className="mb-6 flex items-center justify-between">
-          <Link
-            href="/"
-            className={`overflow-hidden transition-all duration-300 ease-in-out hover:opacity-80 ${
-              collapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+        <div className="flex min-h-0 flex-1 flex-col p-4">
+          <div
+            className={`mb-6 flex items-center ${
+              collapsed ? "justify-center" : "justify-between"
             }`}
           >
-            <p className="font-heading text-lg text-white whitespace-nowrap">
-              StellarStream
-            </p>
-            <p className="font-body text-xs text-white/60 whitespace-nowrap">
-              Navigation Blade
-            </p>
-          </Link>
-
-          <button
-            onClick={() => setCollapsed((c) => !c)}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-white/70 transition hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
-          >
-            {collapsed ? (
-              <PanelLeftOpen className="h-4 w-4" />
-            ) : (
-              <PanelLeftClose className="h-4 w-4" />
-            )}
-          </button>
-        </div>
-
-        <nav className="flex flex-1 flex-col gap-2">
-          {visibleNavItems.map((item) => {
-            const Icon = item.icon;
-            const active = item.href ? isActive(pathname, item.href) : false;
-            const content = (
-              <>
-                <span
-                  className={`absolute rounded-lg blur-md transition-all duration-200 ${
-                    active ? "bg-[#8A00FF]/45 opacity-100" : "opacity-0"
-                  } ${collapsed ? "inset-1" : "inset-y-1 left-2 w-8"}`}
-                />
-                <Icon
-                  className={`relative h-4.5 w-4.5 shrink-0 ${
-                    active
-                      ? "text-[#E9C8FF]"
-                      : "text-white/70 group-hover:text-white"
-                  }`}
-                />
-                <span
-                  className={`font-body relative text-sm whitespace-nowrap transition-all duration-300 ease-in-out flex-1 ${
-                    active ? "text-white" : "text-white/78"
-                  } ${collapsed ? "w-0 overflow-hidden opacity-0" : "w-auto opacity-100"}`}
-                >
-                  {item.label}
-                </span>
-                {!collapsed && item.badge && item.badge > 0 ? (
-                  <span className="relative ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-[#00f5ff] px-1 text-[10px] font-bold leading-none text-black shadow-[0_0_8px_rgba(0,245,255,0.6)]">
-                    {item.badge}
-                  </span>
-                ) : null}
-                {collapsed && item.badge && item.badge > 0 ? (
-                  <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#00f5ff] text-[8px] font-bold leading-none text-black">
-                    {item.badge}
-                  </span>
-                ) : null}
-              </>
-            );
-
-            const className = `group relative flex items-center rounded-xl border transition-all duration-200 ${
-              active
-                ? "border-white/20 bg-white/8"
-                : "border-transparent hover:border-white/10 hover:bg-white/[0.03]"
-            } ${collapsed ? "h-10 w-10 justify-center p-0" : "gap-3 justify-start px-3 py-2.5"}`;
-
-            if (item.href) {
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  title={collapsed ? item.label : undefined}
-                  className={className}
-                >
-                  {content}
-                </Link>
-              );
-            } else {
-              return (
-                <button
-                  key={item.label}
-                  onClick={item.onClick}
-                  title={collapsed ? item.label : undefined}
-                  className={className}
-                >
-                  {content}
-                </button>
-              );
-            }
-          })}
-        </nav>
-
-        {/* Theme toggle — hidden when collapsed */}
-        {!collapsed && (
-          <div className="mt-4">
-            <ThemeToggle className="w-full justify-between" />
-          </div>
-        )}
-
-        <div
-          className={`mt-5 rounded-2xl border border-white/10 bg-black/25 transition-all duration-300 ease-in-out ${
-            collapsed ? "h-10 w-10 flex items-center justify-center p-0" : "p-3"
-          }`}
-        >
-          <div
-            className={`flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}
-          >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#00F5FF]/35 bg-[#00F5FF]/12 text-xs font-semibold text-[#CCFAFF]">
-              G
-            </div>
-            <div
-              className={`overflow-hidden transition-all duration-300 ease-in-out ${
+            <Link
+              href="/"
+              className={`min-w-0 overflow-hidden transition-all duration-300 ease-in-out hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7c3aed]/70 ${
                 collapsed ? "w-0 opacity-0" : "w-auto opacity-100"
               }`}
             >
-              <p className="font-body text-xs text-white/55 whitespace-nowrap">
-                Connected Wallet
+              <p className="truncate font-heading text-lg text-[#f5f3ff]">
+                StellarStream
               </p>
-              <p className="font-body text-sm text-white whitespace-nowrap">
-                GAB3...X7QP
+              <p className="truncate font-body text-[10px] uppercase tracking-[0.22em] text-[#38bdf8]">
+                Navigation Blade
               </p>
-            </div>
-          </div>
-        </div>
+            </Link>
 
-        <div className="px-3 pb-2">
-          <NavSyncIndicator />
-        </div>
-        <TransactionQueueManager collapsed={collapsed} />
-        
-        {/* Transaction Feed */}
-        {!collapsed && (
-          <div className="mt-4">
-            <TransactionFeed />
+            <button
+              type="button"
+              onClick={() => setCollapsed(!collapsed)}
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-expanded={!collapsed}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-[#232a34] text-[#f5f3ff]/80 shadow-[0_0_14px_rgba(124,58,237,0.16)] transition duration-200 ease-in-out hover:bg-[#2d3542] hover:text-[#f5f3ff] hover:shadow-[0_0_16px_rgba(124,58,237,0.28)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7c3aed]/70"
+            >
+              {collapsed ? (
+                <PanelLeftOpen className="h-4 w-4" />
+              ) : (
+                <PanelLeftClose className="h-4 w-4" />
+              )}
+            </button>
           </div>
-        )}
+
+          <nav
+            className="min-h-0 flex-1 space-y-5 overflow-y-auto pr-1"
+            aria-label="Dashboard navigation"
+          >
+            {navGroups.map((group) => (
+              <div key={group.label}>
+{!collapsed && (
+  <p className="mb-2 px-4 font-body text-[10px] font-semibold uppercase tracking-[0.22em] text-[#f5f3ff]/35">
+    {group.label}
+  </p>
+)}
+
+                <div className="space-y-1.5">
+                  {group.items.map((item, index) =>
+  renderNavItem(
+    item,
+    "desktop",
+    `desktop-${group.label}-${item.href ?? item.label}-${index}`
+  )
+)}
+                </div>
+              </div>
+            ))}
+          </nav>
+
+          <div className="mt-5 shrink-0 space-y-4">
+ {mounted && !collapsed && <ThemeToggle className="w-full justify-between" />}
+
+
+            <SidebarProfileCard collapsed={collapsed} />
+
+            
+          
+          </div>
+        </div>
       </aside>
 
-      {/* ── Mobile bottom bar ── */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-black/80 px-3 py-2 backdrop-blur-2xl md:hidden">
-        <nav className="mx-auto flex max-w-xl items-center justify-around gap-1">
-          {visibleNavItems.slice(0, 5).map((item) => {
+      <div
+        aria-hidden="true"
+        className={`hidden shrink-0 transition-[width] duration-300 ease-in-out md:block ${
+          collapsed ? "w-[88px]" : "w-[280px]"
+        }`}
+      />
+
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-[#1a1f27]/95 px-3 py-2 shadow-[0_-12px_30px_rgba(0,0,0,0.28)] backdrop-blur-2xl md:hidden">
+        <nav
+          className="mx-auto flex max-w-xl items-center justify-around gap-1"
+          aria-label="Mobile quick navigation"
+        >
+          {mobileBottomItems.map((item, index) => {
             const Icon = item.icon;
             const active = item.href ? isActive(pathname, item.href) : false;
-            const content = (
-              <>
+
+            return (
+              <Link
+               key={`bottom-${item.href ?? item.label}-${index}`}
+                href={item.href ?? "/dashboard"}
+                aria-label={`Navigate to ${item.label}`}
+                aria-current={active ? "page" : undefined}
+                className="group relative flex min-w-0 flex-1 flex-col items-center rounded-xl px-2 py-2 transition duration-200 ease-in-out hover:bg-[#232a34] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7c3aed]/70"
+              >
                 <span
-                  className={`absolute inset-x-3 top-1 h-6 rounded-lg blur-md ${
-                    active ? "bg-[#8A00FF]/45" : "bg-transparent"
+                  className={`absolute inset-x-4 top-1 h-6 rounded-lg blur-md transition duration-200 ${
+                    active
+                      ? "bg-[#7c3aed]/40 opacity-100"
+                      : "bg-transparent opacity-0"
                   }`}
                 />
+
                 <Icon
-                  className={`relative h-4.5 w-4.5 ${active ? "text-[#EED7FF]" : "text-white/70"}`}
+                  className={`relative z-10 h-4 w-4 ${
+                    active
+                      ? "text-[#38bdf8]"
+                      : "text-[#f5f3ff]/70 group-hover:text-[#f5f3ff]"
+                  }`}
                 />
+
                 <span
-                  className={`font-body relative mt-1 text-[9px] whitespace-nowrap ${
-                    active ? "text-white" : "text-white/72"
+                  className={`relative z-10 mt-1 max-w-full truncate font-body text-[9px] ${
+                    active
+                      ? "font-semibold text-[#38bdf8]"
+                      : "text-[#f5f3ff]/70"
                   }`}
                 >
                   {item.label}
                 </span>
-              </>
+              </Link>
             );
-
-            const className =
-              "relative flex min-w-0 flex-1 flex-col items-center rounded-xl px-2 py-2";
-
-            if (item.href) {
-              return (
-                <Link key={item.href} href={item.href} className={className}>
-                  {content}
-                </Link>
-              );
-            } else {
-              return (
-                <button
-                  key={item.label}
-                  onClick={item.onClick}
-                  className={className}
-                >
-                  {content}
-                </button>
-              );
-            }
           })}
         </nav>
-        <TransactionQueueManager collapsed />
+
       </div>
     </>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import TransactionHistory from "@/components/dashboard/TransactionHistory";
 import { SanctionsFlagBanner, type SanctionsFlag } from "@/components/compliance/SanctionsFlagBanner";
 import RoadmapTeaser from "@/components/dashboard/RoadmapTeaser";
@@ -34,8 +34,8 @@ const STREAM: Stream = {
   name: "DAO Treasury → Dev Fund",
   token: "USDC",
   status: "active",
-  startTime: new Date(Date.now() - 1000 * 60 * 60 * 24 * 12),
-  endTime: new Date(Date.now() + 1000 * 60 * 60 * 24 * 48),
+startTime: new Date("2026-06-06T10:01:00"),
+endTime: new Date("2026-08-05T10:01:00"),
   totalAmount: 120_000,
   streamed: 37_500,
   yieldEarned: 842.17,
@@ -55,13 +55,8 @@ const fmtTime = (d: Date) =>
   d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
 
 // ─── Live Counter ──────────────────────────────────────────────────────────────
-function LiveCounter({ base, rate }: { base: number; rate: number }) {
-  const [val, setVal] = useState(base);
-  useEffect(() => {
-    const id = setInterval(() => setVal((v) => v + rate * 0.1), 100);
-    return () => clearInterval(id);
-  }, [rate]);
-  return <span className="tabular-nums">{fmt(val)}</span>;
+function LiveCounter({ base }: { base: number; rate: number }) {
+  return <span className="tabular-nums">{fmt(base)}</span>;
 }
 
 // ─── Radial Progress ──────────────────────────────────────────────────────────
@@ -104,7 +99,7 @@ function MiniChart({ stream }: { stream: Stream }) {
   const iH = H - PAD.t - PAD.b;
 
   const t0 = stream.startTime.getTime();
-  const t1 = Date.now();
+const t1 = stream.startTime.getTime() + 1000 * 60 * 60 * 24 * 12;
   const STEPS = 60;
 
   const points = Array.from({ length: STEPS + 1 }, (_, i) => {
@@ -139,17 +134,13 @@ function MiniChart({ stream }: { stream: Stream }) {
 
 // ─── Dashboard Page ───────────────────────────────────────────────────────────
 export default function StreamDetailPage() {
-  const [streamed, setStreamed] = useState(STREAM.streamed);
-  const [flags, setFlags] = useState<SanctionsFlag[]>(MOCK_FLAGS);
-
-  useEffect(() => {
-    const id = setInterval(() => setStreamed((v) => v + STREAM.ratePerSecond * 0.5), 500);
-    return () => clearInterval(id);
-  }, []);
+const streamed = STREAM.streamed;
+const [flags, setFlags] = useState<SanctionsFlag[]>(MOCK_FLAGS);
 
   const pct = (streamed / STREAM.totalAmount) * 100;
   const remaining = STREAM.totalAmount - streamed;
-  const daysLeft = Math.ceil((STREAM.endTime.getTime() - Date.now()) / 86_400_000);
+const stableNow = STREAM.startTime.getTime() + 1000 * 60 * 60 * 24 * 12;
+const daysLeft = Math.ceil((STREAM.endTime.getTime() - stableNow) / 86_400_000);
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
