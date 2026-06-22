@@ -161,7 +161,7 @@ pub enum DataKeyV2 {
     RecoveryApprovals, // 34
 
     // -- Issue #938 — Variable-Fee Tiered Logic -----------------------
-    FeeTiers, // 35
+    FeeTiers,      // 35
     EventLog(u64), // 36
 }
 
@@ -312,7 +312,8 @@ pub(crate) fn pack_stream_metadata(stream: &StreamV2) -> u128 {
         packed |= 1u128 << IS_RECURRENT_SHIFT;
     }
 
-    packed | ((stream.cancellation_type as u128 & CANCELLATION_TYPE_MASK) << CANCELLATION_TYPE_SHIFT)
+    packed
+        | ((stream.cancellation_type as u128 & CANCELLATION_TYPE_MASK) << CANCELLATION_TYPE_SHIFT)
 }
 
 pub(crate) fn unpack_stream_metadata(packed: u128) -> (u8, u32, u8, bool, bool, bool, u32) {
@@ -322,8 +323,7 @@ pub(crate) fn unpack_stream_metadata(packed: u128) -> (u8, u32, u8, bool, bool, 
     let migrated_from_v1 = ((packed >> MIGRATED_FROM_V1_SHIFT) & 1) != 0;
     let yield_enabled = ((packed >> YIELD_ENABLED_SHIFT) & 1) != 0;
     let is_recurrent = ((packed >> IS_RECURRENT_SHIFT) & 1) != 0;
-    let cancellation_type =
-        ((packed >> CANCELLATION_TYPE_SHIFT) & CANCELLATION_TYPE_MASK) as u32;
+    let cancellation_type = ((packed >> CANCELLATION_TYPE_SHIFT) & CANCELLATION_TYPE_MASK) as u32;
 
     (
         status,
@@ -375,8 +375,15 @@ pub fn get_stream(env: &Env, stream_id: u64) -> Option<StreamV2> {
             .extend_ttl(&key, STREAM_TTL_THRESHOLD, STREAM_TTL_BUMP);
     }
     stream.map(|stored| {
-        let (status, penalty_bps, curve_type, migrated_from_v1, yield_enabled, is_recurrent, cancellation_type) =
-            unpack_stream_metadata(stored.packed_meta);
+        let (
+            status,
+            penalty_bps,
+            curve_type,
+            migrated_from_v1,
+            yield_enabled,
+            is_recurrent,
+            cancellation_type,
+        ) = unpack_stream_metadata(stored.packed_meta);
 
         StreamV2 {
             sender: stored.sender,
@@ -508,9 +515,7 @@ pub fn is_emergency(env: &Env) -> bool {
 
 /// Sets the emergency mode state.
 pub fn set_emergency(env: &Env, active: bool) {
-    env.storage()
-        .instance()
-        .set(&DataKeyV2::Emergency, &active);
+    env.storage().instance().set(&DataKeyV2::Emergency, &active);
     bump_instance(env);
 }
 
@@ -713,8 +718,14 @@ pub struct PendingStreamRequest {
 
 /// Generate the next pending stream request ID
 pub fn next_stream_request_id(env: &Env) -> u64 {
-    let id: u64 = env.storage().instance().get(&DataKeyV2::StreamRequestCount).unwrap_or(0);
-    env.storage().instance().set(&DataKeyV2::StreamRequestCount, &(id + 1));
+    let id: u64 = env
+        .storage()
+        .instance()
+        .get(&DataKeyV2::StreamRequestCount)
+        .unwrap_or(0);
+    env.storage()
+        .instance()
+        .set(&DataKeyV2::StreamRequestCount, &(id + 1));
     id
 }
 
@@ -747,7 +758,9 @@ pub fn remove_pending_stream_request(env: &Env, request_id: u64) {
 
 /// Set the compliance oracle address. Admin-only enforcement is in lib.rs.
 pub fn set_compliance_oracle(env: &Env, oracle: &Address) {
-    env.storage().instance().set(&DataKeyV2::ComplianceOracle, oracle);
+    env.storage()
+        .instance()
+        .set(&DataKeyV2::ComplianceOracle, oracle);
     bump_instance(env);
 }
 
@@ -761,7 +774,9 @@ pub fn get_compliance_oracle(env: &Env) -> Option<Address> {
 // ----------------------------------------------------------------
 
 pub fn set_fee_collector(env: &Env, collector: &Address) {
-    env.storage().instance().set(&DataKeyV2::FeeCollector, collector);
+    env.storage()
+        .instance()
+        .set(&DataKeyV2::FeeCollector, collector);
     bump_instance(env);
 }
 
@@ -780,7 +795,9 @@ pub fn get_fee_token(env: &Env) -> Option<Address> {
 
 /// Fee charged per recipient (in fee_token base units). Default 0 = no fee.
 pub fn set_fee_per_recipient(env: &Env, amount: i128) {
-    env.storage().instance().set(&DataKeyV2::FeePerRecipient, &amount);
+    env.storage()
+        .instance()
+        .set(&DataKeyV2::FeePerRecipient, &amount);
     bump_instance(env);
 }
 
@@ -797,7 +814,9 @@ pub fn get_fee_per_recipient(env: &Env) -> i128 {
 
 /// Set a sender's internal gas buffer (in stroops).
 pub fn set_gas_buffer(env: &Env, sender: &Address, amount: i128) {
-    env.storage().instance().set(&DataKeyV2::GasBuffer(sender.clone()), &amount);
+    env.storage()
+        .instance()
+        .set(&DataKeyV2::GasBuffer(sender.clone()), &amount);
     bump_instance(env);
 }
 
@@ -851,30 +870,20 @@ pub fn set_dex_address(env: &Env, dex_address: &Address) {
 
 /// Get the configured DEX contract address, if set.
 pub fn get_dex_address(env: &Env) -> Option<Address> {
-    env.storage()
-        .instance()
-        .get(&DataKeyV2::DexAddress)
+    env.storage().instance().get(&DataKeyV2::DexAddress)
 }
 
 /// Set a specific DEX pool configuration for an asset pair.
-pub fn set_dex_pool(
-    env: &Env,
-    token_in: &Address,
-    token_out: &Address,
-    pool_info: &DexPoolInfo,
-) {
-    env.storage()
-        .instance()
-        .set(&DataKeyV2::DexPool(token_in.clone(), token_out.clone()), pool_info);
+pub fn set_dex_pool(env: &Env, token_in: &Address, token_out: &Address, pool_info: &DexPoolInfo) {
+    env.storage().instance().set(
+        &DataKeyV2::DexPool(token_in.clone(), token_out.clone()),
+        pool_info,
+    );
     bump_instance(env);
 }
 
 /// Get the DEX pool configuration for an asset pair.
-pub fn get_dex_pool(
-    env: &Env,
-    token_in: &Address,
-    token_out: &Address,
-) -> Option<DexPoolInfo> {
+pub fn get_dex_pool(env: &Env, token_in: &Address, token_out: &Address) -> Option<DexPoolInfo> {
     env.storage()
         .instance()
         .get(&DataKeyV2::DexPool(token_in.clone(), token_out.clone()))
@@ -908,9 +917,10 @@ pub fn set_pending_rate_update(env: &Env, stream_id: u64, update: &PendingRateUp
     env.storage()
         .instance()
         .set(&DataKeyV2::PendingRateUpdate(stream_id), update);
-    env.storage()
-        .instance()
-        .set(&DataKeyV2::PendingRateUpdateExpiry(stream_id), &update.proposed_at);
+    env.storage().instance().set(
+        &DataKeyV2::PendingRateUpdateExpiry(stream_id),
+        &update.proposed_at,
+    );
     bump_instance(env);
 }
 
@@ -954,7 +964,6 @@ pub fn has_pending_rate_update(env: &Env, stream_id: u64) -> bool {
         .has(&DataKeyV2::PendingRateUpdate(stream_id))
 }
 
-
 // ----------------------------------------------------------------
 // Emergency Recovery Multi-Sig (Issue: Security Critical)
 // ----------------------------------------------------------------
@@ -964,8 +973,12 @@ pub const RECOVERY_GRACE_PERIOD: u64 = 604_800;
 
 /// Persist the recovery council and required threshold.
 pub fn set_recovery_council(env: &Env, council: &Vec<Address>, threshold: u32) {
-    env.storage().instance().set(&DataKeyV2::RecoveryCouncil, council);
-    env.storage().instance().set(&DataKeyV2::RecoveryThreshold, &threshold);
+    env.storage()
+        .instance()
+        .set(&DataKeyV2::RecoveryCouncil, council);
+    env.storage()
+        .instance()
+        .set(&DataKeyV2::RecoveryThreshold, &threshold);
     bump_instance(env);
 }
 
@@ -984,22 +997,32 @@ pub fn get_recovery_threshold(env: &Env) -> u32 {
 
 /// Record the timestamp when recovery was initiated.
 pub fn set_recovery_initiated_at(env: &Env, ts: u64) {
-    env.storage().instance().set(&DataKeyV2::RecoveryInitiatedAt, &ts);
+    env.storage()
+        .instance()
+        .set(&DataKeyV2::RecoveryInitiatedAt, &ts);
     // Reset approvals list on new initiation.
     let empty: Vec<Address> = Vec::new(env);
-    env.storage().instance().set(&DataKeyV2::RecoveryApprovals, &empty);
+    env.storage()
+        .instance()
+        .set(&DataKeyV2::RecoveryApprovals, &empty);
     bump_instance(env);
 }
 
 /// Return the timestamp when recovery was initiated, if any.
 pub fn get_recovery_initiated_at(env: &Env) -> Option<u64> {
-    env.storage().instance().get(&DataKeyV2::RecoveryInitiatedAt)
+    env.storage()
+        .instance()
+        .get(&DataKeyV2::RecoveryInitiatedAt)
 }
 
 /// Clear recovery state (after execution or cancellation).
 pub fn clear_recovery(env: &Env) {
-    env.storage().instance().remove(&DataKeyV2::RecoveryInitiatedAt);
-    env.storage().instance().remove(&DataKeyV2::RecoveryApprovals);
+    env.storage()
+        .instance()
+        .remove(&DataKeyV2::RecoveryInitiatedAt);
+    env.storage()
+        .instance()
+        .remove(&DataKeyV2::RecoveryApprovals);
     bump_instance(env);
 }
 
@@ -1015,7 +1038,9 @@ pub fn get_recovery_approvals(env: &Env) -> Vec<Address> {
 pub fn add_recovery_approval(env: &Env, signer: &Address) {
     let mut approvals = get_recovery_approvals(env);
     approvals.push_back(signer.clone());
-    env.storage().instance().set(&DataKeyV2::RecoveryApprovals, &approvals);
+    env.storage()
+        .instance()
+        .set(&DataKeyV2::RecoveryApprovals, &approvals);
     bump_instance(env);
 }
 
@@ -1027,7 +1052,9 @@ pub fn add_recovery_approval(env: &Env, signer: &Address) {
 pub const CLAIM_WINDOW_SECS: u64 = 90 * 24 * 60 * 60;
 
 pub fn set_contract_state(env: &Env, state: &crate::types::ContractState) {
-    env.storage().instance().set(&DataKeyV2::ContractState, state);
+    env.storage()
+        .instance()
+        .set(&DataKeyV2::ContractState, state);
     bump_instance(env);
 }
 
@@ -1039,7 +1066,9 @@ pub fn get_contract_state(env: &Env) -> crate::types::ContractState {
 }
 
 pub fn set_claim_deadline(env: &Env, deadline: u64) {
-    env.storage().instance().set(&DataKeyV2::ClaimDeadline, &deadline);
+    env.storage()
+        .instance()
+        .set(&DataKeyV2::ClaimDeadline, &deadline);
     bump_instance(env);
 }
 
@@ -1052,7 +1081,9 @@ pub fn get_claim_deadline(env: &Env) -> Option<u64> {
 // ----------------------------------------------------------------
 
 pub fn set_oracle_address(env: &Env, oracle: &Address) {
-    env.storage().instance().set(&DataKeyV2::OracleAddress, oracle);
+    env.storage()
+        .instance()
+        .set(&DataKeyV2::OracleAddress, oracle);
     bump_instance(env);
 }
 
@@ -1062,7 +1093,11 @@ pub fn get_oracle_address(env: &Env) -> Option<Address> {
 
 pub fn append_event_log(env: &Env, stream_id: u64, data: Bytes) {
     let key = DataKeyV2::EventLog(stream_id);
-    let mut log: Vec<Bytes> = env.storage().persistent().get(&key).unwrap_or_else(|| Vec::new(env));
+    let mut log: Vec<Bytes> = env
+        .storage()
+        .persistent()
+        .get(&key)
+        .unwrap_or_else(|| Vec::new(env));
     if log.len() >= 50 {
         log.remove(0);
     }
@@ -1072,7 +1107,10 @@ pub fn append_event_log(env: &Env, stream_id: u64, data: Bytes) {
 
 pub fn get_event_log(env: &Env, stream_id: u64) -> Vec<Bytes> {
     let key = DataKeyV2::EventLog(stream_id);
-    env.storage().persistent().get(&key).unwrap_or_else(|| Vec::new(env))
+    env.storage()
+        .persistent()
+        .get(&key)
+        .unwrap_or_else(|| Vec::new(env))
 }
 
 pub fn set_dao_token(env: &Env, token: &Address) {
@@ -1085,12 +1123,17 @@ pub fn get_dao_token(env: &Env) -> Option<Address> {
 }
 
 pub fn set_voting_threshold(env: &Env, threshold: i128) {
-    env.storage().instance().set(&DataKeyV2::VotingThreshold, &threshold);
+    env.storage()
+        .instance()
+        .set(&DataKeyV2::VotingThreshold, &threshold);
     bump_instance(env);
 }
 
 pub fn get_voting_threshold(env: &Env) -> i128 {
-    env.storage().instance().get(&DataKeyV2::VotingThreshold).unwrap_or(0)
+    env.storage()
+        .instance()
+        .get(&DataKeyV2::VotingThreshold)
+        .unwrap_or(0)
 }
 
 #[contracttype]
@@ -1105,17 +1148,27 @@ pub struct PendingTreasurySplit {
 }
 
 pub fn next_treasury_split_id(env: &Env) -> u64 {
-    let id: u64 = env.storage().instance().get(&DataKeyV2::TreasurySplitCount).unwrap_or(0);
-    env.storage().instance().set(&DataKeyV2::TreasurySplitCount, &(id + 1));
+    let id: u64 = env
+        .storage()
+        .instance()
+        .get(&DataKeyV2::TreasurySplitCount)
+        .unwrap_or(0);
+    env.storage()
+        .instance()
+        .set(&DataKeyV2::TreasurySplitCount, &(id + 1));
     bump_instance(env);
     id
 }
 
 pub fn set_pending_treasury_split(env: &Env, split_id: u64, split: &PendingTreasurySplit) {
-    env.storage().instance().set(&DataKeyV2::PendingTreasurySplit(split_id), split);
+    env.storage()
+        .instance()
+        .set(&DataKeyV2::PendingTreasurySplit(split_id), split);
     bump_instance(env);
 }
 
 pub fn get_pending_treasury_split(env: &Env, split_id: u64) -> Option<PendingTreasurySplit> {
-    env.storage().instance().get(&DataKeyV2::PendingTreasurySplit(split_id))
+    env.storage()
+        .instance()
+        .get(&DataKeyV2::PendingTreasurySplit(split_id))
 }

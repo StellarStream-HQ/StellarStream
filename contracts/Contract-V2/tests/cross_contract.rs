@@ -1,7 +1,7 @@
-use soroban_sdk::{contract, contractimpl, symbol_short, testutils::Address as _, Address, Env};
 use soroban_sdk::token::{StellarAssetClient, TokenClient};
-use stellarstream_contracts_v2::{Contract, ContractClient};
+use soroban_sdk::{contract, contractimpl, symbol_short, testutils::Address as _, Address, Env};
 use stellarstream_contracts_v2::types::StreamArgs;
+use stellarstream_contracts_v2::{Contract, ContractClient};
 
 // Mock Bridge contract
 #[contract]
@@ -45,11 +45,7 @@ impl MockVault {
 fn create_token<'a>(
     env: &Env,
     admin: &Address,
-) -> (
-    Address,
-    TokenClient<'a>,
-    StellarAssetClient<'a>,
-) {
+) -> (Address, TokenClient<'a>, StellarAssetClient<'a>) {
     let client = env.register_stellar_asset_contract_v2(admin.clone());
     let addr = client.address();
     (
@@ -90,7 +86,10 @@ fn test_deep_space_cross_contract_flow() {
     addr_str.copy_into_slice(&mut buf);
     let mut metadata = soroban_sdk::Bytes::from_slice(&env, &buf);
     let duration: u64 = 100;
-    metadata.append(&soroban_sdk::Bytes::from_slice(&env, &duration.to_be_bytes()));
+    metadata.append(&soroban_sdk::Bytes::from_slice(
+        &env,
+        &duration.to_be_bytes(),
+    ));
     MockBridgeClient::new(&env, &bridge_id).simulate_bridge_in(
         &nebula_id,
         &sender,

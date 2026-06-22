@@ -1,7 +1,7 @@
 #![cfg(test)]
 
 use super::*;
-use crate::types::{PermitArgs, PendingRateUpdate, SimulationReport, StreamArgs, SwapStreamArgs};
+use crate::types::{PendingRateUpdate, PermitArgs, SimulationReport, StreamArgs, SwapStreamArgs};
 use soroban_sdk::{
     testutils::{Address as _, Ledger},
     token::TokenClient,
@@ -34,7 +34,12 @@ fn setup_v2<'a>(env: &'a Env, admin: &'a Address) -> (Address, ContractClient<'a
     (id, client)
 }
 
-fn stream_args(sender: &Address, receiver: &Address, token: &Address, total_amount: i128) -> StreamArgs {
+fn stream_args(
+    sender: &Address,
+    receiver: &Address,
+    token: &Address,
+    total_amount: i128,
+) -> StreamArgs {
     StreamArgs {
         sender: sender.clone(),
         receiver: receiver.clone(),
@@ -95,8 +100,15 @@ fn test_packed_stream_metadata_round_trip() {
         curve_type: 0,
     };
     let packed = crate::storage::pack_stream_metadata(&stream);
-    let (status, penalty_bps, curve_type, migrated_from_v1, yield_enabled, is_recurrent, cancellation_type) =
-        crate::storage::unpack_stream_metadata(packed);
+    let (
+        status,
+        penalty_bps,
+        curve_type,
+        migrated_from_v1,
+        yield_enabled,
+        is_recurrent,
+        cancellation_type,
+    ) = crate::storage::unpack_stream_metadata(packed);
 
     assert_eq!(status, 2);
     assert_eq!(penalty_bps, 0);
@@ -792,7 +804,8 @@ fn test_create_stream_fails_for_non_whitelisted_asset() {
 
     asset_client.mint(&sender, &100_000_000);
 
-    let result = v2_client.try_create_stream(&stream_args(&sender, &receiver, &token_id, 100_000_000));
+    let result =
+        v2_client.try_create_stream(&stream_args(&sender, &receiver, &token_id, 100_000_000));
     assert_eq!(result, Err(Ok(Error::AssetNotWhitelisted)));
 }
 
@@ -875,7 +888,8 @@ fn test_cliff_period_locks_funds() {
         affiliate: None,
         yield_recipient: 0,
         split_address: None,
-        split_bps: 0, ..Default::default()
+        split_bps: 0,
+        ..Default::default()
     });
 
     // 1. Before cliff (t=140): unlocked should be zero
@@ -932,7 +946,8 @@ fn test_v2_cancel_splits_funds() {
         affiliate: None,
         yield_recipient: 0,
         split_address: None,
-        split_bps: 0, ..Default::default()
+        split_bps: 0,
+        ..Default::default()
     });
 
     // Cancel at t=30.
@@ -1005,7 +1020,8 @@ fn test_geometric_rate_unlock_math() {
         affiliate: None,
         yield_recipient: 0,
         split_address: None,
-        split_bps: 0, ..Default::default()
+        split_bps: 0,
+        ..Default::default()
     });
 
     // t=25
@@ -1069,8 +1085,9 @@ fn test_create_batch_streams_success() {
             affiliate: None,
             yield_recipient: 0,
             split_address: None,
-            split_bps: 0, ..Default::default()
-    },
+            split_bps: 0,
+            ..Default::default()
+        },
         StreamArgs {
             sender: sender.clone(),
             receiver: receiver2.clone(),
@@ -1090,8 +1107,9 @@ fn test_create_batch_streams_success() {
             affiliate: None,
             yield_recipient: 0,
             split_address: None,
-            split_bps: 0, ..Default::default()
-    },
+            split_bps: 0,
+            ..Default::default()
+        },
     ];
 
     let stream_ids = v2_client.create_batch_streams(&streams);
@@ -1153,8 +1171,9 @@ fn test_create_batch_streams_max_limit() {
             affiliate: None,
             yield_recipient: 0,
             split_address: None,
-            split_bps: 0, ..Default::default()
-    });
+            split_bps: 0,
+            ..Default::default()
+        });
     }
 
     let result = v2_client.try_create_batch_streams(&streams);
@@ -1200,8 +1219,9 @@ fn test_create_batch_streams_atomic_failure() {
             affiliate: None,
             yield_recipient: 0,
             split_address: None,
-            split_bps: 0, ..Default::default()
-    },
+            split_bps: 0,
+            ..Default::default()
+        },
         StreamArgs {
             sender: sender.clone(),
             receiver: receiver.clone(),
@@ -1221,8 +1241,9 @@ fn test_create_batch_streams_atomic_failure() {
             affiliate: None,
             yield_recipient: 0,
             split_address: None,
-            split_bps: 0, ..Default::default()
-    },
+            split_bps: 0,
+            ..Default::default()
+        },
     ];
 
     // Should fail atomically (insufficient balance)
@@ -1311,8 +1332,7 @@ fn test_gas_buffer_deposit_withdraw_and_query() {
     assert_eq!(v2_client.get_gas_buffer_balance(&admin), deposit_amount);
 
     // Withdraw 40M to beneficiary.
-    v2_client
-        .withdraw_gas_buffer(&admin, &40_000_000, &beneficiary);
+    v2_client.withdraw_gas_buffer(&admin, &40_000_000, &beneficiary);
     assert_eq!(v2_client.get_gas_buffer_balance(&admin), 60_000_000);
     assert_eq!(token_client.balance(&beneficiary), 40_000_000);
 }
@@ -1381,8 +1401,7 @@ fn test_split_funds_success() {
     v2_client.set_fee_token(&token_id);
 
     // Deposit exactly one execution's gas buffer fee.
-    v2_client
-        .deposit_gas_buffer(&sender, &GAS_FEE_PER_SPLIT_STROOPS);
+    v2_client.deposit_gas_buffer(&sender, &GAS_FEE_PER_SPLIT_STROOPS);
 
     let recipients = soroban_sdk::vec![
         &env,
@@ -1396,8 +1415,7 @@ fn test_split_funds_success() {
         },
     ];
 
-    v2_client
-        .split_funds(&sender, &token_id, &recipients);
+    v2_client.split_funds(&sender, &token_id, &recipients);
 
     assert_eq!(token_client.balance(&receiver1), 100_000_000);
     assert_eq!(token_client.balance(&receiver2), 100_000_000);
@@ -1423,8 +1441,7 @@ fn test_split_funds_fails_atomically_on_insufficient_balance() {
     v2_client.set_fee_token(&token_id);
 
     // Deposit exactly one execution's gas buffer fee.
-    v2_client
-        .deposit_gas_buffer(&sender, &GAS_FEE_PER_SPLIT_STROOPS);
+    v2_client.deposit_gas_buffer(&sender, &GAS_FEE_PER_SPLIT_STROOPS);
 
     let recipients = soroban_sdk::vec![
         &env,
@@ -1473,7 +1490,11 @@ fn test_split_multi_asset_fails_on_non_token_asset() {
 
     let recipients = soroban_sdk::vec![
         &env,
-        crate::types::MultiAssetRecipient { address: receiver.clone(), asset: bad_asset, amount: 100_000_000 },
+        crate::types::MultiAssetRecipient {
+            address: receiver.clone(),
+            asset: bad_asset,
+            amount: 100_000_000
+        },
     ];
 
     let result = v2_client.try_split_multi_asset(&sender, &recipients);
@@ -1571,7 +1592,8 @@ fn test_get_active_volume_single_stream_as_receiver() {
         affiliate: None,
         yield_recipient: 0,
         split_address: None,
-        split_bps: 0, ..Default::default()
+        split_bps: 0,
+        ..Default::default()
     });
 
     // Receiver should have 100M locked
@@ -1612,7 +1634,8 @@ fn test_get_active_volume_single_stream_as_sender() {
         affiliate: None,
         yield_recipient: 0,
         split_address: None,
-        split_bps: 0, ..Default::default()
+        split_bps: 0,
+        ..Default::default()
     });
 
     // Sender should also have 100M locked (their commitment)
@@ -1654,7 +1677,8 @@ fn test_get_active_volume_multiple_streams() {
         affiliate: None,
         yield_recipient: 0,
         split_address: None,
-        split_bps: 0, ..Default::default()
+        split_bps: 0,
+        ..Default::default()
     });
 
     let _sid2 = v2_client.create_stream(&StreamArgs {
@@ -1675,7 +1699,8 @@ fn test_get_active_volume_multiple_streams() {
         affiliate: None,
         yield_recipient: 0,
         split_address: None,
-        split_bps: 0, ..Default::default()
+        split_bps: 0,
+        ..Default::default()
     });
 
     let _sid3 = v2_client.create_stream(&StreamArgs {
@@ -1696,7 +1721,8 @@ fn test_get_active_volume_multiple_streams() {
         affiliate: None,
         yield_recipient: 0,
         split_address: None,
-        split_bps: 0, ..Default::default()
+        split_bps: 0,
+        ..Default::default()
     });
 
     // Receiver should have total of 600M locked
@@ -1738,7 +1764,8 @@ fn test_get_active_volume_after_partial_withdrawal() {
         affiliate: None,
         yield_recipient: 0,
         split_address: None,
-        split_bps: 0, ..Default::default()
+        split_bps: 0,
+        ..Default::default()
     });
 
     // At t=50, 50M unlocked
@@ -1784,7 +1811,8 @@ fn test_get_active_volume_excludes_cancelled_streams() {
         affiliate: None,
         yield_recipient: 0,
         split_address: None,
-        split_bps: 0, ..Default::default()
+        split_bps: 0,
+        ..Default::default()
     });
 
     let sid2 = v2_client.create_stream(&StreamArgs {
@@ -1805,7 +1833,8 @@ fn test_get_active_volume_excludes_cancelled_streams() {
         affiliate: None,
         yield_recipient: 0,
         split_address: None,
-        split_bps: 0, ..Default::default()
+        split_bps: 0,
+        ..Default::default()
     });
 
     // Cancel first stream
@@ -1851,7 +1880,8 @@ fn test_get_active_volume_unrelated_user_returns_zero() {
         affiliate: None,
         yield_recipient: 0,
         split_address: None,
-        split_bps: 0, ..Default::default()
+        split_bps: 0,
+        ..Default::default()
     });
 
     // Stranger has no involvement in the stream
@@ -1909,7 +1939,8 @@ fn test_get_active_volume_mixed_roles() {
         affiliate: None,
         yield_recipient: 0,
         split_address: None,
-        split_bps: 0, ..Default::default()
+        split_bps: 0,
+        ..Default::default()
     });
 
     // User as receiver
@@ -1931,7 +1962,8 @@ fn test_get_active_volume_mixed_roles() {
         affiliate: None,
         yield_recipient: 0,
         split_address: None,
-        split_bps: 0, ..Default::default()
+        split_bps: 0,
+        ..Default::default()
     });
 
     // User should have both streams counted: 200M + 200M = 400M
@@ -1974,7 +2006,8 @@ fn test_rebalance_after_clawback() {
         affiliate: None,
         yield_recipient: 0,
         split_address: None,
-        split_bps: 0, ..Default::default()
+        split_bps: 0,
+        ..Default::default()
     });
 
     let _sid2 = v2_client.create_stream(&StreamArgs {
@@ -1995,7 +2028,8 @@ fn test_rebalance_after_clawback() {
         affiliate: None,
         yield_recipient: 0,
         split_address: None,
-        split_bps: 0, ..Default::default()
+        split_bps: 0,
+        ..Default::default()
     });
 
     // Verify integrity before clawback
@@ -2058,11 +2092,23 @@ impl MockVault {
         if is_paused {
             panic!("Vault is paused");
         }
-        let token: Address = env.storage().instance().get(&symbol_short!("token")).unwrap();
-        let v2_addr: Address = env.storage().instance().get(&symbol_short!("v2_addr")).unwrap();
+        let token: Address = env
+            .storage()
+            .instance()
+            .get(&symbol_short!("token"))
+            .unwrap();
+        let v2_addr: Address = env
+            .storage()
+            .instance()
+            .get(&symbol_short!("v2_addr"))
+            .unwrap();
         let token_client = soroban_sdk::token::TokenClient::new(&env, &token);
         let interest = amount / 10;
-        token_client.transfer(&env.current_contract_address(), &v2_addr, &(amount + interest));
+        token_client.transfer(
+            &env.current_contract_address(),
+            &v2_addr,
+            &(amount + interest),
+        );
         amount
     }
 
@@ -2118,11 +2164,16 @@ fn test_yield_bearing_stream() {
         affiliate: None,
         yield_recipient: 0,
         split_address: None,
-        split_bps: 0, ..Default::default()
+        split_bps: 0,
+        ..Default::default()
     });
     token_client.transfer(&v2_client.address, &vault_id, &500_000_000);
 
-    soroban_sdk::log!(&env, "Contract balance: {}", token_client.balance(&v2_client.address));
+    soroban_sdk::log!(
+        &env,
+        "Contract balance: {}",
+        token_client.balance(&v2_client.address)
+    );
     soroban_sdk::log!(&env, "Vault balance: {}", token_client.balance(&vault_id));
     soroban_sdk::log!(&env, "Sender balance: {}", token_client.balance(&sender));
 
@@ -2183,7 +2234,8 @@ fn test_decommission_blocks_create_stream() {
         step_duration: 0,
         multiplier_bps: 0,
         vault_address: None,
-        yield_enabled: false, ..Default::default()
+        yield_enabled: false,
+        ..Default::default()
     });
     assert!(result.is_err());
 }
@@ -2214,7 +2266,8 @@ fn test_decommission_withdraw_allowed_within_claim_window() {
         step_duration: 0,
         multiplier_bps: 0,
         vault_address: None,
-        yield_enabled: false, ..Default::default()
+        yield_enabled: false,
+        ..Default::default()
     });
 
     // Decommission at t=1000 → claim_deadline = 1000 + 90*24*3600
@@ -2253,7 +2306,8 @@ fn test_decommission_withdraw_blocked_after_claim_window() {
         step_duration: 0,
         multiplier_bps: 0,
         vault_address: None,
-        yield_enabled: false, ..Default::default()
+        yield_enabled: false,
+        ..Default::default()
     });
 
     client.decommission_contract();
@@ -2274,9 +2328,15 @@ fn test_decommission_only_admin() {
 
     // Calling without init (no admin) should fail — but here admin is set.
     // Verify state is Active before decommission.
-    assert_eq!(client.get_contract_state(), crate::types::ContractState::Active);
+    assert_eq!(
+        client.get_contract_state(),
+        crate::types::ContractState::Active
+    );
     client.decommission_contract();
-    assert_eq!(client.get_contract_state(), crate::types::ContractState::Terminated);
+    assert_eq!(
+        client.get_contract_state(),
+        crate::types::ContractState::Terminated
+    );
 }
 
 // ── Issue #937: Sanctions Oracle ─────────────────────────────────────────────
@@ -2340,7 +2400,8 @@ fn test_sanctions_oracle_blocks_cancel_to_sanctioned_receiver() {
         step_duration: 0,
         multiplier_bps: 0,
         vault_address: None,
-        yield_enabled: false, ..Default::default()
+        yield_enabled: false,
+        ..Default::default()
     });
 
     // Deploy and configure oracle
@@ -2381,7 +2442,8 @@ fn test_sanctions_oracle_blocks_withdraw_to_sanctioned_beneficiary() {
         step_duration: 0,
         multiplier_bps: 0,
         vault_address: None,
-        yield_enabled: false, ..Default::default()
+        yield_enabled: false,
+        ..Default::default()
     });
 
     let oracle_id = env.register(mock_oracle::MockOracle, ());
@@ -2420,7 +2482,8 @@ fn test_sanctions_oracle_no_oracle_set_allows_transfer() {
         step_duration: 0,
         multiplier_bps: 0,
         vault_address: None,
-        yield_enabled: false, ..Default::default()
+        yield_enabled: false,
+        ..Default::default()
     });
 
     // No oracle set — withdraw should succeed normally
@@ -2447,7 +2510,7 @@ fn test_set_get_fee_tiers_success() {
         },
         FeeTier {
             threshold: 1_000_000_000, // 1B stroops
-            fee_bps: 50,            // 0.5%
+            fee_bps: 50,              // 0.5%
         },
     ];
 
@@ -2561,7 +2624,10 @@ fn test_create_stream_with_tiered_fee_no_discount() {
     let stream = v2_client.get_stream(&sid).unwrap();
 
     assert_eq!(stream.total_amount, expected_stream_amount);
-    assert_eq!(v2_client.get_pending_fees(&treasury, &token_id), expected_fee);
+    assert_eq!(
+        v2_client.get_pending_fees(&treasury, &token_id),
+        expected_fee
+    );
 }
 
 #[test]
@@ -2591,7 +2657,7 @@ fn test_create_stream_with_tiered_fee_discount_applied() {
         },
         FeeTier {
             threshold: 1_000_000_000, // 1B stroops
-            fee_bps: 50,            // 0.5%
+            fee_bps: 50,              // 0.5%
         },
     ];
     v2_client.set_fee_tiers(&tiers);
@@ -2605,7 +2671,10 @@ fn test_create_stream_with_tiered_fee_discount_applied() {
     let stream = v2_client.get_stream(&sid).unwrap();
 
     assert_eq!(stream.total_amount, expected_stream_amount);
-    assert_eq!(v2_client.get_pending_fees(&treasury, &token_id), expected_fee);
+    assert_eq!(
+        v2_client.get_pending_fees(&treasury, &token_id),
+        expected_fee
+    );
 }
 
 #[test]
@@ -2645,7 +2714,10 @@ fn test_create_stream_with_tiered_fee_exact_threshold() {
     let stream = v2_client.get_stream(&sid).unwrap();
 
     assert_eq!(stream.total_amount, expected_stream_amount);
-    assert_eq!(v2_client.get_pending_fees(&treasury, &token_id), expected_fee);
+    assert_eq!(
+        v2_client.get_pending_fees(&treasury, &token_id),
+        expected_fee
+    );
 }
 
 #[test]
@@ -2676,7 +2748,10 @@ fn test_create_stream_with_tiered_fee_no_tiers_set() {
     let stream = v2_client.get_stream(&sid).unwrap();
 
     assert_eq!(stream.total_amount, expected_stream_amount);
-    assert_eq!(v2_client.get_pending_fees(&treasury, &token_id), expected_fee);
+    assert_eq!(
+        v2_client.get_pending_fees(&treasury, &token_id),
+        expected_fee
+    );
 }
 
 #[test]

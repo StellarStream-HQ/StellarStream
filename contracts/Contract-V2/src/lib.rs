@@ -1,7 +1,9 @@
 #![no_std]
 #![allow(clippy::too_many_arguments)]
 use soroban_sdk::xdr::ToXdr;
-use soroban_sdk::{contract, contractimpl, symbol_short, Address, Bytes, Env, IntoVal, Symbol, Vec};
+use soroban_sdk::{
+    contract, contractimpl, symbol_short, Address, Bytes, Env, IntoVal, Symbol, Vec,
+};
 
 mod contracterror;
 mod math;
@@ -15,13 +17,14 @@ pub use types::{
     ClawbackRebalanceEvent, ContractPausedEvent, ContractState, ContractTerminatedEvent,
     ContractUnpausedEvent, DexPoolInfo, DustAccumulatedEvent, FeesWithdrawnEvent, LedgerFootprint,
     MigrationEvent, MultiAssetRecipient, NebulaEvent, Operation, OperationExecutedEvent,
-    OperationScheduledEvent, PendingRateUpdate, PermitArgs, PermitPayload, PermitStreamCreatedEvent,
-    ProtocolHealthV2, Recipient, SignatureStreamCreatedEvent, SimulationCheck, SimulationReport,
-    SimulationResult, SplitExecutedEvent, StreamArgs, StreamBatchEntry, StreamCancelledV2Event,
-    StreamClaimV2Event, StreamCreatedV2Event, StreamMigratedEvent, StreamParams, StreamRefilledEvent,
-    StreamRequestApprovedEvent, StreamRequestExecutedEvent, StreamRequestInitiatedEvent,
-    StreamSplitUpdatedEvent, StreamStatus, StreamToppedUpEvent, StreamV2, SwapResult, SwapStreamArgs,
-    SwapStreamCreatedEvent, MAX_MEMO_LENGTH,
+    OperationScheduledEvent, PendingRateUpdate, PermitArgs, PermitPayload,
+    PermitStreamCreatedEvent, ProtocolHealthV2, Recipient, SignatureStreamCreatedEvent,
+    SimulationCheck, SimulationReport, SimulationResult, SplitExecutedEvent, StreamArgs,
+    StreamBatchEntry, StreamCancelledV2Event, StreamClaimV2Event, StreamCreatedV2Event,
+    StreamMigratedEvent, StreamParams, StreamRefilledEvent, StreamRequestApprovedEvent,
+    StreamRequestExecutedEvent, StreamRequestInitiatedEvent, StreamSplitUpdatedEvent, StreamStatus,
+    StreamToppedUpEvent, StreamV2, SwapResult, SwapStreamArgs, SwapStreamCreatedEvent,
+    MAX_MEMO_LENGTH,
 };
 use v1_interface::Client as V1Client;
 
@@ -115,12 +118,7 @@ pub trait SwapTrait {
     ///
     /// # Returns
     /// Expected amount of token_out (before slippage)
-    fn get_amount_out(
-        env: Env,
-        token_in: Address,
-        token_out: Address,
-        amount_in: i128,
-    ) -> i128;
+    fn get_amount_out(env: Env, token_in: Address, token_out: Address, amount_in: i128) -> i128;
 
     /// Get the spot price of token_in in terms of token_out.
     ///
@@ -172,35 +170,35 @@ impl Contract {
     // ----------------------------------------------------------------
 
     /// Simulate stream creation without actually creating the stream.
-    /// 
+    ///
     /// This is a read-only dry-run that performs all validation checks
     /// that would be done during actual stream creation, but without
     /// modifying any state.
-    /// 
+    ///
     /// Frontends can call this before showing the user a "Create Stream" button
     /// to verify the transaction will succeed.
-    /// 
+    ///
     /// # Parameters
     /// - `args`: Stream creation arguments to validate
-    /// 
+    ///
     /// # Returns
     /// - `SimulationReport` with detailed check results
     pub fn simulate_stream_creation(env: Env, args: StreamArgs) -> SimulationReport {
         let now = env.ledger().timestamp();
-        
+
         // Check 1: Parameter validation
         let params_check = Self::simulate_validate_params(&env, &args, now);
-        
+
         // Check 2: Balance verification
         let balance_check = Self::simulate_check_balance(&env, &args);
-        
+
         // Check 3: Storage/footprint estimation
         let storage_check = Self::simulate_check_storage(&env);
         let footprint = Self::estimate_ledger_footprint(&env, &args);
-        
+
         // Overall success is true only if all checks pass
         let would_succeed = params_check.passed && balance_check.passed && storage_check.passed;
-        
+
         SimulationReport {
             would_succeed,
             balance_check,
@@ -212,7 +210,7 @@ impl Contract {
 
     /// Quick simulation that returns just success/failure.
     /// For simple UI feedback before showing detailed errors.
-    /// 
+    ///
     /// # Returns
     /// - `true` if stream creation would succeed
     /// - `false` if it would fail
@@ -222,13 +220,9 @@ impl Contract {
     }
 
     /// Validate stream creation parameters without state checks.
-    fn simulate_validate_params(
-        env: &Env,
-        args: &StreamArgs,
-        now: u64,
-    ) -> SimulationCheck {
+    fn simulate_validate_params(env: &Env, args: &StreamArgs, now: u64) -> SimulationCheck {
         use soroban_sdk::String;
-        
+
         // Check contract is not paused
         if storage::is_paused(env) {
             return SimulationCheck {
@@ -237,7 +231,7 @@ impl Contract {
                 error_message: String::from_str(env, "Contract is paused"),
             };
         }
-        
+
         // Check emergency mode
         if storage::is_emergency(env) {
             return SimulationCheck {
@@ -246,7 +240,7 @@ impl Contract {
                 error_message: String::from_str(env, "Contract in emergency mode"),
             };
         }
-        
+
         // Validate time range
         if args.start_time >= args.end_time {
             return SimulationCheck {
@@ -255,7 +249,7 @@ impl Contract {
                 error_message: String::from_str(env, "Start time must be before end time"),
             };
         }
-        
+
         if args.cliff_time < args.start_time || args.cliff_time > args.end_time {
             return SimulationCheck {
                 passed: false,
@@ -263,7 +257,7 @@ impl Contract {
                 error_message: String::from_str(env, "Cliff time must be between start and end"),
             };
         }
-        
+
         // Validate penalty
         if args.penalty_bps > 10_000 {
             return SimulationCheck {
@@ -272,7 +266,7 @@ impl Contract {
                 error_message: String::from_str(env, "Penalty exceeds 100%"),
             };
         }
-        
+
         // Validate amount
         if args.total_amount <= 0 {
             return SimulationCheck {
@@ -300,7 +294,7 @@ impl Contract {
                 };
             }
         }
-        
+
         // All validations passed
         SimulationCheck {
             passed: true,
@@ -312,21 +306,21 @@ impl Contract {
     /// Check if sender has sufficient balance.
     fn simulate_check_balance(env: &Env, args: &StreamArgs) -> SimulationCheck {
         use soroban_sdk::String;
-        
+
         // Get sender's token balance
         let token_client = soroban_sdk::token::TokenClient::new(env, &args.token);
         let sender_balance = token_client.balance(&args.sender);
-        
+
         // Calculate required amount (including potential protocol fee)
         let required_amount = args.total_amount;
-        
+
         // Check if asset is whitelisted (get protocol fee if configured)
         let protocol_fee_bps = storage::get_fee_bps(env) as i128;
         let fee_multiplier = 10_000 - protocol_fee_bps;
         let stream_amount = (args.total_amount * fee_multiplier) / 10_000;
         let estimated_fee = args.total_amount - stream_amount;
         let required_with_fee = args.total_amount;
-        
+
         if sender_balance < required_with_fee {
             return SimulationCheck {
                 passed: false,
@@ -334,7 +328,7 @@ impl Contract {
                 error_message: String::from_str(env, "Sender has insufficient balance"),
             };
         }
-        
+
         // Check dust threshold
         let min_value = storage::get_min_value(env, &args.token);
         if stream_amount < min_value {
@@ -344,7 +338,7 @@ impl Contract {
                 error_message: String::from_str(env, "Amount below dust threshold"),
             };
         }
-        
+
         SimulationCheck {
             passed: true,
             error_code: 0,
@@ -355,23 +349,23 @@ impl Contract {
     /// Check if storage limits would be exceeded.
     fn simulate_check_storage(env: &Env) -> SimulationCheck {
         use soroban_sdk::String;
-        
+
         // Estimate current storage usage
         // This is a simplified check - in production, you'd want more precise measurements
-        
+
         // Soroban instance storage limit is typically around 64KB
         // Each stream entry uses approximately 200-300 bytes
         // We allow up to 10,000 streams per contract
         // At ~250 bytes per stream, that's ~2.5MB of persistent storage
-        
+
         // For a conservative estimate, check if creating one more stream
         // would push us over reasonable limits
         let estimated_stream_size: u32 = 300;
         let max_streams: u32 = 10_000;
-        
+
         // Get current stream count (approximation - in production, track this in storage)
         // For simulation, we estimate based on storage reads
-        
+
         // Simple heuristic: if we've stored many streams, flag a warning
         // but don't fail since Soroban handles this gracefully
         SimulationCheck {
@@ -391,23 +385,23 @@ impl Contract {
         // - Option<Address>: 33 bytes each (discriminant + address) = ~66 bytes
         // - u32 values: 4 bytes each = ~16 bytes
         // Total estimated: ~350 bytes per stream
-        
+
         let persistent_bytes: u32 = 350;
-        
+
         // Instance storage (admin list, fee config, etc.)
         // Approximately 500-1000 bytes depending on configuration
         let instance_bytes: u32 = 800;
-        
+
         // Estimated operations
         // - 2 reads: get_admin, get_fee_bps (if set)
         // - 3 writes: set_stream, update_stats, bump_instance
         // - 1 event emit
         let estimated_reads: u32 = 5;
         let estimated_writes: u32 = 4;
-        
+
         // Event size: ~200-300 bytes for the event data
         let event_bytes: u32 = 250;
-        
+
         LedgerFootprint {
             instance_bytes,
             persistent_bytes,
@@ -834,11 +828,7 @@ impl Contract {
     }
 
     /// Get the DEX pool configuration for an asset pair.
-    pub fn get_dex_pool(
-        env: Env,
-        token_in: Address,
-        token_out: Address,
-    ) -> Option<DexPoolInfo> {
+    pub fn get_dex_pool(env: Env, token_in: Address, token_out: Address) -> Option<DexPoolInfo> {
         storage::get_dex_pool(&env, &token_in, &token_out)
     }
 
@@ -1149,7 +1139,10 @@ impl Contract {
         future_timestamp: u64,
     ) -> Result<i128, Error> {
         let stream = storage::get_stream(&env, stream_id).ok_or(Error::StreamNotFound)?;
-        Ok(Self::calculate_unlocked_internal(&stream, future_timestamp * math::NANOS_PER_SEC))
+        Ok(Self::calculate_unlocked_internal(
+            &stream,
+            future_timestamp * math::NANOS_PER_SEC,
+        ))
     }
 
     // ----------------------------------------------------------------
@@ -1803,7 +1796,8 @@ impl Contract {
             // Issue #403 — Smooth-Flow: use calculate_flow (backed by mul_div)
             // for overflow-safe, precision-preserving linear unlocking.
             math::calculate_flow(stream.total_amount, duration, elapsed)
-        }    }
+        }
+    }
 
     fn power_scale(q_bps: i128, n: u32) -> i128 {
         let mut res = 1_000_000_000_i128;
@@ -1870,7 +1864,10 @@ impl Contract {
             return Err(Error::UnauthorizedSender);
         }
 
-        let new_total_amount = stream.total_amount.checked_add(extra_amount).ok_or(Error::Overflow)?;
+        let new_total_amount = stream
+            .total_amount
+            .checked_add(extra_amount)
+            .ok_or(Error::Overflow)?;
         if new_total_amount > MAX_STREAM_AMOUNT {
             return Err(Error::AmountOverflow);
         }
@@ -2272,11 +2269,7 @@ impl Contract {
     }
 
     /// Validate that the stream amount and flow rate do not exceed security limits.
-    fn validate_limits(
-        amount: i128,
-        start_time: u64,
-        end_time: u64,
-    ) -> Result<(), Error> {
+    fn validate_limits(amount: i128, start_time: u64, end_time: u64) -> Result<(), Error> {
         if amount > MAX_STREAM_AMOUNT {
             return Err(Error::AmountOverflow);
         }
@@ -2693,8 +2686,7 @@ impl Contract {
             .set(&nonce_key, &(stored_nonce + 1));
 
         // 6. Pull funds from the sender into the contract
-        let sender_addr =
-            Address::from_string_bytes(&params.sender_pubkey.clone().into());
+        let sender_addr = Address::from_string_bytes(&params.sender_pubkey.clone().into());
         let token_client = soroban_sdk::token::TokenClient::new(&env, &params.token);
         token_client.transfer_from(
             &env.current_contract_address(),
@@ -2831,8 +2823,7 @@ impl Contract {
         Self::require_compliant(&env, &args.receiver)?;
 
         // Get DEX address
-        let dex_address = storage::get_dex_address(&env)
-            .ok_or(Error::DexNotConfigured)?;
+        let dex_address = storage::get_dex_address(&env).ok_or(Error::DexNotConfigured)?;
 
         // Transfer asset_in from sender to this contract
         let token_in_client = soroban_sdk::token::TokenClient::new(&env, &args.asset_in);
@@ -2853,7 +2844,7 @@ impl Contract {
 
         // Execute swap via DEX
         let swap_client = SwapClient::new(&env, &dex_address);
-        
+
         // Calculate effective min_amount_out with slippage tolerance
         // Apply slippage tolerance as an additional safety margin
         let effective_min_amount_out = Self::calculate_min_amount_with_slippage(
@@ -2910,9 +2901,9 @@ impl Contract {
             cancelled: false,
             migrated_from_v1: false,
             v1_stream_id: 0,
-            step_duration: 0, // Default linear stream
+            step_duration: 0,      // Default linear stream
             multiplier_bps: 10000, // 1.0x multiplier
-            penalty_bps: 0, // Default no penalty
+            penalty_bps: 0,        // Default no penalty
             vault_address: vault_used,
             yield_enabled: args.yield_enabled,
             is_pending: false,
@@ -2987,21 +2978,13 @@ impl Contract {
             return Err(Error::SameAsset);
         }
 
-        let dex_address = storage::get_dex_address(&env)
-            .ok_or(Error::DexNotConfigured)?;
+        let dex_address = storage::get_dex_address(&env).ok_or(Error::DexNotConfigured)?;
 
         let swap_client = SwapClient::new(&env, &dex_address);
-        
-        let amount_out = swap_client.get_amount_out(
-            &asset_in,
-            &asset_out,
-            &amount_in,
-        );
 
-        let spot_price = swap_client.get_spot_price(
-            &asset_in,
-            &asset_out,
-        );
+        let amount_out = swap_client.get_amount_out(&asset_in, &asset_out, &amount_in);
+
+        let spot_price = swap_client.get_spot_price(&asset_in, &asset_out);
 
         // Calculate price impact (simplified - assumes 1:1 for this calculation)
         // Price impact = ((expected_out - theoretical_out) / theoretical_out) * 10000 bps
@@ -3024,18 +3007,18 @@ impl Contract {
     // ----------------------------------------------------------------
 
     /// Propose a new rate for an active stream.
-    /// 
+    ///
     /// The sender can propose to change the stream rate (faster or slower).
     /// The receiver must accept the proposal for it to take effect.
-    /// 
+    ///
     /// # Parameters
     /// - `stream_id`: The ID of the stream to update
     /// - `new_rate`: The new rate (amount per second)
-    /// 
+    ///
     /// # Returns
     /// - `Ok(())` if proposal was created successfully
     /// - `Err(Error)` if validation fails
-    /// 
+    ///
     /// # Constraints
     /// - Only the stream sender can propose
     /// - Stream must be active (not cancelled, not fully withdrawn)
@@ -3047,10 +3030,9 @@ impl Contract {
         new_rate: i128,
     ) -> Result<PendingRateUpdate, Error> {
         Self::require_not_paused(&env)?;
-        
+
         // Get the stream
-        let stream = storage::get_stream(&env, stream_id)
-            .ok_or(Error::StreamNotFound)?;
+        let stream = storage::get_stream(&env, stream_id).ok_or(Error::StreamNotFound)?;
 
         // Only the sender can propose a rate change
         let caller = stream.sender.clone();
@@ -3153,13 +3135,13 @@ impl Contract {
     }
 
     /// Accept a pending rate update proposal.
-    /// 
+    ///
     /// Only the stream receiver can accept a rate update.
     /// This recalculates the end_time based on remaining_balance / new_rate.
-    /// 
+    ///
     /// # Parameters
     /// - `stream_id`: The ID of the stream with pending update
-    /// 
+    ///
     /// # Returns
     /// - `Ok(new_end_time)` if update was accepted
     /// - `Err(Error)` if validation fails
@@ -3167,8 +3149,7 @@ impl Contract {
         Self::require_not_paused(&env)?;
 
         // Get the stream
-        let mut stream = storage::get_stream(&env, stream_id)
-            .ok_or(Error::StreamNotFound)?;
+        let mut stream = storage::get_stream(&env, stream_id).ok_or(Error::StreamNotFound)?;
 
         // Only the receiver can accept
         let caller = stream.receiver.clone();
@@ -3180,8 +3161,8 @@ impl Contract {
         }
 
         // Get pending update
-        let pending_update = storage::get_pending_rate_update(&env, stream_id)
-            .ok_or(Error::NoPendingUpdate)?;
+        let pending_update =
+            storage::get_pending_rate_update(&env, stream_id).ok_or(Error::NoPendingUpdate)?;
 
         // Check if proposal has expired
         if storage::is_pending_rate_update_expired(&env, stream_id) {
@@ -3238,20 +3219,15 @@ impl Contract {
     }
 
     /// Cancel a pending rate update proposal.
-    /// 
+    ///
     /// Either party (sender or receiver) can cancel the proposal.
-    /// 
+    ///
     /// # Parameters
     /// - `stream_id`: The ID of the stream with pending update
     /// - `caller`: The address cancelling the proposal
-    pub fn cancel_rate_proposal(
-        env: Env,
-        stream_id: u64,
-        caller: Address,
-    ) -> Result<(), Error> {
+    pub fn cancel_rate_proposal(env: Env, stream_id: u64, caller: Address) -> Result<(), Error> {
         // Get the stream to validate caller is involved
-        let stream = storage::get_stream(&env, stream_id)
-            .ok_or(Error::StreamNotFound)?;
+        let stream = storage::get_stream(&env, stream_id).ok_or(Error::StreamNotFound)?;
 
         // Caller must be sender or receiver
         if caller != stream.sender && caller != stream.receiver {
@@ -3291,10 +3267,10 @@ impl Contract {
     }
 
     /// Get the pending rate update for a stream.
-    /// 
+    ///
     /// # Parameters
     /// - `stream_id`: The ID of the stream
-    /// 
+    ///
     /// # Returns
     /// - `Some(PendingRateUpdate)` if a proposal exists and is not expired
     /// - `None` if no proposal exists or if it has expired
@@ -3324,11 +3300,7 @@ impl Contract {
 
     /// Calculate the remaining balance in a stream.
     /// This is used internally for rate rebalancing calculations.
-    fn calculate_remaining_balance(
-        env: &Env,
-        stream: &StreamV2,
-        now: u64,
-    ) -> Result<i128, Error> {
+    fn calculate_remaining_balance(env: &Env, stream: &StreamV2, now: u64) -> Result<i128, Error> {
         let effective_now = if now < stream.start_time {
             stream.start_time
         } else {
@@ -4475,7 +4447,8 @@ impl Contract {
             return Err(Error::BelowDustThreshold);
         }
 
-        let (contract_balance, sum_remaining) = Self::check_balance_integrity(env.clone(), asset.clone());
+        let (contract_balance, sum_remaining) =
+            Self::check_balance_integrity(env.clone(), asset.clone());
         let unallocated = contract_balance.saturating_sub(sum_remaining);
 
         if amount > unallocated {
@@ -4544,7 +4517,11 @@ impl Contract {
         token_client.transfer(&sender, &env.current_contract_address(), &amount);
 
         let current = storage::get_gas_buffer(&env, &sender);
-        storage::set_gas_buffer(&env, &sender, current.checked_add(amount).ok_or(Error::Overflow)?);
+        storage::set_gas_buffer(
+            &env,
+            &sender,
+            current.checked_add(amount).ok_or(Error::Overflow)?,
+        );
 
         Ok(())
     }
@@ -4624,8 +4601,7 @@ impl Contract {
     /// # Parameters
     /// - `initiator`: A council member address (must sign).
     pub fn init_recovery(env: Env, initiator: Address) -> Result<(), Error> {
-        let council = storage::get_recovery_council(&env)
-            .ok_or(Error::NotCouncilMember)?;
+        let council = storage::get_recovery_council(&env).ok_or(Error::NotCouncilMember)?;
 
         if !council.contains(&initiator) {
             return Err(Error::NotCouncilMember);
@@ -4639,10 +4615,8 @@ impl Contract {
         let now = env.ledger().timestamp();
         storage::set_recovery_initiated_at(&env, now);
 
-        env.events().publish(
-            (soroban_sdk::symbol_short!("rec_init"), initiator),
-            now,
-        );
+        env.events()
+            .publish((soroban_sdk::symbol_short!("rec_init"), initiator), now);
 
         Ok(())
     }
@@ -4662,11 +4636,10 @@ impl Contract {
         token: Address,
         destination: Address,
     ) -> Result<i128, Error> {
-        let council = storage::get_recovery_council(&env)
-            .ok_or(Error::NotCouncilMember)?;
+        let council = storage::get_recovery_council(&env).ok_or(Error::NotCouncilMember)?;
 
-        let initiated_at = storage::get_recovery_initiated_at(&env)
-            .ok_or(Error::RecoveryNotInitiated)?;
+        let initiated_at =
+            storage::get_recovery_initiated_at(&env).ok_or(Error::RecoveryNotInitiated)?;
 
         // Enforce 7-day grace period.
         let now = env.ledger().timestamp();
@@ -4721,7 +4694,7 @@ impl Contract {
     // Issue #912 - Variable Basis Point (BPS) Math Engine
     // ----------------------------------------------------------------
 
-    /// Disburse funds to multiple recipients using Basis Points (BPS) for 
+    /// Disburse funds to multiple recipients using Basis Points (BPS) for
     /// pro-rata distribution. Implements the "Residual Allocation Strategy"
     /// to handle integer rounding dust.
     pub fn split_by_bps(
@@ -4762,7 +4735,7 @@ impl Contract {
 
         for i in 0..n {
             let entry = recipients.get(i).unwrap();
-            
+
             let amount = if i == n - 1 {
                 // Final recipient: apply rounding strategy to assign remainder
                 math::calculate_residual_share(total_amount, sum_distributed)
