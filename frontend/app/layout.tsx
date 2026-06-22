@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "../styles/responsive.css";
 import { ToastProvider } from "@/components/toast-provider";
 import { WalletProvider } from "@/lib/wallet-context";
 import { StellarProvider } from "@/lib/providers/StellarProvider";
@@ -8,6 +9,7 @@ import { EmergencyBanner } from "@/components/emergency-banner";
 import ErrorTracker from "@/components/error-tracker";
 import OnboardingTour from "@/components/OnboardingTour";
 import { ServiceWorkerRegistrar } from "@/components/ServiceWorkerRegistrar";
+import { ResponsiveLayout } from "@/components/layout/responsive-layout";
 
 export const metadata: Metadata = {
   title: "StellarStream – Money as a Stream",
@@ -73,7 +75,9 @@ export default function RootLayout({
             <ProtocolStatusProvider>
               <EmergencyBanner />
 
-              <main className="flex-1 w-full">{children}</main>
+              <ResponsiveLayout>
+                <main className="flex-1 w-full">{children}</main>
+              </ResponsiveLayout>
 
               <ToastProvider />
               <OnboardingTour />
