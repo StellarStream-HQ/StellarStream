@@ -671,6 +671,28 @@ model CachedAsset {
   @@map("CachedAsset")
 }
 
+// StreamTemplate for reusable stream configurations (#1185)
+model StreamTemplate {
+  id               String   @id @default(cuid())
+  name             String
+  asset            String
+  recipientAddress String   @map("recipient_address")
+  splitEnabled     Boolean  @default(false) @map("split_enabled")
+  splitAddress     String?  @map("split_address")
+  splitPercent     Int      @default(0) @map("split_percent")
+  totalAmount      String   @map("total_amount")
+  rateType         String   @map("rate_type")
+  durationPreset   String   @map("duration_preset")
+  usageCount       Int      @default(0) @map("usage_count")
+  createdBy        String   @map("created_by")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@index([createdBy])
+  @@index([usageCount])
+  @@map("stream_templates")
+}
+
 // Split-link shortened URLs (#957)
 model SplitLink {
   id             String    @id @default(cuid())

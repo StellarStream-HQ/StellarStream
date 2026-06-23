@@ -20,6 +20,8 @@
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
     "test:jest": "jest --config jest.config.cjs --runInBand",
+    "test:ws-load": "tsx src/test-websocket-load.ts",
+    "test:ws-load:1000": "COUNT=1000 tsx src/test-websocket-load.ts",
     "test:e2e": "jest --config jest.config.cjs --testPathPattern=e2e --runInBand",
     "migrate:v1-to-v2": "tsx src/scripts/migrate-v1-to-v2.ts",
     "migrate:v1-to-v2:dry": "tsx src/scripts/migrate-v1-to-v2.ts --dry-run",

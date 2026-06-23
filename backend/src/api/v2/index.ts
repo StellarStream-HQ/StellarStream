@@ -10,6 +10,7 @@ import affiliateRouter from "../affiliate.routes.js";
 import adminAssetsRouter from "./admin/assets.routes.js";
 import healthRouter from "./health.routes.js";
 import trustRouter from "./trust.routes.js";
+import dustRecoveryRouter from "./dust-recovery.routes.js";
 
 const router = Router();
 
@@ -23,6 +24,7 @@ router.use("/streams", streamsRouter);
 router.use("/stats", statsRouter);
 router.use("/affiliate", affiliateRouter);
 router.use("/admin/assets", adminAssetsRouter);
+router.use("/dust", dustRecoveryRouter);
 router.use("/", trustRouter);
 router.use("/", healthRouter);
 

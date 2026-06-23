@@ -1,144 +1,103 @@
-#[soroban_sdk::contracterror]
+use soroban_sdk::contracterror;
+
+#[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 #[repr(u32)]
 pub enum Error {
+    /// Contract is already initialized
     AlreadyInitialized = 1,
-    NotStreamOwner = 2,
+    /// Invalid time range for the stream
+    InvalidTimeRange = 2,
+    /// Stream is not migratable
     StreamNotMigratable = 3,
-    NothingToMigrate = 4,
-    InvalidSignature = 5,
+    /// Proposal deadline has expired
     ExpiredDeadline = 6,
+    /// Invalid signer nonce
     InvalidNonce = 7,
+    /// Invalid multisig approval threshold
     InvalidThreshold = 8,
+    /// Not enough signers/signatures for approval
     NotEnoughSigners = 9,
+    /// Stream amount is below the dust threshold
     BelowDustThreshold = 10,
+    /// Contract is paused
     ContractPaused = 11,
+    /// Insufficient account balance
     InsufficientBalance = 12,
+    /// Gas buffer is insufficient
     InsufficientGasBuffer = 13,
+    /// Stream was not found
     StreamNotFound = 14,
-    InvalidTimeRange = 14,
+    /// Stream is already cancelled
     AlreadyCancelled = 15,
+    /// Batch request size exceeds limits
     BatchTooLarge = 16,
+    /// No funds available to withdraw
     NothingToWithdraw = 17,
+    /// Sender is not authorized to perform this action
     UnauthorizedSender = 18,
-    StreamAlreadyExists = 19,
+    /// Contract is not initialized
     ContractNotInitialized = 20,
-    AdminListNotSet = 21,
+    /// Current time is before the execution time
     NotExecutionTime = 22,
+    /// Operation has not been scheduled
     OpNotScheduled = 23,
-    NotBeneficiary = 24,
-    VaultPaused = 25,
-    ContractTerminated = 26,
-    ClaimWindowExpired = 27,
-    SanctionedAddress = 28,
-    /// refill_stream called before the current cycle has ended
-    StreamNotExpired = 26,
-    /// refill_stream called on a non-recurrent stream
-    NotRecurrent = 27,
-    /// No treasury address configured; admin must call set_treasury first
+    /// No treasury address configured
     NoTreasury = 28,
-    /// Token is not approved for V2 stream creation
+    /// Asset is not whitelisted
     AssetNotWhitelisted = 29,
-    /// Asset contract does not implement required token interface (balance/transfer)
+    /// Asset does not implement standard token interface
     AssetInterfaceNotSupported = 67,
-    /// No fee collector address configured; admin must call set_fee_collector first
-    NoFeeCollector = 68,
-    /// penalty_bps exceeds 10000 (100%)
+    /// Invalid fee or penalty percentage value
     InvalidPenalty = 30,
-    /// migrate_stream is blocked; standard V2 streams remain active.
+    /// Migration is paused
     MigrationPaused = 31,
-    /// Relayer fee exceeds the available withdrawal amount
+    /// Relayer fee is invalid or exceeds bounds
     InvalidRelayerFee = 32,
-    /// Memo exceeds maximum allowed length (32 characters)
-    InvalidMemo = 33,
     /// Stream request not found
     StreamRequestNotFound = 33,
-    /// Stream request already approved by this admin
+    /// Stream request already approved
     AlreadyApproved = 34,
     /// Stream request has already been executed
-    StreamRequestAlreadyExecuted = 35,
-    /// Overflow in arithmetic operation
+    StreamReqAlreadyExecuted = 35,
+    /// Arithmetic overflow or underflow
     Overflow = 36,
     /// Invalid metadata format for bridge-in
     InvalidBridgeMetadata = 37,
-    /// No receiver address in bridge metadata
-    MissingReceiverAddress = 38,
-    /// No duration in bridge metadata
-    MissingDuration = 39,
-    /// Invalid duration value in bridge metadata
-    InvalidDuration = 40,
-    /// Contract is in emergency (withdraw-only) mode; new capital cannot enter
+    /// Contract is in emergency (withdraw-only) mode
     EmergencyMode = 41,
-    /// V1 stream has already been migrated; replay attack prevented
+    /// Stream has already been migrated
     AlreadyMigrated = 42,
-    /// Caller's DAO voting power is below the required threshold
-    InsufficientVotingPower = 43,
-    /// DAO token contract address not configured
-    DaoTokenNotSet = 44,
-    /// Treasury split is still within the 48-hour timelock window
-    TreasurySplitTimelocked = 45,
-    /// No pending treasury split found for this ID
-    PendingTreasurySplitNotFound = 46,
-    /// Treasury split has already been executed
-    TreasurySplitAlreadyExecuted = 47,
-    /// Reentrancy detected: contract is already executing a multi-transfer
+    /// No pending treasury split found
+    PendingSplitNotFound = 46,
+    /// Reentrant call detected
     Reentrant = 48,
-    /// Stream not fully withdrawn: cannot archive until withdrawn_amount == total_amount
+    /// Stream not fully withdrawn
     StreamNotFullyWithdrawn = 49,
-    /// Fee exceeds protocol maximum (protects users from excessive admin-set fees)
+    /// Fee exceeds protocol maximum
     FeeTooHigh = 50,
-    /// DEX contract address not configured for swap operations
+    /// DEX address not configured
     DexNotConfigured = 51,
-    /// Swap failed - output amount below minimum slippage tolerance
+    /// Slippage tolerance exceeded
     SwapSlippageExceeded = 52,
-    /// Invalid swap parameters (e.g., zero amount or invalid deadline)
+    /// Invalid swap parameters
     InvalidSwapParams = 53,
-    /// Swap execution failed in DEX
-    SwapFailed = 54,
     /// Source and destination assets are the same
     SameAsset = 55,
-    /// Invalid slippage tolerance (must be between 0 and 10000 bps = 100%)
-    InvalidSlippageTolerance = 56,
-    // Issue #377 — Push-Pull Rate Re-balancing
-    /// No pending rate update exists for this stream
+    /// No pending rate update exists
     NoPendingUpdate = 57,
-    /// A rate update proposal already exists for this stream
+    /// Pending rate update already exists
     PendingUpdateExists = 58,
-    /// Rate update proposal has expired (7-day TTL exceeded)
-    UpdateExpired = 59,
-    /// New rate must be greater than zero
+    /// Invalid new rate value
     InvalidNewRate = 60,
-    /// Sender has insufficient balance for the rate change
-    InsufficientBalanceForNewRate = 61,
-    /// Only the stream receiver can accept a rate update
-    NotReceiver = 62,
-    /// Stream is not active (already completed or cancelled)
+    /// Stream is not active
     StreamNotActive = 63,
-    // Issue #409 — Pre-Flight Simulation Helper
-    /// Simulation: Sender has insufficient balance for the stream
-    SimulationInsufficientBalance = 64,
-    /// Simulation: Stream creation would exceed storage limits
-    SimulationStorageLimitExceeded = 65,
-    /// Simulation: Invalid parameters for stream creation
-    SimulationInvalidParams = 66,
-    // -- Emergency Recovery Multi-Sig (Issue: Security Critical) --------
-    /// Recovery council has not been configured
-    RecoveryCouncilNotSet = 69,
     /// Signer is not a member of the recovery council
     NotCouncilMember = 70,
-    /// Recovery has already been initiated; cannot re-initiate
+    /// Recovery has already been initiated
     RecoveryAlreadyInitiated = 71,
-    /// Recovery grace period (7 days) has not elapsed yet
-    RecoveryGracePeriodActive = 72,
     /// No active recovery has been initiated
     RecoveryNotInitiated = 73,
-    /// Signer has already approved this recovery
-    RecoveryAlreadyApproved = 74,
-    /// Not enough council signatures to execute recovery
-    RecoveryInsufficientSignatures = 75,
-    // -- BPS Math Engine (Issue #912) -------------------------------------------
-    /// BPS value exceeds 10000 (must be 0-10000)
-    InvalidBpsValue = 76,
-    /// Sum of BPS values does not equal 10000
-    BpsSumMismatch = 77,
+    /// Stream amount or flow rate exceeds maximum allowed limit
+    AmountOverflow = 78,
 }

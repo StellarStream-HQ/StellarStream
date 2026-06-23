@@ -69,3 +69,6 @@ export { BridgeObserverService, type BridgeTransferEvent } from "./bridge-observ
 
 // TTL archival monitoring
 export { TTLArchivalMonitorService, type StreamTTLStatus } from "./ttl-archival-monitor.service.js";
+
+// Template service (#1185)
+export { TemplateService, type CreateTemplateInput, type UpdateTemplateInput } from "./template.service.js";

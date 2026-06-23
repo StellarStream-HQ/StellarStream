@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutTemplate, Plus, Copy, Trash2, ArrowRight, X, CheckCircle2 } from "lucide-react";
+import { LayoutTemplate, Plus, Copy, Trash2, ArrowRight, X, CheckCircle2, Loader2 } from "lucide-react";
 import { useTemplateLibrary, type StreamTemplate } from "@/lib/use-template-library";
+import { useWallet } from "@/lib/wallet-context";
 import { useRouter } from "next/navigation";
 
 const ASSETS = ["USDC","USDT","DAI","ETH","WBTC"];
@@ -34,6 +35,7 @@ function TemplateCard({ t, onLoad, onDuplicate, onDelete }: {
           ["Amount", t.totalAmount ? `${t.totalAmount} ${t.asset}` : "—"],
           ["Duration", t.durationPreset],
           ["Split", t.splitEnabled ? `${t.splitPercent}%` : "Off"],
+          ["Times Used", `${t.usageCount ?? 0}`],
         ].map(([k,v]) => (
           <div key={k} className="rounded-lg border border-white/8 bg-white/[0.03] px-3 py-2">
             <p className="font-body text-[10px] uppercase tracking-wider text-white/30">{k}</p>
@@ -58,7 +60,8 @@ function TemplateCard({ t, onLoad, onDuplicate, onDelete }: {
 }
 
 export default function TemplatesPage() {
-  const { templates, saveTemplate, deleteTemplate, duplicateTemplate } = useTemplateLibrary();
+  const { address: walletAddress } = useWallet();
+  const { templates, loading, saveTemplate, deleteTemplate, duplicateTemplate } = useTemplateLibrary(walletAddress ?? undefined);
   const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ name:"", asset:"USDC", recipientAddress:"", splitEnabled:false, splitAddress:"", splitPercent:10, totalAmount:"", rateType:"per-hour" as typeof RATE_TYPES[number], durationPreset:"1 Month" });
@@ -68,9 +71,9 @@ export default function TemplatesPage() {
     router.push("/dashboard/create-stream");
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.name.trim()) return;
-    saveTemplate(form);
+    await saveTemplate(form);
     setShowForm(false);
     setForm({ name:"", asset:"USDC", recipientAddress:"", splitEnabled:false, splitAddress:"", splitPercent:10, totalAmount:"", rateType:"per-hour", durationPreset:"1 Month" });
   };
@@ -139,13 +142,21 @@ export default function TemplatesPage() {
         )}
       </AnimatePresence>
 
+      {/* Loading state */}
+      {loading && (
+        <div className="glass-card flex flex-col items-center gap-3 py-16 text-center">
+          <Loader2 className="h-10 w-10 animate-spin text-white/20" />
+          <p className="font-body text-white/40">Loading templates…</p>
+        </div>
+      )}
+
       {/* Gallery */}
-      {templates.length === 0 ? (
+      {!loading && templates.length === 0 ? (
         <div className="glass-card flex flex-col items-center gap-3 py-16 text-center">
           <LayoutTemplate className="h-10 w-10 text-white/15" />
           <p className="font-body text-white/40">No templates yet. Create one to get started.</p>
         </div>
-      ) : (
+      ) : !loading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence mode="popLayout">
             {templates.map((t) => (
@@ -156,7 +167,7 @@ export default function TemplatesPage() {
             ))}
           </AnimatePresence>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

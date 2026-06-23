@@ -1,0 +1,37 @@
+/* frontend/styles/responsive.css */
+
+/* Hide legacy sidebar mobile navigation on mobile screens */
+@media (max-width: 640px) {
+  /* Hide the top mobile header bar with hamburger menu */
+  .fixed.left-0.right-0.top-0.z-50.border-b.md\:hidden {
+    display: none !important;
+  }
+
+  /* Hide the mobile sidebar backdrop overlay */
+  .fixed.inset-0.z-40.bg-black\/70.backdrop-blur-sm.md\:hidden {
+    display: none !important;
+  }
+
+  /* Hide the sliding mobile navigation menu drawer */
+  .fixed.bottom-0.left-0.top-0.z-50.flex.md\:hidden {
+    display: none !important;
+  }
+
+  /* Hide the legacy quick-nav bar at the bottom */
+  .fixed.inset-x-0.bottom-0.z-30.border-t.md\:hidden {
+    display: none !important;
+  }
+
+  /* Adjust padding of main content area grid to fit bottom navigation nicely without overlapping */
+  main.min-w-0.flex-1.overflow-x-hidden > div.grid {
+    padding-top: 1.25rem !important; /* pt-5 equivalent */
+    padding-bottom: 5.5rem !important; /* clear 60px height + 16px safe area padding */
+  }
+}
+
+/* Ensure the new bottom tab bar is hidden on desktop screens */
+@media (min-width: 641px) {
+  .mobile-bottom-tab-bar {
+    display: none !important;
+  }
+}

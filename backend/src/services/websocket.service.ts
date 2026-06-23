@@ -28,10 +28,14 @@ export interface BalanceUpdatePayload {
 export class WebSocketService {
   private io: SocketIOServer;
   private userRooms: Map<string, Set<string>> = new Map();
+  private socketUserMap: Map<string, string> = new Map();
+  private lastPong: Map<string, number> = new Map();
+  private heartbeatIntervalHandle: NodeJS.Timeout | null = null;
 
   constructor(io: SocketIOServer) {
     this.io = io;
     this.setupEventHandlers();
+    this.startHeartbeat();
   }
 
   private setupEventHandlers(): void {
@@ -40,6 +44,10 @@ export class WebSocketService {
 
       socket.on('join-stream-room', (userAddress: string) => {
         this.joinUserRoom(socket, userAddress);
+      });
+
+      socket.on('client-pong', () => {
+        this.lastPong.set(socket.id, Date.now());
       });
 
       socket.on('join-split-feed', () => {
@@ -60,6 +68,8 @@ export class WebSocketService {
   private joinUserRoom(socket: Socket, userAddress: string): void {
     const roomName = `stream-${userAddress}`;
     socket.join(roomName);
+    this.socketUserMap.set(socket.id, userAddress);
+    this.lastPong.set(socket.id, Date.now());
     
     if (!this.userRooms.has(userAddress)) {
       this.userRooms.set(userAddress, new Set());
@@ -81,6 +91,8 @@ export class WebSocketService {
         this.userRooms.delete(userAddress);
       }
     }
+    this.socketUserMap.delete(socket.id);
+    this.lastPong.delete(socket.id);
     
     console.log(`📱 Socket ${socket.id} left room for user: ${userAddress}`);
     socket.emit('left-room', { userAddress, roomName });
@@ -96,6 +108,50 @@ export class WebSocketService {
         break;
       }
     }
+    this.socketUserMap.delete(socket.id);
+    this.lastPong.delete(socket.id);
+  }
+
+  startHeartbeat(intervalMs = 15000, staleMs = 45000): void {
+    if (this.heartbeatIntervalHandle) return;
+    this.heartbeatIntervalHandle = setInterval(() => {
+      const now = Date.now();
+      for (const [id, socket] of this.io.sockets.sockets) {
+        try {
+          socket.emit('server-ping', { ts: now });
+        } catch (err) {
+          console.warn('Failed to send heartbeat to', id, err);
+        }
+      }
+
+      // Disconnect stale sockets that didn't respond
+      for (const [socketId, last] of this.lastPong.entries()) {
+        if (now - last > staleMs) {
+          const s = this.io.sockets.sockets.get(socketId);
+          if (s) {
+            console.log(`⏱️  Disconnecting stale socket ${socketId}`);
+            s.disconnect(true);
+          }
+          this.lastPong.delete(socketId);
+          const userAddr = this.socketUserMap.get(socketId);
+          if (userAddr) {
+            const set = this.userRooms.get(userAddr);
+            if (set) {
+              set.delete(socketId);
+              if (set.size === 0) this.userRooms.delete(userAddr);
+            }
+            this.socketUserMap.delete(socketId);
+          }
+        }
+      }
+    }, intervalMs);
+  }
+
+  stopHeartbeat(): void {
+    if (this.heartbeatIntervalHandle) {
+      clearInterval(this.heartbeatIntervalHandle);
+      this.heartbeatIntervalHandle = null;
+    }
   }
 
   emitNewStream(userAddress: string, payload: StreamEventPayload): void {
@@ -108,6 +164,12 @@ export class WebSocketService {
     const roomName = `stream-${userAddress}`;
     this.io.to(roomName).emit('balance-update', payload);
     console.log(`💰 Emitted BALANCE_UPDATE to room ${roomName}:`, payload);
+  }
+
+  emitTransactionStatus(userAddress: string, payload: { txId: string; status: string; timestamp: string; details?: any }): void {
+    const roomName = `stream-${userAddress}`;
+    this.io.to(roomName).emit('transaction-status', payload);
+    console.log(`🔁 Emitted TRANSACTION_STATUS to ${roomName}:`, payload);
   }
 
   getConnectedUsers(): string[] {

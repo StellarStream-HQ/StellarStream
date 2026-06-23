@@ -1,7 +1,7 @@
 #![cfg(test)]
 
 //! V1-to-V2 Integration Test Suite
-//! 
+//!
 //! This module provides comprehensive integration tests for the V1 to V2 migration flow.
 //! It verifies that:
 //! 1. Streams can be created in V1
@@ -24,7 +24,10 @@ use soroban_sdk::{
 /// Mock V1 contract that simulates the real V1 contract behavior
 /// for integration testing purposes.
 mod mock_v1_contract {
-    use soroban_sdk::{contract, contractimpl, symbol_short, Address, BytesN, Env, Vec};
+    use crate::contracterror::Error;
+    use soroban_sdk::{
+        contract, contractimpl, contracttype, symbol_short, Address, BytesN, Env, Vec,
+    };
 
     #[contracttype]
     #[derive(Clone)]
@@ -152,7 +155,7 @@ mod mock_v1_contract {
         }
 
         /// Cancel a stream in V1 (simulates real V1 cancel behavior)
-        pub fn cancel(env: Env, stream_id: u64, caller: Address) -> Result<(), u32> {
+        pub fn cancel(env: Env, stream_id: u64, caller: Address) -> Result<(), Error> {
             caller.require_auth();
 
             let key = (STREAM_KEY, stream_id);
@@ -160,13 +163,13 @@ mod mock_v1_contract {
                 .storage()
                 .instance()
                 .get(&key)
-                .ok_or(1u32)?; // StreamNotFound
+                .ok_or(Error::StreamNotFound)?;
 
             if stream.sender != caller && stream.receiver != caller {
-                return Err(2u32); // Unauthorized
+                return Err(Error::UnauthorizedSender);
             }
             if stream.cancelled {
-                return Err(3u32); // AlreadyCancelled
+                return Err(Error::AlreadyCancelled);
             }
 
             let current_time = env.ledger().timestamp();
@@ -191,7 +194,7 @@ mod mock_v1_contract {
         }
 
         /// Cancel stream for migration (returns remaining balance)
-        pub fn cancel_stream(env: Env, stream_id: u64, caller: Address) -> Result<i128, u32> {
+        pub fn cancel_stream(env: Env, stream_id: u64, caller: Address) -> Result<i128, Error> {
             caller.require_auth();
 
             let key = (STREAM_KEY, stream_id);
@@ -199,13 +202,13 @@ mod mock_v1_contract {
                 .storage()
                 .instance()
                 .get(&key)
-                .ok_or(1u32)?; // StreamNotFound
+                .ok_or(Error::StreamNotFound)?;
 
             if stream.receiver != caller {
-                return Err(2u32); // Unauthorized
+                return Err(Error::UnauthorizedSender);
             }
             if stream.cancelled {
-                return Err(3u32); // AlreadyCancelled
+                return Err(Error::AlreadyCancelled);
             }
 
             let remaining = stream.total_amount - stream.withdrawn_amount;
@@ -283,7 +286,12 @@ fn setup_v1<'a>(env: &'a Env) -> (Address, MockV1ContractClient<'a>) {
     (id, client)
 }
 
-fn stream_args(sender: &Address, receiver: &Address, token: &Address, total_amount: i128) -> StreamArgs {
+fn stream_args(
+    sender: &Address,
+    receiver: &Address,
+    token: &Address,
+    total_amount: i128,
+) -> StreamArgs {
     StreamArgs {
         sender: sender.clone(),
         receiver: receiver.clone(),
@@ -294,15 +302,18 @@ fn stream_args(sender: &Address, receiver: &Address, token: &Address, total_amou
         end_time: 100,
         step_duration: 0,
         multiplier_bps: 0,
+        penalty_bps: 0,
         vault_address: None,
         yield_enabled: false,
         is_recurrent: false,
         cycle_duration: 0,
         cancellation_type: 0,
         affiliate: None,
+        memo: None,
         yield_recipient: 0,
         split_address: None,
         split_bps: 0,
+        curve_type: 0,
     }
 }
 
@@ -312,7 +323,7 @@ fn stream_args(sender: &Address, receiver: &Address, token: &Address, total_amou
 fn test_v1_to_v2_migration_full_flow() {
     let env = Env::default();
     env.mock_all_auths();
-    
+
     // Set initial time
     env.ledger().with_mut(|li| li.timestamp = 50);
 
@@ -330,10 +341,7 @@ fn test_v1_to_v2_migration_full_flow() {
 
     // Step 1: Create a stream in V1
     let v1_stream_id = v1_client.create_stream(
-        &sender,
-        &receiver,
-        &token_id,
-        &1000i128, // total_amount
+        &sender, &receiver, &token_id, &1000i128, // total_amount
         &0u64,     // start_time
         &200u64,   // end_time
     );
@@ -355,8 +363,10 @@ fn test_v1_to_v2_migration_full_flow() {
     assert!(v1_stream_after.cancelled);
 
     // Step 4: Verify V2 stream has correct balances
-    let v2_stream = v2_client.get_stream(&v2_stream_id).expect("V2 stream missing");
-    
+    let v2_stream = v2_client
+        .get_stream(&v2_stream_id)
+        .expect("V2 stream missing");
+
     // At t=50 out of 200: elapsed = 50, duration = 200
     // unlocked = 1000 * 50 / 200 = 250
     // remaining = 1000 - 250 = 750
@@ -387,21 +397,24 @@ fn test_v1_to_v2_migration_at_different_time_points() {
 
     // Test migration at 25% elapsed (t=50)
     env.ledger().with_mut(|li| li.timestamp = 50);
-    let v1_stream_id = v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
+    let v1_stream_id =
+        v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
     let v2_stream_id = v2_client.migrate_stream(&v1_id, &v1_stream_id, &receiver);
     let v2_stream = v2_client.get_stream(&v2_stream_id).unwrap();
     assert_eq!(v2_stream.total_amount, 750); // 1000 - 250
 
     // Test migration at 50% elapsed (t=100)
     env.ledger().with_mut(|li| li.timestamp = 100);
-    let v1_stream_id_2 = v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
+    let v1_stream_id_2 =
+        v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
     let v2_stream_id_2 = v2_client.migrate_stream(&v1_id, &v1_stream_id_2, &receiver);
     let v2_stream_2 = v2_client.get_stream(&v2_stream_id_2).unwrap();
     assert_eq!(v2_stream_2.total_amount, 500); // 1000 - 500
 
     // Test migration at 75% elapsed (t=150)
     env.ledger().with_mut(|li| li.timestamp = 150);
-    let v1_stream_id_3 = v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
+    let v1_stream_id_3 =
+        v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
     let v2_stream_id_3 = v2_client.migrate_stream(&v1_id, &v1_stream_id_3, &receiver);
     let v2_stream_3 = v2_client.get_stream(&v2_stream_id_3).unwrap();
     assert_eq!(v2_stream_3.total_amount, 250); // 1000 - 750
@@ -423,7 +436,8 @@ fn test_v1_to_v2_migration_with_partial_withdrawal() {
     let (_, v2_client) = setup_v2(&env, &admin);
 
     // Create stream in V1
-    let v1_stream_id = v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
+    let v1_stream_id =
+        v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
 
     // Simulate partial withdrawal in V1 (200 tokens withdrawn)
     let mut v1_stream = v1_client.get_stream(&v1_stream_id);
@@ -459,11 +473,7 @@ fn test_v1_to_v2_migration_preserves_stream_parameters() {
 
     // Create stream in V1 with specific parameters
     let v1_stream_id = v1_client.create_stream(
-        &sender,
-        &receiver,
-        &token_id,
-        &2000i128,
-        &10u64,  // start_time
+        &sender, &receiver, &token_id, &2000i128, &10u64,  // start_time
         &210u64, // end_time
     );
 
@@ -498,7 +508,8 @@ fn test_v1_to_v2_migration_fails_for_non_receiver() {
     let (_, v2_client) = setup_v2(&env, &admin);
 
     // Create stream in V1
-    let v1_stream_id = v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
+    let v1_stream_id =
+        v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
 
     // Try to migrate with non-receiver (should fail)
     let result = v2_client.try_migrate_stream(&v1_id, &v1_stream_id, &stranger);
@@ -521,8 +532,9 @@ fn test_v1_to_v2_migration_fails_for_cancelled_stream() {
     let (_, v2_client) = setup_v2(&env, &admin);
 
     // Create stream in V1 and cancel it
-    let v1_stream_id = v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
-    v1_client.cancel(&v1_stream_id, &sender).unwrap();
+    let v1_stream_id =
+        v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
+    v1_client.cancel(&v1_stream_id, &sender);
 
     // Try to migrate cancelled stream (should fail)
     let result = v2_client.try_migrate_stream(&v1_id, &v1_stream_id, &receiver);
@@ -545,7 +557,8 @@ fn test_v1_to_v2_migration_fails_for_ended_stream() {
     let (_, v2_client) = setup_v2(&env, &admin);
 
     // Create stream in V1 that has already ended
-    let v1_stream_id = v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
+    let v1_stream_id =
+        v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
 
     // Try to migrate ended stream (should fail)
     let result = v2_client.try_migrate_stream(&v1_id, &v1_stream_id, &receiver);
@@ -568,9 +581,12 @@ fn test_v1_to_v2_migration_multiple_streams() {
     let (_, v2_client) = setup_v2(&env, &admin);
 
     // Create multiple streams in V1
-    let v1_stream_id_1 = v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
-    let v1_stream_id_2 = v1_client.create_stream(&sender, &receiver, &token_id, &2000i128, &0u64, &200u64);
-    let v1_stream_id_3 = v1_client.create_stream(&sender, &receiver, &token_id, &500i128, &0u64, &200u64);
+    let v1_stream_id_1 =
+        v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
+    let v1_stream_id_2 =
+        v1_client.create_stream(&sender, &receiver, &token_id, &2000i128, &0u64, &200u64);
+    let v1_stream_id_3 =
+        v1_client.create_stream(&sender, &receiver, &token_id, &500i128, &0u64, &200u64);
 
     // Migrate all streams
     let v2_stream_id_1 = v2_client.migrate_stream(&v1_id, &v1_stream_id_1, &receiver);
@@ -588,9 +604,9 @@ fn test_v1_to_v2_migration_multiple_streams() {
     let v2_stream_3 = v2_client.get_stream(&v2_stream_id_3).unwrap();
 
     // At t=50: 25% elapsed, 75% remaining
-    assert_eq!(v2_stream_1.total_amount, 750);  // 1000 * 0.75
+    assert_eq!(v2_stream_1.total_amount, 750); // 1000 * 0.75
     assert_eq!(v2_stream_2.total_amount, 1500); // 2000 * 0.75
-    assert_eq!(v2_stream_3.total_amount, 375);  // 500 * 0.75
+    assert_eq!(v2_stream_3.total_amount, 375); // 500 * 0.75
 }
 
 #[test]
@@ -609,13 +625,21 @@ fn test_v1_to_v2_migration_with_different_amounts() {
     let (_, v2_client) = setup_v2(&env, &admin);
 
     // Test with small amount
-    let v1_stream_id_small = v1_client.create_stream(&sender, &receiver, &token_id, &10i128, &0u64, &200u64);
+    let v1_stream_id_small =
+        v1_client.create_stream(&sender, &receiver, &token_id, &10i128, &0u64, &200u64);
     let v2_stream_id_small = v2_client.migrate_stream(&v1_id, &v1_stream_id_small, &receiver);
     let v2_stream_small = v2_client.get_stream(&v2_stream_id_small).unwrap();
     assert_eq!(v2_stream_small.total_amount, 5); // 10 * 0.5
 
     // Test with large amount
-    let v1_stream_id_large = v1_client.create_stream(&sender, &receiver, &token_id, &1_000_000i128, &0u64, &200u64);
+    let v1_stream_id_large = v1_client.create_stream(
+        &sender,
+        &receiver,
+        &token_id,
+        &1_000_000i128,
+        &0u64,
+        &200u64,
+    );
     let v2_stream_id_large = v2_client.migrate_stream(&v1_id, &v1_stream_id_large, &receiver);
     let v2_stream_large = v2_client.get_stream(&v2_stream_id_large).unwrap();
     assert_eq!(v2_stream_large.total_amount, 500_000); // 1_000_000 * 0.5
@@ -637,7 +661,8 @@ fn test_v1_to_v2_migration_state_consistency() {
     let (_, v2_client) = setup_v2(&env, &admin);
 
     // Create stream in V1
-    let v1_stream_id = v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
+    let v1_stream_id =
+        v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
 
     // Get V1 stream state before migration
     let v1_stream_before = v1_client.get_stream(&v1_stream_id);
@@ -677,7 +702,8 @@ fn test_v1_to_v2_migration_edge_case_zero_elapsed() {
     let (_, v2_client) = setup_v2(&env, &admin);
 
     // Create stream in V1
-    let v1_stream_id = v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
+    let v1_stream_id =
+        v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
 
     // Migrate at start time (0% elapsed)
     let v2_stream_id = v2_client.migrate_stream(&v1_id, &v1_stream_id, &receiver);
@@ -703,7 +729,8 @@ fn test_v1_to_v2_migration_edge_case_near_end() {
     let (_, v2_client) = setup_v2(&env, &admin);
 
     // Create stream in V1
-    let v1_stream_id = v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
+    let v1_stream_id =
+        v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
 
     // Migrate near end time (99.5% elapsed)
     let v2_stream_id = v2_client.migrate_stream(&v1_id, &v1_stream_id, &receiver);
@@ -725,23 +752,27 @@ fn test_v1_to_v2_migration_withdraw_from_migrated_stream() {
     let sender = Address::generate(&env);
     let receiver = Address::generate(&env);
     let token_admin = Address::generate(&env);
-    let (token_id, token_client, _) = create_token(&env, &token_admin);
+    let (token_id, token_client, asset_client) = create_token(&env, &token_admin);
 
     let (v1_id, v1_client) = setup_v1(&env);
     let (_, v2_client) = setup_v2(&env, &admin);
 
     // Create stream in V1
-    let v1_stream_id = v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
+    let v1_stream_id =
+        v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
 
     // Migrate to V2
     let v2_stream_id = v2_client.migrate_stream(&v1_id, &v1_stream_id, &receiver);
+
+    // Mint tokens to V2 contract to cover the migrated stream
+    asset_client.mint(&v2_client.address, &1000);
 
     // Advance time to allow more tokens to vest
     env.ledger().with_mut(|li| li.timestamp = 150);
 
     // Withdraw from V2 stream
     let withdrawn = v2_client.withdraw(&v2_stream_id, &receiver);
-    
+
     // At t=150: elapsed = 150, duration = 200
     // unlocked = 500 * 150 / 200 = 375 (V2 stream has 500 total)
     // But we started at t=100, so elapsed in V2 = 50
@@ -763,25 +794,32 @@ fn test_v1_to_v2_migration_cancel_migrated_stream() {
     let sender = Address::generate(&env);
     let receiver = Address::generate(&env);
     let token_admin = Address::generate(&env);
-    let (token_id, _, _) = create_token(&env, &token_admin);
+    let (token_id, token_client, asset_client) = create_token(&env, &token_admin);
 
     let (v1_id, v1_client) = setup_v1(&env);
     let (_, v2_client) = setup_v2(&env, &admin);
 
     // Create stream in V1
-    let v1_stream_id = v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
+    let v1_stream_id =
+        v1_client.create_stream(&sender, &receiver, &token_id, &1000i128, &0u64, &200u64);
 
     // Migrate to V2
     let v2_stream_id = v2_client.migrate_stream(&v1_id, &v1_stream_id, &receiver);
 
-    // Cancel V2 stream
-    let (to_receiver, to_sender) = v2_client.cancel_stream(&v2_stream_id, &receiver);
+    // Mint tokens to V2 contract to cover the migrated stream
+    asset_client.mint(&v2_client.address, &1000);
 
-    // At t=100: V2 stream started at t=100, end_time = 200
-    // elapsed = 0, so unlocked = 0
-    // to_receiver = 0, to_sender = 500
-    assert_eq!(to_receiver, 0);
-    assert_eq!(to_sender, 500);
+    let balance_receiver_before = token_client.balance(&receiver);
+    let balance_sender_before = token_client.balance(&sender);
+
+    // Cancel V2 stream
+    v2_client.cancel(&v2_stream_id, &receiver);
+
+    let balance_receiver_after = token_client.balance(&receiver);
+    let balance_sender_after = token_client.balance(&sender);
+
+    assert_eq!(balance_receiver_after - balance_receiver_before, 0);
+    assert_eq!(balance_sender_after - balance_sender_before, 500);
 
     // Verify V2 stream is cancelled
     let v2_stream = v2_client.get_stream(&v2_stream_id).unwrap();

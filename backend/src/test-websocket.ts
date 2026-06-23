@@ -26,6 +26,12 @@ socket.on('balance-update', (payload) => {
   console.log('💰 Received BALANCE_UPDATE event:', payload);
 });
 
+// Respond to server heartbeat
+socket.on('server-ping', (data) => {
+  console.log('🏓 Received server-ping, sending client-pong');
+  socket.emit('client-pong');
+});
+
 socket.on('disconnect', () => {
   console.log('❌ Disconnected from WebSocket server');
 });

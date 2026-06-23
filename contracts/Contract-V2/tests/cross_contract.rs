@@ -1,7 +1,7 @@
-use super::*;
-use soroban_sdk::contractclient;
 use soroban_sdk::token::{StellarAssetClient, TokenClient};
-use soroban_sdk::{testutils::Address as _, Env, Symbol};
+use soroban_sdk::{contract, contractimpl, symbol_short, testutils::Address as _, Address, Env};
+use stellarstream_contracts_v2::types::StreamArgs;
+use stellarstream_contracts_v2::{Contract, ContractClient};
 
 // Mock Bridge contract
 #[contract]
@@ -28,18 +28,31 @@ pub struct MockVault;
 
 #[contractimpl]
 impl MockVault {
-    pub fn deposit(env: Env, amount: i128) {
+    pub fn deposit(env: Env, _amount: i128) {
         env.storage()
             .instance()
-            .set(&Symbol::short("deposit"), &amount);
+            .set(&symbol_short!("deposit"), &_amount);
     }
 
     pub fn balance(env: Env) -> i128 {
         env.storage()
             .instance()
-            .get(&Symbol::short("deposit"))
+            .get(&symbol_short!("deposit"))
             .unwrap_or(0)
     }
+}
+
+fn create_token<'a>(
+    env: &Env,
+    admin: &Address,
+) -> (Address, TokenClient<'a>, StellarAssetClient<'a>) {
+    let client = env.register_stellar_asset_contract_v2(admin.clone());
+    let addr = client.address();
+    (
+        addr.clone(),
+        TokenClient::new(env, &addr),
+        StellarAssetClient::new(env, &addr),
+    )
 }
 
 #[test]
@@ -57,17 +70,26 @@ fn test_deep_space_cross_contract_flow() {
     asset_client.mint(&sender, &200_000_000);
 
     // Deploy Nebula V2
-    let nebula_id = env.register_contract(None, Contract);
+    let nebula_id = env.register(Contract, ());
     let nebula_client = ContractClient::new(&env, &nebula_id);
     nebula_client.init(&admin);
     nebula_client.add_to_whitelist(&token_id);
+    nebula_client.add_to_whitelist(&sender);
 
     // Deploy mocks
-    let bridge_id = env.register_contract(None, MockBridge);
-    let vault_id = env.register_contract(None, MockVault);
+    let bridge_id = env.register(MockBridge, ());
+    let vault_id = env.register(MockVault, ());
 
     // 1. Bridge In (calls on_token_receive -> create_stream)
-    let metadata = soroban_sdk::Bytes::from_slice(&env, &[b'G'; 32]); // dummy metadata
+    let addr_str = receiver.to_string();
+    let mut buf = [0u8; 56];
+    addr_str.copy_into_slice(&mut buf);
+    let mut metadata = soroban_sdk::Bytes::from_slice(&env, &buf);
+    let duration: u64 = 100;
+    metadata.append(&soroban_sdk::Bytes::from_slice(
+        &env,
+        &duration.to_be_bytes(),
+    ));
     MockBridgeClient::new(&env, &bridge_id).simulate_bridge_in(
         &nebula_id,
         &sender,
@@ -81,6 +103,8 @@ fn test_deep_space_cross_contract_flow() {
     assert_eq!(stream.receiver, receiver);
     assert_eq!(stream.total_amount, 100_000_000); // after fees
 
+    nebula_client.set_min_value(&token_id, &0);
+
     // 2. Deposit stream to Vault (vault_address in stream)
     let stream_args = StreamArgs {
         sender: sender.clone(),
@@ -90,7 +114,20 @@ fn test_deep_space_cross_contract_flow() {
         start_time: env.ledger().timestamp(),
         cliff_time: env.ledger().timestamp(),
         end_time: env.ledger().timestamp() + 100,
-        ..Default::default()
+        step_duration: 0,
+        multiplier_bps: 0,
+        penalty_bps: 0,
+        vault_address: Some(vault_id.clone()),
+        yield_enabled: true,
+        is_recurrent: false,
+        cycle_duration: 0,
+        cancellation_type: 0,
+        affiliate: None,
+        memo: None,
+        yield_recipient: 0,
+        split_address: None,
+        split_bps: 0,
+        curve_type: 0,
     };
 
     // Update stream with vault

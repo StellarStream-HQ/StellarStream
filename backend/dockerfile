@@ -1,24 +1,33 @@
-# Use Node.js LTS version
-FROM node:20-alpine
+# Main API Dockerfile
+FROM node:18-alpine AS base
 
-# Create app directory
-WORKDIR /usr/src/app
+# Install dependencies
+RUN apk add --no-cache curl
 
-# Copy package files and install dependencies
+WORKDIR /app
+
+# Copy package files
 COPY package*.json ./
-RUN npm install
+COPY prisma ./prisma/
 
-# Copy the rest of the source code
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy source code
 COPY . .
 
-# Generate Prisma client (since you are using Prisma)
+# Generate Prisma client
 RUN npx prisma generate
 
-# Build the TypeScript code
+# Build the application
 RUN npm run build
 
-# Expose the API port
+# Expose port
 EXPOSE 3000
 
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000/api/v1/health || exit 1
+
 # Start the application
-CMD ["npm", "run", "start"]
+CMD ["node", "dist/index.js"]

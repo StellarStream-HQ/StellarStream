@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // app/api/v3/split/templates/route.ts
-// Issue #783 — Split-Template Library API
+// Issue #783 / #1185 — Split-Template Library API
+//
+// Proxies template CRUD to the backend template service.
+
+const BACKEND = process.env.BACKEND_URL ?? "http://localhost:3001";
 
 export interface SplitTemplateRecipient {
   address: string;
@@ -20,42 +24,110 @@ export interface SaveTemplatePayload {
   recipients: SplitTemplateRecipient[];
 }
 
+export interface StreamTemplateResponse {
+  id: string;
+  name: string;
+  asset: string;
+  recipientAddress: string;
+  splitEnabled: boolean;
+  splitAddress: string | null;
+  splitPercent: number;
+  totalAmount: string;
+  rateType: string;
+  durationPreset: string;
+  usageCount: number;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * GET /api/v3/split/templates?createdBy=G...
+ * Proxy to backend: lists templates, optionally filtered by user.
+ */
+export async function GET(req: NextRequest) {
+  const createdBy = req.nextUrl.searchParams.get("createdBy");
+
+  const url = createdBy
+    ? `${BACKEND}/api/v3/templates?createdBy=${encodeURIComponent(createdBy)}`
+    : `${BACKEND}/api/v3/templates`;
+
+  const upstream = await fetch(url).catch(() => null);
+
+  if (!upstream) {
+    return NextResponse.json({ error: "Backend unavailable." }, { status: 502 });
+  }
+
+  const body = await upstream.json();
+  return NextResponse.json(body, { status: upstream.status });
+}
+
 /**
  * POST /api/v3/split/templates
- * Saves a split configuration as a reusable template.
+ * Proxy to backend: creates a new stream template.
  */
 export async function POST(req: NextRequest) {
-  const body = (await req.json()) as SaveTemplatePayload;
+  const body = await req.json();
 
-  if (
-    !body.name?.trim() ||
-    !Array.isArray(body.recipients) ||
-    body.recipients.length === 0
-  ) {
-    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+  // Forward the create template payload to backend
+  const upstream = await fetch(`${BACKEND}/api/v3/templates`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  }).catch(() => null);
+
+  if (!upstream) {
+    return NextResponse.json({ error: "Backend unavailable." }, { status: 502 });
   }
 
-  const total = body.recipients.reduce((sum, r) => sum + r.percentage, 0);
-  if (Math.abs(total - 100) > 0.01) {
-    return NextResponse.json(
-      { error: "Recipient percentages must sum to 100" },
-      { status: 422 },
-    );
+  const data = await upstream.json();
+  return NextResponse.json(data, { status: upstream.status });
+}
+
+/**
+ * PUT /api/v3/split/templates?id=...
+ * Proxy to backend: updates an existing template.
+ */
+export async function PUT(req: NextRequest) {
+  const id = req.nextUrl.searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ error: "Query param 'id' is required." }, { status: 400 });
   }
 
-  // TODO: persist to backend Templates table:
-  // await fetch(`${process.env.BACKEND_URL}/api/v3/split/templates`, {
-  //   method: "POST",
-  //   headers: { "Content-Type": "application/json" },
-  //   body: JSON.stringify(body),
-  // });
+  const body = await req.json();
 
-  const template: SplitTemplate = {
-    id: crypto.randomUUID(),
-    name: body.name.trim(),
-    recipients: body.recipients,
-    createdAt: new Date().toISOString(),
-  };
+  const upstream = await fetch(`${BACKEND}/api/v3/templates/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  }).catch(() => null);
 
-  return NextResponse.json(template, { status: 201 });
+  if (!upstream) {
+    return NextResponse.json({ error: "Backend unavailable." }, { status: 502 });
+  }
+
+  const data = await upstream.json();
+  return NextResponse.json(data, { status: upstream.status });
+}
+
+/**
+ * DELETE /api/v3/split/templates?id=...
+ * Proxy to backend: deletes a template.
+ */
+export async function DELETE(req: NextRequest) {
+  const id = req.nextUrl.searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ error: "Query param 'id' is required." }, { status: 400 });
+  }
+
+  const upstream = await fetch(`${BACKEND}/api/v3/templates/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  }).catch(() => null);
+
+  if (!upstream) {
+    return NextResponse.json({ error: "Backend unavailable." }, { status: 502 });
+  }
+
+  const data = await upstream.json();
+  return NextResponse.json(data, { status: upstream.status });
 }

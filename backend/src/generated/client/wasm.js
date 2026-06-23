@@ -574,6 +574,23 @@ exports.Prisma.CachedAssetScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.StreamTemplateScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  asset: 'asset',
+  recipientAddress: 'recipientAddress',
+  splitEnabled: 'splitEnabled',
+  splitAddress: 'splitAddress',
+  splitPercent: 'splitPercent',
+  totalAmount: 'totalAmount',
+  rateType: 'rateType',
+  durationPreset: 'durationPreset',
+  usageCount: 'usageCount',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SplitLinkScalarFieldEnum = {
   id: 'id',
   slug: 'slug',
@@ -674,6 +691,7 @@ exports.Prisma.ModelName = {
   DisbursementDraftVersion: 'DisbursementDraftVersion',
   MultisigProposal: 'MultisigProposal',
   CachedAsset: 'CachedAsset',
+  StreamTemplate: 'StreamTemplate',
   SplitLink: 'SplitLink'
 };
 

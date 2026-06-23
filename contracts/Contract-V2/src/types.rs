@@ -1,4 +1,4 @@
-use soroban_sdk::{contracttype, Address, BytesN, Symbol, Val, Vec};
+use soroban_sdk::{contracttype, Address, BytesN, String, Symbol, Val, Vec};
 
 pub const MAX_MEMO_LENGTH: u32 = 32;
 
@@ -75,6 +75,38 @@ pub struct StreamArgs {
     pub split_bps: u32,
     /// Curve type: 0 = Linear, 1 = Exponential (back-loaded, unlocked = total * (elapsed/duration)^2)
     pub curve_type: u32,
+}
+
+#[cfg(any(test, feature = "testutils"))]
+impl Default for StreamArgs {
+    fn default() -> Self {
+        use soroban_sdk::testutils::Address as _;
+        let env = soroban_sdk::Env::default();
+        let dummy = soroban_sdk::Address::generate(&env);
+        Self {
+            sender: dummy.clone(),
+            receiver: dummy.clone(),
+            token: dummy.clone(),
+            total_amount: 0,
+            start_time: 0,
+            cliff_time: 0,
+            end_time: 0,
+            step_duration: 0,
+            multiplier_bps: 0,
+            penalty_bps: 0,
+            vault_address: None,
+            yield_enabled: false,
+            is_recurrent: false,
+            cycle_duration: 0,
+            cancellation_type: 0,
+            affiliate: None,
+            memo: None,
+            yield_recipient: 0,
+            split_address: None,
+            split_bps: 0,
+            curve_type: 0,
+        }
+    }
 }
 
 #[contracttype]
@@ -270,6 +302,8 @@ pub struct ContractTerminatedEvent {
     pub admin: Address,
     pub claim_deadline: u64,
     pub timestamp: u64,
+}
+
 // Issue #597 - Atomic Multi-Transfer Implementation
 // ----------------------------------------------------------------
 

@@ -189,6 +189,11 @@ export type MultisigProposal = $Result.DefaultSelection<Prisma.$MultisigProposal
  */
 export type CachedAsset = $Result.DefaultSelection<Prisma.$CachedAssetPayload>
 /**
+ * Model StreamTemplate
+ * 
+ */
+export type StreamTemplate = $Result.DefaultSelection<Prisma.$StreamTemplatePayload>
+/**
  * Model SplitLink
  * 
  */
@@ -728,6 +733,16 @@ export class PrismaClient<
   get cachedAsset(): Prisma.CachedAssetDelegate<ExtArgs>;
 
   /**
+   * `prisma.streamTemplate`: Exposes CRUD operations for the **StreamTemplate** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more StreamTemplates
+    * const streamTemplates = await prisma.streamTemplate.findMany()
+    * ```
+    */
+  get streamTemplate(): Prisma.StreamTemplateDelegate<ExtArgs>;
+
+  /**
    * `prisma.splitLink`: Exposes CRUD operations for the **SplitLink** model.
     * Example usage:
     * ```ts
@@ -1212,6 +1227,7 @@ export namespace Prisma {
     DisbursementDraftVersion: 'DisbursementDraftVersion',
     MultisigProposal: 'MultisigProposal',
     CachedAsset: 'CachedAsset',
+    StreamTemplate: 'StreamTemplate',
     SplitLink: 'SplitLink'
   };
 
@@ -1228,7 +1244,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "stream" | "contractEvent" | "tokenPrice" | "webhook" | "webhookDelivery" | "syncState" | "eventLog" | "streamSnapshot" | "streamArchive" | "bridgeLog" | "proposal" | "event" | "organizationMember" | "apiKey" | "ledgerHash" | "notificationSubscription" | "invoiceLink" | "affiliate" | "globalStats" | "globalStats_V3" | "tvlSnapshot" | "asset" | "autopilotSchedule" | "assetConfig" | "archivedDisbursement" | "disbursement" | "assetMapping" | "priceHistory" | "protocolInefficiencyReport" | "splitLog" | "monitoredTransaction" | "disbursementDraft" | "disbursementDraftVersion" | "multisigProposal" | "cachedAsset" | "splitLink"
+      modelProps: "stream" | "contractEvent" | "tokenPrice" | "webhook" | "webhookDelivery" | "syncState" | "eventLog" | "streamSnapshot" | "streamArchive" | "bridgeLog" | "proposal" | "event" | "organizationMember" | "apiKey" | "ledgerHash" | "notificationSubscription" | "invoiceLink" | "affiliate" | "globalStats" | "globalStats_V3" | "tvlSnapshot" | "asset" | "autopilotSchedule" | "assetConfig" | "archivedDisbursement" | "disbursement" | "assetMapping" | "priceHistory" | "protocolInefficiencyReport" | "splitLog" | "monitoredTransaction" | "disbursementDraft" | "disbursementDraftVersion" | "multisigProposal" | "cachedAsset" | "streamTemplate" | "splitLink"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3679,6 +3695,76 @@ export namespace Prisma {
           count: {
             args: Prisma.CachedAssetCountArgs<ExtArgs>
             result: $Utils.Optional<CachedAssetCountAggregateOutputType> | number
+          }
+        }
+      }
+      StreamTemplate: {
+        payload: Prisma.$StreamTemplatePayload<ExtArgs>
+        fields: Prisma.StreamTemplateFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.StreamTemplateFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StreamTemplatePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.StreamTemplateFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StreamTemplatePayload>
+          }
+          findFirst: {
+            args: Prisma.StreamTemplateFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StreamTemplatePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.StreamTemplateFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StreamTemplatePayload>
+          }
+          findMany: {
+            args: Prisma.StreamTemplateFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StreamTemplatePayload>[]
+          }
+          create: {
+            args: Prisma.StreamTemplateCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StreamTemplatePayload>
+          }
+          createMany: {
+            args: Prisma.StreamTemplateCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.StreamTemplateCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StreamTemplatePayload>[]
+          }
+          delete: {
+            args: Prisma.StreamTemplateDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StreamTemplatePayload>
+          }
+          update: {
+            args: Prisma.StreamTemplateUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StreamTemplatePayload>
+          }
+          deleteMany: {
+            args: Prisma.StreamTemplateDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.StreamTemplateUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.StreamTemplateUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$StreamTemplatePayload>
+          }
+          aggregate: {
+            args: Prisma.StreamTemplateAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateStreamTemplate>
+          }
+          groupBy: {
+            args: Prisma.StreamTemplateGroupByArgs<ExtArgs>
+            result: $Utils.Optional<StreamTemplateGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.StreamTemplateCountArgs<ExtArgs>
+            result: $Utils.Optional<StreamTemplateCountAggregateOutputType> | number
           }
         }
       }
@@ -37876,6 +37962,1030 @@ export namespace Prisma {
 
 
   /**
+   * Model StreamTemplate
+   */
+
+  export type AggregateStreamTemplate = {
+    _count: StreamTemplateCountAggregateOutputType | null
+    _avg: StreamTemplateAvgAggregateOutputType | null
+    _sum: StreamTemplateSumAggregateOutputType | null
+    _min: StreamTemplateMinAggregateOutputType | null
+    _max: StreamTemplateMaxAggregateOutputType | null
+  }
+
+  export type StreamTemplateAvgAggregateOutputType = {
+    splitPercent: number | null
+    usageCount: number | null
+  }
+
+  export type StreamTemplateSumAggregateOutputType = {
+    splitPercent: number | null
+    usageCount: number | null
+  }
+
+  export type StreamTemplateMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    asset: string | null
+    recipientAddress: string | null
+    splitEnabled: boolean | null
+    splitAddress: string | null
+    splitPercent: number | null
+    totalAmount: string | null
+    rateType: string | null
+    durationPreset: string | null
+    usageCount: number | null
+    createdBy: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type StreamTemplateMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    asset: string | null
+    recipientAddress: string | null
+    splitEnabled: boolean | null
+    splitAddress: string | null
+    splitPercent: number | null
+    totalAmount: string | null
+    rateType: string | null
+    durationPreset: string | null
+    usageCount: number | null
+    createdBy: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type StreamTemplateCountAggregateOutputType = {
+    id: number
+    name: number
+    asset: number
+    recipientAddress: number
+    splitEnabled: number
+    splitAddress: number
+    splitPercent: number
+    totalAmount: number
+    rateType: number
+    durationPreset: number
+    usageCount: number
+    createdBy: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type StreamTemplateAvgAggregateInputType = {
+    splitPercent?: true
+    usageCount?: true
+  }
+
+  export type StreamTemplateSumAggregateInputType = {
+    splitPercent?: true
+    usageCount?: true
+  }
+
+  export type StreamTemplateMinAggregateInputType = {
+    id?: true
+    name?: true
+    asset?: true
+    recipientAddress?: true
+    splitEnabled?: true
+    splitAddress?: true
+    splitPercent?: true
+    totalAmount?: true
+    rateType?: true
+    durationPreset?: true
+    usageCount?: true
+    createdBy?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type StreamTemplateMaxAggregateInputType = {
+    id?: true
+    name?: true
+    asset?: true
+    recipientAddress?: true
+    splitEnabled?: true
+    splitAddress?: true
+    splitPercent?: true
+    totalAmount?: true
+    rateType?: true
+    durationPreset?: true
+    usageCount?: true
+    createdBy?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type StreamTemplateCountAggregateInputType = {
+    id?: true
+    name?: true
+    asset?: true
+    recipientAddress?: true
+    splitEnabled?: true
+    splitAddress?: true
+    splitPercent?: true
+    totalAmount?: true
+    rateType?: true
+    durationPreset?: true
+    usageCount?: true
+    createdBy?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type StreamTemplateAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StreamTemplate to aggregate.
+     */
+    where?: StreamTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StreamTemplates to fetch.
+     */
+    orderBy?: StreamTemplateOrderByWithRelationInput | StreamTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: StreamTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StreamTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StreamTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned StreamTemplates
+    **/
+    _count?: true | StreamTemplateCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: StreamTemplateAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: StreamTemplateSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: StreamTemplateMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: StreamTemplateMaxAggregateInputType
+  }
+
+  export type GetStreamTemplateAggregateType<T extends StreamTemplateAggregateArgs> = {
+        [P in keyof T & keyof AggregateStreamTemplate]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateStreamTemplate[P]>
+      : GetScalarType<T[P], AggregateStreamTemplate[P]>
+  }
+
+
+
+
+  export type StreamTemplateGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: StreamTemplateWhereInput
+    orderBy?: StreamTemplateOrderByWithAggregationInput | StreamTemplateOrderByWithAggregationInput[]
+    by: StreamTemplateScalarFieldEnum[] | StreamTemplateScalarFieldEnum
+    having?: StreamTemplateScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: StreamTemplateCountAggregateInputType | true
+    _avg?: StreamTemplateAvgAggregateInputType
+    _sum?: StreamTemplateSumAggregateInputType
+    _min?: StreamTemplateMinAggregateInputType
+    _max?: StreamTemplateMaxAggregateInputType
+  }
+
+  export type StreamTemplateGroupByOutputType = {
+    id: string
+    name: string
+    asset: string
+    recipientAddress: string
+    splitEnabled: boolean
+    splitAddress: string | null
+    splitPercent: number
+    totalAmount: string
+    rateType: string
+    durationPreset: string
+    usageCount: number
+    createdBy: string
+    createdAt: Date
+    updatedAt: Date
+    _count: StreamTemplateCountAggregateOutputType | null
+    _avg: StreamTemplateAvgAggregateOutputType | null
+    _sum: StreamTemplateSumAggregateOutputType | null
+    _min: StreamTemplateMinAggregateOutputType | null
+    _max: StreamTemplateMaxAggregateOutputType | null
+  }
+
+  type GetStreamTemplateGroupByPayload<T extends StreamTemplateGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<StreamTemplateGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof StreamTemplateGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], StreamTemplateGroupByOutputType[P]>
+            : GetScalarType<T[P], StreamTemplateGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type StreamTemplateSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    asset?: boolean
+    recipientAddress?: boolean
+    splitEnabled?: boolean
+    splitAddress?: boolean
+    splitPercent?: boolean
+    totalAmount?: boolean
+    rateType?: boolean
+    durationPreset?: boolean
+    usageCount?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["streamTemplate"]>
+
+  export type StreamTemplateSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    asset?: boolean
+    recipientAddress?: boolean
+    splitEnabled?: boolean
+    splitAddress?: boolean
+    splitPercent?: boolean
+    totalAmount?: boolean
+    rateType?: boolean
+    durationPreset?: boolean
+    usageCount?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["streamTemplate"]>
+
+  export type StreamTemplateSelectScalar = {
+    id?: boolean
+    name?: boolean
+    asset?: boolean
+    recipientAddress?: boolean
+    splitEnabled?: boolean
+    splitAddress?: boolean
+    splitPercent?: boolean
+    totalAmount?: boolean
+    rateType?: boolean
+    durationPreset?: boolean
+    usageCount?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+
+  export type $StreamTemplatePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "StreamTemplate"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      asset: string
+      recipientAddress: string
+      splitEnabled: boolean
+      splitAddress: string | null
+      splitPercent: number
+      totalAmount: string
+      rateType: string
+      durationPreset: string
+      usageCount: number
+      createdBy: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["streamTemplate"]>
+    composites: {}
+  }
+
+  type StreamTemplateGetPayload<S extends boolean | null | undefined | StreamTemplateDefaultArgs> = $Result.GetResult<Prisma.$StreamTemplatePayload, S>
+
+  type StreamTemplateCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<StreamTemplateFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: StreamTemplateCountAggregateInputType | true
+    }
+
+  export interface StreamTemplateDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['StreamTemplate'], meta: { name: 'StreamTemplate' } }
+    /**
+     * Find zero or one StreamTemplate that matches the filter.
+     * @param {StreamTemplateFindUniqueArgs} args - Arguments to find a StreamTemplate
+     * @example
+     * // Get one StreamTemplate
+     * const streamTemplate = await prisma.streamTemplate.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends StreamTemplateFindUniqueArgs>(args: SelectSubset<T, StreamTemplateFindUniqueArgs<ExtArgs>>): Prisma__StreamTemplateClient<$Result.GetResult<Prisma.$StreamTemplatePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one StreamTemplate that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {StreamTemplateFindUniqueOrThrowArgs} args - Arguments to find a StreamTemplate
+     * @example
+     * // Get one StreamTemplate
+     * const streamTemplate = await prisma.streamTemplate.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends StreamTemplateFindUniqueOrThrowArgs>(args: SelectSubset<T, StreamTemplateFindUniqueOrThrowArgs<ExtArgs>>): Prisma__StreamTemplateClient<$Result.GetResult<Prisma.$StreamTemplatePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first StreamTemplate that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StreamTemplateFindFirstArgs} args - Arguments to find a StreamTemplate
+     * @example
+     * // Get one StreamTemplate
+     * const streamTemplate = await prisma.streamTemplate.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends StreamTemplateFindFirstArgs>(args?: SelectSubset<T, StreamTemplateFindFirstArgs<ExtArgs>>): Prisma__StreamTemplateClient<$Result.GetResult<Prisma.$StreamTemplatePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first StreamTemplate that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StreamTemplateFindFirstOrThrowArgs} args - Arguments to find a StreamTemplate
+     * @example
+     * // Get one StreamTemplate
+     * const streamTemplate = await prisma.streamTemplate.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends StreamTemplateFindFirstOrThrowArgs>(args?: SelectSubset<T, StreamTemplateFindFirstOrThrowArgs<ExtArgs>>): Prisma__StreamTemplateClient<$Result.GetResult<Prisma.$StreamTemplatePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more StreamTemplates that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StreamTemplateFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all StreamTemplates
+     * const streamTemplates = await prisma.streamTemplate.findMany()
+     * 
+     * // Get first 10 StreamTemplates
+     * const streamTemplates = await prisma.streamTemplate.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const streamTemplateWithIdOnly = await prisma.streamTemplate.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends StreamTemplateFindManyArgs>(args?: SelectSubset<T, StreamTemplateFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StreamTemplatePayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a StreamTemplate.
+     * @param {StreamTemplateCreateArgs} args - Arguments to create a StreamTemplate.
+     * @example
+     * // Create one StreamTemplate
+     * const StreamTemplate = await prisma.streamTemplate.create({
+     *   data: {
+     *     // ... data to create a StreamTemplate
+     *   }
+     * })
+     * 
+     */
+    create<T extends StreamTemplateCreateArgs>(args: SelectSubset<T, StreamTemplateCreateArgs<ExtArgs>>): Prisma__StreamTemplateClient<$Result.GetResult<Prisma.$StreamTemplatePayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many StreamTemplates.
+     * @param {StreamTemplateCreateManyArgs} args - Arguments to create many StreamTemplates.
+     * @example
+     * // Create many StreamTemplates
+     * const streamTemplate = await prisma.streamTemplate.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends StreamTemplateCreateManyArgs>(args?: SelectSubset<T, StreamTemplateCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many StreamTemplates and returns the data saved in the database.
+     * @param {StreamTemplateCreateManyAndReturnArgs} args - Arguments to create many StreamTemplates.
+     * @example
+     * // Create many StreamTemplates
+     * const streamTemplate = await prisma.streamTemplate.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many StreamTemplates and only return the `id`
+     * const streamTemplateWithIdOnly = await prisma.streamTemplate.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends StreamTemplateCreateManyAndReturnArgs>(args?: SelectSubset<T, StreamTemplateCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StreamTemplatePayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a StreamTemplate.
+     * @param {StreamTemplateDeleteArgs} args - Arguments to delete one StreamTemplate.
+     * @example
+     * // Delete one StreamTemplate
+     * const StreamTemplate = await prisma.streamTemplate.delete({
+     *   where: {
+     *     // ... filter to delete one StreamTemplate
+     *   }
+     * })
+     * 
+     */
+    delete<T extends StreamTemplateDeleteArgs>(args: SelectSubset<T, StreamTemplateDeleteArgs<ExtArgs>>): Prisma__StreamTemplateClient<$Result.GetResult<Prisma.$StreamTemplatePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one StreamTemplate.
+     * @param {StreamTemplateUpdateArgs} args - Arguments to update one StreamTemplate.
+     * @example
+     * // Update one StreamTemplate
+     * const streamTemplate = await prisma.streamTemplate.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends StreamTemplateUpdateArgs>(args: SelectSubset<T, StreamTemplateUpdateArgs<ExtArgs>>): Prisma__StreamTemplateClient<$Result.GetResult<Prisma.$StreamTemplatePayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more StreamTemplates.
+     * @param {StreamTemplateDeleteManyArgs} args - Arguments to filter StreamTemplates to delete.
+     * @example
+     * // Delete a few StreamTemplates
+     * const { count } = await prisma.streamTemplate.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends StreamTemplateDeleteManyArgs>(args?: SelectSubset<T, StreamTemplateDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more StreamTemplates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StreamTemplateUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many StreamTemplates
+     * const streamTemplate = await prisma.streamTemplate.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends StreamTemplateUpdateManyArgs>(args: SelectSubset<T, StreamTemplateUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one StreamTemplate.
+     * @param {StreamTemplateUpsertArgs} args - Arguments to update or create a StreamTemplate.
+     * @example
+     * // Update or create a StreamTemplate
+     * const streamTemplate = await prisma.streamTemplate.upsert({
+     *   create: {
+     *     // ... data to create a StreamTemplate
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the StreamTemplate we want to update
+     *   }
+     * })
+     */
+    upsert<T extends StreamTemplateUpsertArgs>(args: SelectSubset<T, StreamTemplateUpsertArgs<ExtArgs>>): Prisma__StreamTemplateClient<$Result.GetResult<Prisma.$StreamTemplatePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of StreamTemplates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StreamTemplateCountArgs} args - Arguments to filter StreamTemplates to count.
+     * @example
+     * // Count the number of StreamTemplates
+     * const count = await prisma.streamTemplate.count({
+     *   where: {
+     *     // ... the filter for the StreamTemplates we want to count
+     *   }
+     * })
+    **/
+    count<T extends StreamTemplateCountArgs>(
+      args?: Subset<T, StreamTemplateCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], StreamTemplateCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a StreamTemplate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StreamTemplateAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends StreamTemplateAggregateArgs>(args: Subset<T, StreamTemplateAggregateArgs>): Prisma.PrismaPromise<GetStreamTemplateAggregateType<T>>
+
+    /**
+     * Group by StreamTemplate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {StreamTemplateGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends StreamTemplateGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: StreamTemplateGroupByArgs['orderBy'] }
+        : { orderBy?: StreamTemplateGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, StreamTemplateGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetStreamTemplateGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the StreamTemplate model
+   */
+  readonly fields: StreamTemplateFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for StreamTemplate.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__StreamTemplateClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the StreamTemplate model
+   */ 
+  interface StreamTemplateFieldRefs {
+    readonly id: FieldRef<"StreamTemplate", 'String'>
+    readonly name: FieldRef<"StreamTemplate", 'String'>
+    readonly asset: FieldRef<"StreamTemplate", 'String'>
+    readonly recipientAddress: FieldRef<"StreamTemplate", 'String'>
+    readonly splitEnabled: FieldRef<"StreamTemplate", 'Boolean'>
+    readonly splitAddress: FieldRef<"StreamTemplate", 'String'>
+    readonly splitPercent: FieldRef<"StreamTemplate", 'Int'>
+    readonly totalAmount: FieldRef<"StreamTemplate", 'String'>
+    readonly rateType: FieldRef<"StreamTemplate", 'String'>
+    readonly durationPreset: FieldRef<"StreamTemplate", 'String'>
+    readonly usageCount: FieldRef<"StreamTemplate", 'Int'>
+    readonly createdBy: FieldRef<"StreamTemplate", 'String'>
+    readonly createdAt: FieldRef<"StreamTemplate", 'DateTime'>
+    readonly updatedAt: FieldRef<"StreamTemplate", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * StreamTemplate findUnique
+   */
+  export type StreamTemplateFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StreamTemplate
+     */
+    select?: StreamTemplateSelect<ExtArgs> | null
+    /**
+     * Filter, which StreamTemplate to fetch.
+     */
+    where: StreamTemplateWhereUniqueInput
+  }
+
+  /**
+   * StreamTemplate findUniqueOrThrow
+   */
+  export type StreamTemplateFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StreamTemplate
+     */
+    select?: StreamTemplateSelect<ExtArgs> | null
+    /**
+     * Filter, which StreamTemplate to fetch.
+     */
+    where: StreamTemplateWhereUniqueInput
+  }
+
+  /**
+   * StreamTemplate findFirst
+   */
+  export type StreamTemplateFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StreamTemplate
+     */
+    select?: StreamTemplateSelect<ExtArgs> | null
+    /**
+     * Filter, which StreamTemplate to fetch.
+     */
+    where?: StreamTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StreamTemplates to fetch.
+     */
+    orderBy?: StreamTemplateOrderByWithRelationInput | StreamTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StreamTemplates.
+     */
+    cursor?: StreamTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StreamTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StreamTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StreamTemplates.
+     */
+    distinct?: StreamTemplateScalarFieldEnum | StreamTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * StreamTemplate findFirstOrThrow
+   */
+  export type StreamTemplateFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StreamTemplate
+     */
+    select?: StreamTemplateSelect<ExtArgs> | null
+    /**
+     * Filter, which StreamTemplate to fetch.
+     */
+    where?: StreamTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StreamTemplates to fetch.
+     */
+    orderBy?: StreamTemplateOrderByWithRelationInput | StreamTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for StreamTemplates.
+     */
+    cursor?: StreamTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StreamTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StreamTemplates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of StreamTemplates.
+     */
+    distinct?: StreamTemplateScalarFieldEnum | StreamTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * StreamTemplate findMany
+   */
+  export type StreamTemplateFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StreamTemplate
+     */
+    select?: StreamTemplateSelect<ExtArgs> | null
+    /**
+     * Filter, which StreamTemplates to fetch.
+     */
+    where?: StreamTemplateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of StreamTemplates to fetch.
+     */
+    orderBy?: StreamTemplateOrderByWithRelationInput | StreamTemplateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing StreamTemplates.
+     */
+    cursor?: StreamTemplateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` StreamTemplates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` StreamTemplates.
+     */
+    skip?: number
+    distinct?: StreamTemplateScalarFieldEnum | StreamTemplateScalarFieldEnum[]
+  }
+
+  /**
+   * StreamTemplate create
+   */
+  export type StreamTemplateCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StreamTemplate
+     */
+    select?: StreamTemplateSelect<ExtArgs> | null
+    /**
+     * The data needed to create a StreamTemplate.
+     */
+    data: XOR<StreamTemplateCreateInput, StreamTemplateUncheckedCreateInput>
+  }
+
+  /**
+   * StreamTemplate createMany
+   */
+  export type StreamTemplateCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many StreamTemplates.
+     */
+    data: StreamTemplateCreateManyInput | StreamTemplateCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * StreamTemplate createManyAndReturn
+   */
+  export type StreamTemplateCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StreamTemplate
+     */
+    select?: StreamTemplateSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many StreamTemplates.
+     */
+    data: StreamTemplateCreateManyInput | StreamTemplateCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * StreamTemplate update
+   */
+  export type StreamTemplateUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StreamTemplate
+     */
+    select?: StreamTemplateSelect<ExtArgs> | null
+    /**
+     * The data needed to update a StreamTemplate.
+     */
+    data: XOR<StreamTemplateUpdateInput, StreamTemplateUncheckedUpdateInput>
+    /**
+     * Choose, which StreamTemplate to update.
+     */
+    where: StreamTemplateWhereUniqueInput
+  }
+
+  /**
+   * StreamTemplate updateMany
+   */
+  export type StreamTemplateUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update StreamTemplates.
+     */
+    data: XOR<StreamTemplateUpdateManyMutationInput, StreamTemplateUncheckedUpdateManyInput>
+    /**
+     * Filter which StreamTemplates to update
+     */
+    where?: StreamTemplateWhereInput
+  }
+
+  /**
+   * StreamTemplate upsert
+   */
+  export type StreamTemplateUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StreamTemplate
+     */
+    select?: StreamTemplateSelect<ExtArgs> | null
+    /**
+     * The filter to search for the StreamTemplate to update in case it exists.
+     */
+    where: StreamTemplateWhereUniqueInput
+    /**
+     * In case the StreamTemplate found by the `where` argument doesn't exist, create a new StreamTemplate with this data.
+     */
+    create: XOR<StreamTemplateCreateInput, StreamTemplateUncheckedCreateInput>
+    /**
+     * In case the StreamTemplate was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<StreamTemplateUpdateInput, StreamTemplateUncheckedUpdateInput>
+  }
+
+  /**
+   * StreamTemplate delete
+   */
+  export type StreamTemplateDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StreamTemplate
+     */
+    select?: StreamTemplateSelect<ExtArgs> | null
+    /**
+     * Filter which StreamTemplate to delete.
+     */
+    where: StreamTemplateWhereUniqueInput
+  }
+
+  /**
+   * StreamTemplate deleteMany
+   */
+  export type StreamTemplateDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which StreamTemplates to delete
+     */
+    where?: StreamTemplateWhereInput
+  }
+
+  /**
+   * StreamTemplate without action
+   */
+  export type StreamTemplateDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the StreamTemplate
+     */
+    select?: StreamTemplateSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Model SplitLink
    */
 
@@ -39416,6 +40526,26 @@ export namespace Prisma {
   };
 
   export type CachedAssetScalarFieldEnum = (typeof CachedAssetScalarFieldEnum)[keyof typeof CachedAssetScalarFieldEnum]
+
+
+  export const StreamTemplateScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    asset: 'asset',
+    recipientAddress: 'recipientAddress',
+    splitEnabled: 'splitEnabled',
+    splitAddress: 'splitAddress',
+    splitPercent: 'splitPercent',
+    totalAmount: 'totalAmount',
+    rateType: 'rateType',
+    durationPreset: 'durationPreset',
+    usageCount: 'usageCount',
+    createdBy: 'createdBy',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type StreamTemplateScalarFieldEnum = (typeof StreamTemplateScalarFieldEnum)[keyof typeof StreamTemplateScalarFieldEnum]
 
 
   export const SplitLinkScalarFieldEnum: {
@@ -42369,6 +43499,105 @@ export namespace Prisma {
     lastSyncedAt?: DateTimeWithAggregatesFilter<"CachedAsset"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"CachedAsset"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"CachedAsset"> | Date | string
+  }
+
+  export type StreamTemplateWhereInput = {
+    AND?: StreamTemplateWhereInput | StreamTemplateWhereInput[]
+    OR?: StreamTemplateWhereInput[]
+    NOT?: StreamTemplateWhereInput | StreamTemplateWhereInput[]
+    id?: StringFilter<"StreamTemplate"> | string
+    name?: StringFilter<"StreamTemplate"> | string
+    asset?: StringFilter<"StreamTemplate"> | string
+    recipientAddress?: StringFilter<"StreamTemplate"> | string
+    splitEnabled?: BoolFilter<"StreamTemplate"> | boolean
+    splitAddress?: StringNullableFilter<"StreamTemplate"> | string | null
+    splitPercent?: IntFilter<"StreamTemplate"> | number
+    totalAmount?: StringFilter<"StreamTemplate"> | string
+    rateType?: StringFilter<"StreamTemplate"> | string
+    durationPreset?: StringFilter<"StreamTemplate"> | string
+    usageCount?: IntFilter<"StreamTemplate"> | number
+    createdBy?: StringFilter<"StreamTemplate"> | string
+    createdAt?: DateTimeFilter<"StreamTemplate"> | Date | string
+    updatedAt?: DateTimeFilter<"StreamTemplate"> | Date | string
+  }
+
+  export type StreamTemplateOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    asset?: SortOrder
+    recipientAddress?: SortOrder
+    splitEnabled?: SortOrder
+    splitAddress?: SortOrderInput | SortOrder
+    splitPercent?: SortOrder
+    totalAmount?: SortOrder
+    rateType?: SortOrder
+    durationPreset?: SortOrder
+    usageCount?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StreamTemplateWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: StreamTemplateWhereInput | StreamTemplateWhereInput[]
+    OR?: StreamTemplateWhereInput[]
+    NOT?: StreamTemplateWhereInput | StreamTemplateWhereInput[]
+    name?: StringFilter<"StreamTemplate"> | string
+    asset?: StringFilter<"StreamTemplate"> | string
+    recipientAddress?: StringFilter<"StreamTemplate"> | string
+    splitEnabled?: BoolFilter<"StreamTemplate"> | boolean
+    splitAddress?: StringNullableFilter<"StreamTemplate"> | string | null
+    splitPercent?: IntFilter<"StreamTemplate"> | number
+    totalAmount?: StringFilter<"StreamTemplate"> | string
+    rateType?: StringFilter<"StreamTemplate"> | string
+    durationPreset?: StringFilter<"StreamTemplate"> | string
+    usageCount?: IntFilter<"StreamTemplate"> | number
+    createdBy?: StringFilter<"StreamTemplate"> | string
+    createdAt?: DateTimeFilter<"StreamTemplate"> | Date | string
+    updatedAt?: DateTimeFilter<"StreamTemplate"> | Date | string
+  }, "id">
+
+  export type StreamTemplateOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    asset?: SortOrder
+    recipientAddress?: SortOrder
+    splitEnabled?: SortOrder
+    splitAddress?: SortOrderInput | SortOrder
+    splitPercent?: SortOrder
+    totalAmount?: SortOrder
+    rateType?: SortOrder
+    durationPreset?: SortOrder
+    usageCount?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: StreamTemplateCountOrderByAggregateInput
+    _avg?: StreamTemplateAvgOrderByAggregateInput
+    _max?: StreamTemplateMaxOrderByAggregateInput
+    _min?: StreamTemplateMinOrderByAggregateInput
+    _sum?: StreamTemplateSumOrderByAggregateInput
+  }
+
+  export type StreamTemplateScalarWhereWithAggregatesInput = {
+    AND?: StreamTemplateScalarWhereWithAggregatesInput | StreamTemplateScalarWhereWithAggregatesInput[]
+    OR?: StreamTemplateScalarWhereWithAggregatesInput[]
+    NOT?: StreamTemplateScalarWhereWithAggregatesInput | StreamTemplateScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"StreamTemplate"> | string
+    name?: StringWithAggregatesFilter<"StreamTemplate"> | string
+    asset?: StringWithAggregatesFilter<"StreamTemplate"> | string
+    recipientAddress?: StringWithAggregatesFilter<"StreamTemplate"> | string
+    splitEnabled?: BoolWithAggregatesFilter<"StreamTemplate"> | boolean
+    splitAddress?: StringNullableWithAggregatesFilter<"StreamTemplate"> | string | null
+    splitPercent?: IntWithAggregatesFilter<"StreamTemplate"> | number
+    totalAmount?: StringWithAggregatesFilter<"StreamTemplate"> | string
+    rateType?: StringWithAggregatesFilter<"StreamTemplate"> | string
+    durationPreset?: StringWithAggregatesFilter<"StreamTemplate"> | string
+    usageCount?: IntWithAggregatesFilter<"StreamTemplate"> | number
+    createdBy?: StringWithAggregatesFilter<"StreamTemplate"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"StreamTemplate"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"StreamTemplate"> | Date | string
   }
 
   export type SplitLinkWhereInput = {
@@ -45617,6 +46846,125 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type StreamTemplateCreateInput = {
+    id?: string
+    name: string
+    asset: string
+    recipientAddress: string
+    splitEnabled?: boolean
+    splitAddress?: string | null
+    splitPercent?: number
+    totalAmount: string
+    rateType: string
+    durationPreset: string
+    usageCount?: number
+    createdBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StreamTemplateUncheckedCreateInput = {
+    id?: string
+    name: string
+    asset: string
+    recipientAddress: string
+    splitEnabled?: boolean
+    splitAddress?: string | null
+    splitPercent?: number
+    totalAmount: string
+    rateType: string
+    durationPreset: string
+    usageCount?: number
+    createdBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StreamTemplateUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    asset?: StringFieldUpdateOperationsInput | string
+    recipientAddress?: StringFieldUpdateOperationsInput | string
+    splitEnabled?: BoolFieldUpdateOperationsInput | boolean
+    splitAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    splitPercent?: IntFieldUpdateOperationsInput | number
+    totalAmount?: StringFieldUpdateOperationsInput | string
+    rateType?: StringFieldUpdateOperationsInput | string
+    durationPreset?: StringFieldUpdateOperationsInput | string
+    usageCount?: IntFieldUpdateOperationsInput | number
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StreamTemplateUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    asset?: StringFieldUpdateOperationsInput | string
+    recipientAddress?: StringFieldUpdateOperationsInput | string
+    splitEnabled?: BoolFieldUpdateOperationsInput | boolean
+    splitAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    splitPercent?: IntFieldUpdateOperationsInput | number
+    totalAmount?: StringFieldUpdateOperationsInput | string
+    rateType?: StringFieldUpdateOperationsInput | string
+    durationPreset?: StringFieldUpdateOperationsInput | string
+    usageCount?: IntFieldUpdateOperationsInput | number
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StreamTemplateCreateManyInput = {
+    id?: string
+    name: string
+    asset: string
+    recipientAddress: string
+    splitEnabled?: boolean
+    splitAddress?: string | null
+    splitPercent?: number
+    totalAmount: string
+    rateType: string
+    durationPreset: string
+    usageCount?: number
+    createdBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type StreamTemplateUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    asset?: StringFieldUpdateOperationsInput | string
+    recipientAddress?: StringFieldUpdateOperationsInput | string
+    splitEnabled?: BoolFieldUpdateOperationsInput | boolean
+    splitAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    splitPercent?: IntFieldUpdateOperationsInput | number
+    totalAmount?: StringFieldUpdateOperationsInput | string
+    rateType?: StringFieldUpdateOperationsInput | string
+    durationPreset?: StringFieldUpdateOperationsInput | string
+    usageCount?: IntFieldUpdateOperationsInput | number
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StreamTemplateUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    asset?: StringFieldUpdateOperationsInput | string
+    recipientAddress?: StringFieldUpdateOperationsInput | string
+    splitEnabled?: BoolFieldUpdateOperationsInput | boolean
+    splitAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    splitPercent?: IntFieldUpdateOperationsInput | number
+    totalAmount?: StringFieldUpdateOperationsInput | string
+    rateType?: StringFieldUpdateOperationsInput | string
+    durationPreset?: StringFieldUpdateOperationsInput | string
+    usageCount?: IntFieldUpdateOperationsInput | number
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type SplitLinkCreateInput = {
     id?: string
     slug: string
@@ -47783,6 +49131,67 @@ export namespace Prisma {
     decimals?: SortOrder
   }
 
+  export type StreamTemplateCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    asset?: SortOrder
+    recipientAddress?: SortOrder
+    splitEnabled?: SortOrder
+    splitAddress?: SortOrder
+    splitPercent?: SortOrder
+    totalAmount?: SortOrder
+    rateType?: SortOrder
+    durationPreset?: SortOrder
+    usageCount?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StreamTemplateAvgOrderByAggregateInput = {
+    splitPercent?: SortOrder
+    usageCount?: SortOrder
+  }
+
+  export type StreamTemplateMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    asset?: SortOrder
+    recipientAddress?: SortOrder
+    splitEnabled?: SortOrder
+    splitAddress?: SortOrder
+    splitPercent?: SortOrder
+    totalAmount?: SortOrder
+    rateType?: SortOrder
+    durationPreset?: SortOrder
+    usageCount?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StreamTemplateMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    asset?: SortOrder
+    recipientAddress?: SortOrder
+    splitEnabled?: SortOrder
+    splitAddress?: SortOrder
+    splitPercent?: SortOrder
+    totalAmount?: SortOrder
+    rateType?: SortOrder
+    durationPreset?: SortOrder
+    usageCount?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type StreamTemplateSumOrderByAggregateInput = {
+    splitPercent?: SortOrder
+    usageCount?: SortOrder
+  }
+
   export type SplitLinkCountOrderByAggregateInput = {
     id?: SortOrder
     slug?: SortOrder
@@ -48665,6 +50074,10 @@ export namespace Prisma {
      * @deprecated Use CachedAssetDefaultArgs instead
      */
     export type CachedAssetArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = CachedAssetDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use StreamTemplateDefaultArgs instead
+     */
+    export type StreamTemplateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = StreamTemplateDefaultArgs<ExtArgs>
     /**
      * @deprecated Use SplitLinkDefaultArgs instead
      */
