@@ -47,6 +47,8 @@ model Stream {
   @@index([yieldEnabled, status])
   @@index([isDust])
   @@index([affiliateId])
+  // #1148 — owner dashboard: latest streams for a user filtered by status
+  @@index([sender, status, createdAt(sort: Desc)])
 }
 
 model ContractEvent {
@@ -64,7 +66,8 @@ model ContractEvent {
   createdAt      DateTime @default(now()) @map("created_at")
 
   @@unique([txHash, eventIndex])
-  @@index([contractId, ledgerSequence])
+  // #1148 — newest-first event scans per contract (ledger DESC)
+  @@index([contractId, ledgerSequence(sort: Desc)])
   @@index([eventType])
   @@index([txHash])
 }
@@ -140,6 +143,8 @@ model EventLog {
   @@index([eventType])
   @@index([createdAt])
   @@index([ledger])
+  // #1148 — audit trail for a stream, newest entries first
+  @@index([streamId, createdAt(sort: Desc)])
 }
 
 // Monthly snapshots of stream states
@@ -478,12 +483,15 @@ model Disbursement {
   createdAt      DateTime     @default(now())
   completedAt    DateTime?
   ledger         Int
+  batchId        String?      @map("batch_id") // #1148 — groups disbursements processed in one batch (#1202)
 
   @@index([streamId])
   @@index([sender])
   @@index([receiver])
   @@index([status])
   @@index([createdAt])
+  // #1148 — batch progress/status lookups for the batch processing engine
+  @@index([batchId, status])
 }
 
 enum DisbursementStatus {
