@@ -8,8 +8,8 @@ use soroban_sdk::{
 };
 
 use crate::{
-    errors::Error, AdminAction, AdminChangeAction, ContractState, PercentRecipient,
-    Recipient, SplitMode, SplitterV3, SplitterV3Client,
+    errors::Error, AdminAction, AdminChangeAction, ContractState, PercentRecipient, Recipient,
+    SplitMode, SplitterV3, SplitterV3Client,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -66,13 +66,25 @@ fn setup() -> Setup {
         &council.clone(),
     );
 
-    Setup { env, contract, token, owner, treasury, admin_a, admin_b, admin_c, council }
+    Setup {
+        env,
+        contract,
+        token,
+        owner,
+        treasury,
+        admin_a,
+        admin_b,
+        admin_c,
+        council,
+    }
 }
 
 /// Helper: zero-fee setup (fee_bps = 0)
 fn setup_zero_fee() -> Setup {
     let s = setup();
-    let id = s.contract.propose_change(&s.admin_a, &AdminAction::UpdateFee(0));
+    let id = s
+        .contract
+        .propose_change(&s.admin_a, &AdminAction::UpdateFee(0));
     s.contract.approve_proposal(&s.admin_b, &id);
     s.contract.execute_proposal(&s.admin_c, &id);
     s
@@ -81,15 +93,24 @@ fn setup_zero_fee() -> Setup {
 /// Helper: build a single-recipient Vec
 fn single_recipient(env: &Env, addr: &Address) -> Vec<Recipient> {
     let mut v = Vec::new(env);
-    v.push_back(Recipient { address: addr.clone(), share_bps: 10_000 });
+    v.push_back(Recipient {
+        address: addr.clone(),
+        share_bps: 10_000,
+    });
     v
 }
 
 /// Helper: build a two-recipient Vec with given bps split
 fn two_recipients(env: &Env, a: &Address, a_bps: u32, b: &Address, b_bps: u32) -> Vec<Recipient> {
     let mut v = Vec::new(env);
-    v.push_back(Recipient { address: a.clone(), share_bps: a_bps });
-    v.push_back(Recipient { address: b.clone(), share_bps: b_bps });
+    v.push_back(Recipient {
+        address: a.clone(),
+        share_bps: a_bps,
+    });
+    v.push_back(Recipient {
+        address: b.clone(),
+        share_bps: b_bps,
+    });
     v
 }
 
@@ -160,7 +181,9 @@ fn test_initialize_verifies_owner_and_quorum_admins() {
 #[test]
 fn test_full_quorum_updates_fee() {
     let s = setup();
-    let id = s.contract.propose_change(&s.admin_a, &AdminAction::UpdateFee(500));
+    let id = s
+        .contract
+        .propose_change(&s.admin_a, &AdminAction::UpdateFee(500));
     s.contract.approve_proposal(&s.admin_b, &id);
     s.contract.execute_proposal(&s.admin_c, &id);
     assert_eq!(s.contract.fee_bps(), 500u32);
@@ -183,7 +206,9 @@ fn test_full_quorum_updates_collector() {
 #[test]
 fn test_double_vote_prevented() {
     let s = setup();
-    let id = s.contract.propose_change(&s.admin_a, &AdminAction::UpdateFee(200));
+    let id = s
+        .contract
+        .propose_change(&s.admin_a, &AdminAction::UpdateFee(200));
     let result = s.contract.try_approve_proposal(&s.admin_a, &id);
     assert_eq!(result, Err(Ok(Error::AlreadyApproved)));
 }
@@ -192,14 +217,18 @@ fn test_double_vote_prevented() {
 fn test_non_admin_rejected_by_quorum_check() {
     let s = setup();
     let attacker = Address::generate(&s.env);
-    let result = s.contract.try_propose_change(&attacker, &AdminAction::UpdateFee(999));
+    let result = s
+        .contract
+        .try_propose_change(&attacker, &AdminAction::UpdateFee(999));
     assert_eq!(result, Err(Ok(Error::NotAuthorizedAdmin)));
 }
 
 #[test]
 fn test_non_admin_cannot_approve() {
     let s = setup();
-    let id = s.contract.propose_change(&s.admin_a, &AdminAction::UpdateFee(200));
+    let id = s
+        .contract
+        .propose_change(&s.admin_a, &AdminAction::UpdateFee(200));
     let attacker = Address::generate(&s.env);
     assert_eq!(
         s.contract.try_approve_proposal(&attacker, &id),
@@ -210,7 +239,9 @@ fn test_non_admin_cannot_approve() {
 #[test]
 fn test_non_admin_cannot_execute() {
     let s = setup();
-    let id = s.contract.propose_change(&s.admin_a, &AdminAction::UpdateFee(200));
+    let id = s
+        .contract
+        .propose_change(&s.admin_a, &AdminAction::UpdateFee(200));
     s.contract.approve_proposal(&s.admin_b, &id);
     let attacker = Address::generate(&s.env);
     assert_eq!(
@@ -222,7 +253,9 @@ fn test_non_admin_cannot_execute() {
 #[test]
 fn test_execute_with_one_approval_fails() {
     let s = setup();
-    let id = s.contract.propose_change(&s.admin_a, &AdminAction::UpdateFee(300));
+    let id = s
+        .contract
+        .propose_change(&s.admin_a, &AdminAction::UpdateFee(300));
     assert_eq!(
         s.contract.try_execute_proposal(&s.admin_b, &id),
         Err(Ok(Error::QuorumNotReached))
@@ -233,7 +266,9 @@ fn test_execute_with_one_approval_fails() {
 #[test]
 fn test_cannot_execute_twice() {
     let s = setup();
-    let id = s.contract.propose_change(&s.admin_a, &AdminAction::UpdateFee(50));
+    let id = s
+        .contract
+        .propose_change(&s.admin_a, &AdminAction::UpdateFee(50));
     s.contract.approve_proposal(&s.admin_b, &id);
     s.contract.execute_proposal(&s.admin_c, &id);
     assert_eq!(
@@ -263,7 +298,9 @@ fn test_execute_nonexistent_proposal_fails() {
 #[test]
 fn test_approve_already_executed_proposal_fails() {
     let s = setup();
-    let id = s.contract.propose_change(&s.admin_a, &AdminAction::UpdateFee(50));
+    let id = s
+        .contract
+        .propose_change(&s.admin_a, &AdminAction::UpdateFee(50));
     s.contract.approve_proposal(&s.admin_b, &id);
     s.contract.execute_proposal(&s.admin_c, &id);
     assert_eq!(
@@ -275,8 +312,12 @@ fn test_approve_already_executed_proposal_fails() {
 #[test]
 fn test_multiple_proposals_independent() {
     let s = setup();
-    let id0 = s.contract.propose_change(&s.admin_a, &AdminAction::UpdateFee(200));
-    let id1 = s.contract.propose_change(&s.admin_b, &AdminAction::UpdateFee(400));
+    let id0 = s
+        .contract
+        .propose_change(&s.admin_a, &AdminAction::UpdateFee(200));
+    let id1 = s
+        .contract
+        .propose_change(&s.admin_b, &AdminAction::UpdateFee(400));
     // Execute id1 first
     s.contract.approve_proposal(&s.admin_a, &id1);
     s.contract.execute_proposal(&s.admin_c, &id1);
@@ -298,7 +339,10 @@ fn test_split_uses_updated_fee() {
     s.contract.set_verification_status(&alice, &true);
     let recipients = single_recipient(&s.env, &alice);
     s.contract.split(
-        &s.owner, &recipients, &20_000_000, &None,
+        &s.owner,
+        &recipients,
+        &20_000_000,
+        &None,
         &BytesN::from_array(&s.env, &[1u8; 32]),
     );
     assert_eq!(s.token.balance(&alice), 20_000_000);
@@ -311,7 +355,10 @@ fn test_split_fee_deducted_correctly() {
     s.contract.set_verification_status(&alice, &true);
     let recipients = single_recipient(&s.env, &alice);
     s.contract.split(
-        &s.owner, &recipients, &20_000_000, &None,
+        &s.owner,
+        &recipients,
+        &20_000_000,
+        &None,
         &BytesN::from_array(&s.env, &[2u8; 32]),
     );
     // fee = 200_000; alice gets 19_800_000
@@ -328,7 +375,10 @@ fn test_split_two_recipients_correct_amounts() {
     s.contract.set_verification_status(&bob, &true);
     let recipients = two_recipients(&s.env, &alice, 6_000, &bob, 4_000);
     s.contract.split(
-        &s.owner, &recipients, &100_000_000, &None,
+        &s.owner,
+        &recipients,
+        &100_000_000,
+        &None,
         &BytesN::from_array(&s.env, &[3u8; 32]),
     );
     assert_eq!(s.token.balance(&alice), 60_000_000);
@@ -342,9 +392,11 @@ fn test_split_idempotency_rejects_replay() {
     s.contract.set_verification_status(&alice, &true);
     let recipients = single_recipient(&s.env, &alice);
     let salt = BytesN::from_array(&s.env, &[42u8; 32]);
-    s.contract.split(&s.owner, &recipients, &20_000_000, &None, &salt);
+    s.contract
+        .split(&s.owner, &recipients, &20_000_000, &None, &salt);
     assert_eq!(
-        s.contract.try_split(&s.owner, &recipients, &20_000_000, &None, &salt),
+        s.contract
+            .try_split(&s.owner, &recipients, &20_000_000, &None, &salt),
         Err(Ok(Error::AlreadyProcessed))
     );
 }
@@ -356,11 +408,17 @@ fn test_split_different_salt_succeeds() {
     s.contract.set_verification_status(&alice, &true);
     let recipients = single_recipient(&s.env, &alice);
     s.contract.split(
-        &s.owner, &recipients, &20_000_000, &None,
+        &s.owner,
+        &recipients,
+        &20_000_000,
+        &None,
         &BytesN::from_array(&s.env, &[1u8; 32]),
     );
     s.contract.split(
-        &s.owner, &recipients, &20_000_000, &None,
+        &s.owner,
+        &recipients,
+        &20_000_000,
+        &None,
         &BytesN::from_array(&s.env, &[2u8; 32]),
     );
     assert_eq!(s.token.balance(&alice), 40_000_000);
@@ -374,7 +432,10 @@ fn test_split_preflight_rejects_insufficient_balance() {
     let recipients = single_recipient(&s.env, &alice);
     assert_eq!(
         s.contract.try_split(
-            &s.owner, &recipients, &2_000_000_000i128, &None,
+            &s.owner,
+            &recipients,
+            &2_000_000_000i128,
+            &None,
             &BytesN::from_array(&s.env, &[10u8; 32]),
         ),
         Err(Ok(Error::InsufficientBalance))
@@ -392,7 +453,10 @@ fn test_split_invalid_bps_sum_rejected() {
     let recipients = two_recipients(&s.env, &alice, 5_000, &bob, 4_000);
     assert_eq!(
         s.contract.try_split(
-            &s.owner, &recipients, &20_000_000, &None,
+            &s.owner,
+            &recipients,
+            &20_000_000,
+            &None,
             &BytesN::from_array(&s.env, &[11u8; 32]),
         ),
         Err(Ok(Error::InvalidSplit))
@@ -407,7 +471,10 @@ fn test_split_strict_mode_rejects_unverified() {
     let recipients = single_recipient(&s.env, &alice);
     assert_eq!(
         s.contract.try_split(
-            &s.owner, &recipients, &20_000_000, &None,
+            &s.owner,
+            &recipients,
+            &20_000_000,
+            &None,
             &BytesN::from_array(&s.env, &[12u8; 32]),
         ),
         Err(Ok(Error::RecipientNotVerified))
@@ -423,7 +490,10 @@ fn test_split_non_strict_skips_unverified_recipient() {
     // non-strict: only alice is verified, she gets 100% of distributable
     let recipients = two_recipients(&s.env, &alice, 6_000, &bob, 4_000);
     s.contract.split(
-        &s.owner, &recipients, &100_000_000, &None,
+        &s.owner,
+        &recipients,
+        &100_000_000,
+        &None,
         &BytesN::from_array(&s.env, &[13u8; 32]),
     );
     assert_eq!(s.token.balance(&alice), 100_000_000);
@@ -437,7 +507,10 @@ fn test_split_no_verified_recipients_rejected() {
     let recipients = single_recipient(&s.env, &alice);
     assert_eq!(
         s.contract.try_split(
-            &s.owner, &recipients, &20_000_000, &None,
+            &s.owner,
+            &recipients,
+            &20_000_000,
+            &None,
             &BytesN::from_array(&s.env, &[14u8; 32]),
         ),
         Err(Ok(Error::NoVerifiedRecipients))
@@ -454,7 +527,10 @@ fn test_split_rejects_share_below_minimum() {
     let recipients = two_recipients(&s.env, &alice, 5_000, &bob, 5_000);
     assert_eq!(
         s.contract.try_split(
-            &s.owner, &recipients, &100i128, &None,
+            &s.owner,
+            &recipients,
+            &100i128,
+            &None,
             &BytesN::from_array(&s.env, &[99u8; 32]),
         ),
         Err(Ok(Error::ShareBelowMinimum))
@@ -468,7 +544,10 @@ fn test_split_allows_share_above_minimum() {
     s.contract.set_verification_status(&alice, &true);
     let recipients = single_recipient(&s.env, &alice);
     s.contract.split(
-        &s.owner, &recipients, &20_000_000i128, &None,
+        &s.owner,
+        &recipients,
+        &20_000_000i128,
+        &None,
         &BytesN::from_array(&s.env, &[98u8; 32]),
     );
     assert_eq!(s.token.balance(&alice), 19_800_000); // after 1% fee
@@ -483,11 +562,14 @@ fn test_split_with_affiliate() {
     let recipients = single_recipient(&s.env, &alice);
     // affiliate gets 10/10_000 = 0.1% of total_amount
     s.contract.split(
-        &s.owner, &recipients, &100_000_000, &Some(aff.clone()),
+        &s.owner,
+        &recipients,
+        &100_000_000,
+        &Some(aff.clone()),
         &BytesN::from_array(&s.env, &[20u8; 32]),
     );
     assert_eq!(s.token.balance(&aff), 100_000); // 0.1% of 100_000_000
-    // alice gets 100_000_000 - 100_000 affiliate = 99_900_000
+                                                // alice gets 100_000_000 - 100_000 affiliate = 99_900_000
     assert_eq!(s.token.balance(&alice), 99_900_000);
 }
 
@@ -507,7 +589,10 @@ fn test_split_paused_contract_rejected() {
     let recipients = single_recipient(&s.env, &alice);
     assert_eq!(
         s.contract.try_split(
-            &s.owner, &recipients, &20_000_000, &None,
+            &s.owner,
+            &recipients,
+            &20_000_000,
+            &None,
             &BytesN::from_array(&s.env, &[30u8; 32]),
         ),
         Err(Ok(Error::ContractPaused))
@@ -528,13 +613,18 @@ fn test_schedule_and_execute_split() {
     let recipients = two_recipients(&s.env, &alice, 6_000, &bob, 4_000);
     let now = s.env.ledger().timestamp();
     let release_time = now + 1_000;
-    let split_id = s.contract.schedule_split(&s.owner, &recipients, &30_000_000, &release_time);
+    let split_id = s
+        .contract
+        .schedule_split(&s.owner, &recipients, &30_000_000, &release_time);
     s.env.ledger().with_mut(|l| l.timestamp = release_time + 1);
     s.contract.execute_split(&split_id);
     // 1% fee → distributable = 29_700_000
     assert_eq!(s.token.balance(&alice), 17_820_000);
     assert_eq!(s.token.balance(&bob), 11_880_000);
-    assert_eq!(s.contract.get_split(&split_id).unwrap().status, SplitStatus::Executed);
+    assert_eq!(
+        s.contract.get_split(&split_id).unwrap().status,
+        SplitStatus::Executed
+    );
 }
 
 #[test]
@@ -544,11 +634,16 @@ fn test_cancel_split_refunds_sender() {
     let recipients = single_recipient(&s.env, &alice);
     let now = s.env.ledger().timestamp();
     let initial = s.token.balance(&s.owner);
-    let split_id = s.contract.schedule_split(&s.owner, &recipients, &500_000, &(now + 1_000));
+    let split_id = s
+        .contract
+        .schedule_split(&s.owner, &recipients, &500_000, &(now + 1_000));
     assert_eq!(s.token.balance(&s.owner), initial - 500_000);
     s.contract.cancel_split(&s.owner, &split_id);
     assert_eq!(s.token.balance(&s.owner), initial);
-    assert_eq!(s.contract.get_split(&split_id).unwrap().status, SplitStatus::Cancelled);
+    assert_eq!(
+        s.contract.get_split(&split_id).unwrap().status,
+        SplitStatus::Cancelled
+    );
 }
 
 #[test]
@@ -558,7 +653,9 @@ fn test_cancel_split_wrong_sender_rejected() {
     let attacker = Address::generate(&s.env);
     let recipients = single_recipient(&s.env, &alice);
     let now = s.env.ledger().timestamp();
-    let split_id = s.contract.schedule_split(&s.owner, &recipients, &100_000, &(now + 1_000));
+    let split_id = s
+        .contract
+        .schedule_split(&s.owner, &recipients, &100_000, &(now + 1_000));
     assert_eq!(
         s.contract.try_cancel_split(&attacker, &split_id),
         Err(Ok(Error::NotSplitSender))
@@ -572,7 +669,9 @@ fn test_cancel_split_after_release_time_rejected() {
     let recipients = single_recipient(&s.env, &alice);
     let now = s.env.ledger().timestamp();
     let release_time = now + 500;
-    let split_id = s.contract.schedule_split(&s.owner, &recipients, &20_000_000, &release_time);
+    let split_id = s
+        .contract
+        .schedule_split(&s.owner, &recipients, &20_000_000, &release_time);
     s.env.ledger().with_mut(|l| l.timestamp = release_time + 1);
     assert_eq!(
         s.contract.try_cancel_split(&s.owner, &split_id),
@@ -586,7 +685,9 @@ fn test_execute_split_before_release_time_rejected() {
     let alice = Address::generate(&s.env);
     let recipients = single_recipient(&s.env, &alice);
     let now = s.env.ledger().timestamp();
-    let split_id = s.contract.schedule_split(&s.owner, &recipients, &100_000, &(now + 1_000));
+    let split_id = s
+        .contract
+        .schedule_split(&s.owner, &recipients, &100_000, &(now + 1_000));
     assert_eq!(
         s.contract.try_execute_split(&split_id),
         Err(Ok(Error::NotYetReleased))
@@ -599,7 +700,9 @@ fn test_cancel_already_cancelled_split_rejected() {
     let alice = Address::generate(&s.env);
     let recipients = single_recipient(&s.env, &alice);
     let now = s.env.ledger().timestamp();
-    let split_id = s.contract.schedule_split(&s.owner, &recipients, &100_000, &(now + 1_000));
+    let split_id = s
+        .contract
+        .schedule_split(&s.owner, &recipients, &100_000, &(now + 1_000));
     s.contract.cancel_split(&s.owner, &split_id);
     assert_eq!(
         s.contract.try_cancel_split(&s.owner, &split_id),
@@ -614,7 +717,9 @@ fn test_cancel_executed_split_rejected() {
     let recipients = single_recipient(&s.env, &alice);
     let now = s.env.ledger().timestamp();
     let release_time = now + 500;
-    let split_id = s.contract.schedule_split(&s.owner, &recipients, &20_000_000, &release_time);
+    let split_id = s
+        .contract
+        .schedule_split(&s.owner, &recipients, &20_000_000, &release_time);
     s.env.ledger().with_mut(|l| l.timestamp = release_time + 1);
     s.contract.execute_split(&split_id);
     assert_eq!(
@@ -629,7 +734,9 @@ fn test_execute_cancelled_split_rejected() {
     let alice = Address::generate(&s.env);
     let recipients = single_recipient(&s.env, &alice);
     let now = s.env.ledger().timestamp();
-    let split_id = s.contract.schedule_split(&s.owner, &recipients, &20_000_000, &(now + 500));
+    let split_id = s
+        .contract
+        .schedule_split(&s.owner, &recipients, &20_000_000, &(now + 500));
     s.contract.cancel_split(&s.owner, &split_id);
     s.env.ledger().with_mut(|l| l.timestamp = now + 600);
     assert_eq!(
@@ -663,7 +770,9 @@ fn test_execute_split_cannot_execute_twice() {
     let recipients = single_recipient(&s.env, &alice);
     let now = s.env.ledger().timestamp();
     let release_time = now + 100;
-    let split_id = s.contract.schedule_split(&s.owner, &recipients, &20_000_000, &release_time);
+    let split_id = s
+        .contract
+        .schedule_split(&s.owner, &recipients, &20_000_000, &release_time);
     s.env.ledger().with_mut(|l| l.timestamp = release_time + 1);
     s.contract.execute_split(&split_id);
     assert_eq!(
@@ -685,7 +794,8 @@ fn test_schedule_split_paused_rejected() {
     let recipients = single_recipient(&s.env, &alice);
     let now = s.env.ledger().timestamp();
     assert_eq!(
-        s.contract.try_schedule_split(&s.owner, &recipients, &20_000_000, &(now + 100)),
+        s.contract
+            .try_schedule_split(&s.owner, &recipients, &20_000_000, &(now + 100)),
         Err(Ok(Error::ContractPaused))
     );
 }
@@ -701,10 +811,14 @@ fn test_split_pull_credits_claimable_balances() {
     let bob = Address::generate(&s.env);
     let token_addr = s.token.address.clone();
     let recipients = two_recipients(&s.env, &alice, 7_000, &bob, 3_000);
-    s.contract.split_pull(&s.owner, &recipients, &40_000_000, &None);
+    s.contract
+        .split_pull(&s.owner, &recipients, &40_000_000, &None);
     assert_eq!(s.token.balance(&alice), 0);
     assert_eq!(s.token.balance(&bob), 0);
-    assert_eq!(s.contract.claimable_balance(&alice, &token_addr), 28_000_000);
+    assert_eq!(
+        s.contract.claimable_balance(&alice, &token_addr),
+        28_000_000
+    );
     assert_eq!(s.contract.claimable_balance(&bob, &token_addr), 12_000_000);
 }
 
@@ -714,7 +828,8 @@ fn test_claim_share_transfers_and_zeroes_balance() {
     let alice = Address::generate(&s.env);
     let token_addr = s.token.address.clone();
     let recipients = single_recipient(&s.env, &alice);
-    s.contract.split_pull(&s.owner, &recipients, &20_000_000, &None);
+    s.contract
+        .split_pull(&s.owner, &recipients, &20_000_000, &None);
     s.contract.claim_share(&alice, &token_addr);
     assert_eq!(s.token.balance(&alice), 20_000_000);
     assert_eq!(s.contract.claimable_balance(&alice, &token_addr), 0);
@@ -736,9 +851,13 @@ fn test_split_pull_fee_deducted_before_crediting() {
     let alice = Address::generate(&s.env);
     let token_addr = s.token.address.clone();
     let recipients = single_recipient(&s.env, &alice);
-    s.contract.split_pull(&s.owner, &recipients, &20_000_000, &None);
+    s.contract
+        .split_pull(&s.owner, &recipients, &20_000_000, &None);
     // fee = 200_000 → alice gets 19_800_000
-    assert_eq!(s.contract.claimable_balance(&alice, &token_addr), 19_800_000);
+    assert_eq!(
+        s.contract.claimable_balance(&alice, &token_addr),
+        19_800_000
+    );
     assert_eq!(s.token.balance(&s.treasury), 200_000);
 }
 
@@ -748,9 +867,14 @@ fn test_multiple_split_pulls_accumulate_balance() {
     let alice = Address::generate(&s.env);
     let token_addr = s.token.address.clone();
     let recipients = single_recipient(&s.env, &alice);
-    s.contract.split_pull(&s.owner, &recipients, &20_000_000, &None);
-    s.contract.split_pull(&s.owner, &recipients, &30_000_000, &None);
-    assert_eq!(s.contract.claimable_balance(&alice, &token_addr), 50_000_000);
+    s.contract
+        .split_pull(&s.owner, &recipients, &20_000_000, &None);
+    s.contract
+        .split_pull(&s.owner, &recipients, &30_000_000, &None);
+    assert_eq!(
+        s.contract.claimable_balance(&alice, &token_addr),
+        50_000_000
+    );
     s.contract.claim_share(&alice, &token_addr);
     assert_eq!(s.token.balance(&alice), 50_000_000);
 }
@@ -761,7 +885,8 @@ fn test_split_pull_rejects_share_below_minimum() {
     let alice = Address::generate(&s.env);
     let recipients = single_recipient(&s.env, &alice);
     assert_eq!(
-        s.contract.try_split_pull(&s.owner, &recipients, &500i128, &None),
+        s.contract
+            .try_split_pull(&s.owner, &recipients, &500i128, &None),
         Err(Ok(Error::ShareBelowMinimum))
     );
 }
@@ -774,7 +899,8 @@ fn test_split_pull_invalid_bps_sum_rejected() {
     // sum = 9000
     let recipients = two_recipients(&s.env, &alice, 5_000, &bob, 4_000);
     assert_eq!(
-        s.contract.try_split_pull(&s.owner, &recipients, &20_000_000, &None),
+        s.contract
+            .try_split_pull(&s.owner, &recipients, &20_000_000, &None),
         Err(Ok(Error::InvalidSplit))
     );
 }
@@ -791,7 +917,8 @@ fn test_split_pull_paused_rejected() {
     let alice = Address::generate(&s.env);
     let recipients = single_recipient(&s.env, &alice);
     assert_eq!(
-        s.contract.try_split_pull(&s.owner, &recipients, &20_000_000, &None),
+        s.contract
+            .try_split_pull(&s.owner, &recipients, &20_000_000, &None),
         Err(Ok(Error::ContractPaused))
     );
 }
@@ -806,9 +933,14 @@ fn test_split_funds_push_transfers_directly() {
     let alice = Address::generate(&s.env);
     let recipients = single_recipient(&s.env, &alice);
     // Pre-fund contract so try_transfer from contract works
-    s.token.transfer(&s.owner, &s.contract.address, &20_000_000i128);
+    s.token
+        .transfer(&s.owner, &s.contract.address, &20_000_000i128);
     s.contract.split_funds(
-        &s.owner, &s.token.address, &recipients, &20_000_000i128, &SplitMode::Push,
+        &s.owner,
+        &s.token.address,
+        &recipients,
+        &20_000_000i128,
+        &SplitMode::Push,
     );
     assert_eq!(s.token.balance(&alice), 20_000_000);
 }
@@ -819,12 +951,20 @@ fn test_split_funds_pull_credits_claimable() {
     let alice = Address::generate(&s.env);
     let token_addr = s.token.address.clone();
     let recipients = single_recipient(&s.env, &alice);
-    s.token.transfer(&s.owner, &s.contract.address, &20_000_000i128);
+    s.token
+        .transfer(&s.owner, &s.contract.address, &20_000_000i128);
     s.contract.split_funds(
-        &s.owner, &token_addr, &recipients, &20_000_000i128, &SplitMode::Pull,
+        &s.owner,
+        &token_addr,
+        &recipients,
+        &20_000_000i128,
+        &SplitMode::Pull,
     );
     assert_eq!(s.token.balance(&alice), 0);
-    assert_eq!(s.contract.claimable_balance(&alice, &token_addr), 20_000_000);
+    assert_eq!(
+        s.contract.claimable_balance(&alice, &token_addr),
+        20_000_000
+    );
 }
 
 #[test]
@@ -834,7 +974,11 @@ fn test_split_funds_preflight_rejects_insufficient_balance() {
     let recipients = single_recipient(&s.env, &alice);
     assert_eq!(
         s.contract.try_split_funds(
-            &s.owner, &s.token.address, &recipients, &2_000_000_000i128, &SplitMode::Push,
+            &s.owner,
+            &s.token.address,
+            &recipients,
+            &2_000_000_000i128,
+            &SplitMode::Push,
         ),
         Err(Ok(Error::InsufficientBalance))
     );
@@ -846,7 +990,11 @@ fn test_split_funds_empty_recipients_rejected() {
     let empty: Vec<Recipient> = Vec::new(&s.env);
     assert_eq!(
         s.contract.try_split_funds(
-            &s.owner, &s.token.address, &empty, &20_000_000i128, &SplitMode::Push,
+            &s.owner,
+            &s.token.address,
+            &empty,
+            &20_000_000i128,
+            &SplitMode::Push,
         ),
         Err(Ok(Error::EmptyRecipients))
     );
@@ -859,9 +1007,16 @@ fn test_split_funds_rejects_invalid_asset() {
     let fake_asset = Address::generate(&s.env);
     let recipients = single_recipient(&s.env, &alice);
     // fake_asset has no token interface — _validate_sac_asset should fail
-    assert!(s.contract.try_split_funds(
-        &s.owner, &fake_asset, &recipients, &20_000_000i128, &SplitMode::Push,
-    ).is_err());
+    assert!(s
+        .contract
+        .try_split_funds(
+            &s.owner,
+            &fake_asset,
+            &recipients,
+            &20_000_000i128,
+            &SplitMode::Push,
+        )
+        .is_err());
 }
 
 #[test]
@@ -869,10 +1024,18 @@ fn test_split_funds_accepts_valid_asset() {
     let s = setup();
     let alice = Address::generate(&s.env);
     let recipients = single_recipient(&s.env, &alice);
-    s.token.transfer(&s.owner, &s.contract.address, &20_000_000i128);
-    assert!(s.contract.try_split_funds(
-        &s.owner, &s.token.address, &recipients, &20_000_000i128, &SplitMode::Push,
-    ).is_ok());
+    s.token
+        .transfer(&s.owner, &s.contract.address, &20_000_000i128);
+    assert!(s
+        .contract
+        .try_split_funds(
+            &s.owner,
+            &s.token.address,
+            &recipients,
+            &20_000_000i128,
+            &SplitMode::Push,
+        )
+        .is_ok());
 }
 
 #[test]
@@ -882,7 +1045,11 @@ fn test_split_funds_rejects_share_below_minimum() {
     let recipients = single_recipient(&s.env, &alice);
     assert_eq!(
         s.contract.try_split_funds(
-            &s.owner, &s.token.address, &recipients, &100i128, &SplitMode::Push,
+            &s.owner,
+            &s.token.address,
+            &recipients,
+            &100i128,
+            &SplitMode::Push,
         ),
         Err(Ok(Error::ShareBelowMinimum))
     );
@@ -894,10 +1061,15 @@ fn test_split_funds_whitelist_only_rejects_non_whitelisted() {
     s.contract.set_whitelist_only(&true);
     let alice = Address::generate(&s.env);
     let recipients = single_recipient(&s.env, &alice);
-    s.token.transfer(&s.owner, &s.contract.address, &20_000_000i128);
+    s.token
+        .transfer(&s.owner, &s.contract.address, &20_000_000i128);
     assert_eq!(
         s.contract.try_split_funds(
-            &s.owner, &s.token.address, &recipients, &20_000_000i128, &SplitMode::Push,
+            &s.owner,
+            &s.token.address,
+            &recipients,
+            &20_000_000i128,
+            &SplitMode::Push,
         ),
         Err(Ok(Error::RecipientNotWhitelisted))
     );
@@ -910,10 +1082,18 @@ fn test_split_funds_whitelist_only_allows_whitelisted() {
     s.contract.add_to_whitelist(&alice);
     s.contract.set_whitelist_only(&true);
     let recipients = single_recipient(&s.env, &alice);
-    s.token.transfer(&s.owner, &s.contract.address, &20_000_000i128);
-    assert!(s.contract.try_split_funds(
-        &s.owner, &s.token.address, &recipients, &20_000_000i128, &SplitMode::Push,
-    ).is_ok());
+    s.token
+        .transfer(&s.owner, &s.contract.address, &20_000_000i128);
+    assert!(s
+        .contract
+        .try_split_funds(
+            &s.owner,
+            &s.token.address,
+            &recipients,
+            &20_000_000i128,
+            &SplitMode::Push,
+        )
+        .is_ok());
     assert_eq!(s.token.balance(&alice), 20_000_000);
 }
 
@@ -930,7 +1110,11 @@ fn test_split_funds_paused_rejected() {
     let recipients = single_recipient(&s.env, &alice);
     assert_eq!(
         s.contract.try_split_funds(
-            &s.owner, &s.token.address, &recipients, &20_000_000i128, &SplitMode::Push,
+            &s.owner,
+            &s.token.address,
+            &recipients,
+            &20_000_000i128,
+            &SplitMode::Push,
         ),
         Err(Ok(Error::ContractPaused))
     );
@@ -942,16 +1126,29 @@ fn test_split_funds_paused_rejected() {
 
 fn single_pct_recipient(env: &Env, addr: &Address) -> Vec<PercentRecipient> {
     let mut v = Vec::new(env);
-    v.push_back(PercentRecipient { address: addr.clone(), bps: 10_000 });
+    v.push_back(PercentRecipient {
+        address: addr.clone(),
+        bps: 10_000,
+    });
     v
 }
 
 fn two_pct_recipients(
-    env: &Env, a: &Address, a_bps: u32, b: &Address, b_bps: u32,
+    env: &Env,
+    a: &Address,
+    a_bps: u32,
+    b: &Address,
+    b_bps: u32,
 ) -> Vec<PercentRecipient> {
     let mut v = Vec::new(env);
-    v.push_back(PercentRecipient { address: a.clone(), bps: a_bps });
-    v.push_back(PercentRecipient { address: b.clone(), bps: b_bps });
+    v.push_back(PercentRecipient {
+        address: a.clone(),
+        bps: a_bps,
+    });
+    v.push_back(PercentRecipient {
+        address: b.clone(),
+        bps: b_bps,
+    });
     v
 }
 
@@ -960,9 +1157,10 @@ fn test_split_percentage_accepts_valid_asset() {
     let s = setup();
     let alice = Address::generate(&s.env);
     let recipients = single_pct_recipient(&s.env, &alice);
-    assert!(s.contract.try_split_percentage(
-        &s.owner, &s.token.address, &20_000_000i128, &recipients,
-    ).is_ok());
+    assert!(s
+        .contract
+        .try_split_percentage(&s.owner, &s.token.address, &20_000_000i128, &recipients,)
+        .is_ok());
 }
 
 #[test]
@@ -971,9 +1169,10 @@ fn test_split_percentage_rejects_invalid_asset() {
     let alice = Address::generate(&s.env);
     let fake_asset = Address::generate(&s.env);
     let recipients = single_pct_recipient(&s.env, &alice);
-    assert!(s.contract.try_split_percentage(
-        &s.owner, &fake_asset, &20_000_000i128, &recipients,
-    ).is_err());
+    assert!(s
+        .contract
+        .try_split_percentage(&s.owner, &fake_asset, &20_000_000i128, &recipients,)
+        .is_err());
 }
 
 #[test]
@@ -984,9 +1183,8 @@ fn test_split_percentage_invalid_bps_sum_rejected() {
     // sum = 9500
     let recipients = two_pct_recipients(&s.env, &alice, 5_000, &bob, 4_500);
     assert_eq!(
-        s.contract.try_split_percentage(
-            &s.owner, &s.token.address, &20_000_000i128, &recipients,
-        ),
+        s.contract
+            .try_split_percentage(&s.owner, &s.token.address, &20_000_000i128, &recipients,),
         Err(Ok(Error::InvalidBpsSum))
     );
 }
@@ -996,9 +1194,8 @@ fn test_split_percentage_empty_recipients_rejected() {
     let s = setup();
     let empty: Vec<PercentRecipient> = Vec::new(&s.env);
     assert_eq!(
-        s.contract.try_split_percentage(
-            &s.owner, &s.token.address, &20_000_000i128, &empty,
-        ),
+        s.contract
+            .try_split_percentage(&s.owner, &s.token.address, &20_000_000i128, &empty,),
         Err(Ok(Error::EmptyRecipients))
     );
 }
@@ -1009,7 +1206,8 @@ fn test_split_percentage_correct_distribution() {
     let alice = Address::generate(&s.env);
     let bob = Address::generate(&s.env);
     let recipients = two_pct_recipients(&s.env, &alice, 7_000, &bob, 3_000);
-    s.contract.split_percentage(&s.owner, &s.token.address, &100_000_000i128, &recipients);
+    s.contract
+        .split_percentage(&s.owner, &s.token.address, &100_000_000i128, &recipients);
     // bob gets 30_000_000; alice gets remaining (100_000_000 - 30_000_000 = 70_000_000)
     assert_eq!(s.token.balance(&bob), 30_000_000);
     assert_eq!(s.token.balance(&alice), 70_000_000);
@@ -1021,9 +1219,8 @@ fn test_split_percentage_rejects_share_below_minimum() {
     let alice = Address::generate(&s.env);
     let recipients = single_pct_recipient(&s.env, &alice);
     assert_eq!(
-        s.contract.try_split_percentage(
-            &s.owner, &s.token.address, &100i128, &recipients,
-        ),
+        s.contract
+            .try_split_percentage(&s.owner, &s.token.address, &100i128, &recipients,),
         Err(Ok(Error::ShareBelowMinimum))
     );
 }
@@ -1040,9 +1237,8 @@ fn test_split_percentage_paused_rejected() {
     let alice = Address::generate(&s.env);
     let recipients = single_pct_recipient(&s.env, &alice);
     assert_eq!(
-        s.contract.try_split_percentage(
-            &s.owner, &s.token.address, &20_000_000i128, &recipients,
-        ),
+        s.contract
+            .try_split_percentage(&s.owner, &s.token.address, &20_000_000i128, &recipients,),
         Err(Ok(Error::ContractPaused))
     );
 }
@@ -1129,19 +1325,32 @@ fn test_set_whitelist_only_flag() {
     s.contract.set_whitelist_only(&true);
     let alice = Address::generate(&s.env);
     let recipients = single_recipient(&s.env, &alice);
-    s.token.transfer(&s.owner, &s.contract.address, &20_000_000i128);
+    s.token
+        .transfer(&s.owner, &s.contract.address, &20_000_000i128);
     assert_eq!(
         s.contract.try_split_funds(
-            &s.owner, &s.token.address, &recipients, &20_000_000i128, &SplitMode::Push,
+            &s.owner,
+            &s.token.address,
+            &recipients,
+            &20_000_000i128,
+            &SplitMode::Push,
         ),
         Err(Ok(Error::RecipientNotWhitelisted))
     );
     // Whitelist alice and retry
     s.contract.add_to_whitelist(&alice);
-    s.token.transfer(&s.owner, &s.contract.address, &20_000_000i128);
-    assert!(s.contract.try_split_funds(
-        &s.owner, &s.token.address, &recipients, &20_000_000i128, &SplitMode::Push,
-    ).is_ok());
+    s.token
+        .transfer(&s.owner, &s.contract.address, &20_000_000i128);
+    assert!(s
+        .contract
+        .try_split_funds(
+            &s.owner,
+            &s.token.address,
+            &recipients,
+            &20_000_000i128,
+            &SplitMode::Push,
+        )
+        .is_ok());
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1156,15 +1365,24 @@ fn test_set_verification_status_toggle() {
     // Strict mode: alice should pass
     s.contract.set_strict_mode(&true);
     let recipients = single_recipient(&s.env, &alice);
-    assert!(s.contract.try_split(
-        &s.owner, &recipients, &20_000_000, &None,
-        &BytesN::from_array(&s.env, &[50u8; 32]),
-    ).is_ok());
+    assert!(s
+        .contract
+        .try_split(
+            &s.owner,
+            &recipients,
+            &20_000_000,
+            &None,
+            &BytesN::from_array(&s.env, &[50u8; 32]),
+        )
+        .is_ok());
     // Revoke
     s.contract.set_verification_status(&alice, &false);
     assert_eq!(
         s.contract.try_split(
-            &s.owner, &recipients, &20_000_000, &None,
+            &s.owner,
+            &recipients,
+            &20_000_000,
+            &None,
             &BytesN::from_array(&s.env, &[51u8; 32]),
         ),
         Err(Ok(Error::RecipientNotVerified))
@@ -1206,10 +1424,9 @@ fn test_approve_admin_change_increments_approvals() {
 fn test_admin_change_double_vote_prevented() {
     let s = setup();
     let new_wallet = Address::generate(&s.env);
-    let id = s.contract.propose_admin_change(
-        &s.admin_a,
-        &AdminChangeAction::UpdateFeeWallet(new_wallet),
-    );
+    let id = s
+        .contract
+        .propose_admin_change(&s.admin_a, &AdminChangeAction::UpdateFeeWallet(new_wallet));
     assert_eq!(
         s.contract.try_approve_admin_change(&s.admin_a, &id),
         Err(Ok(Error::AlreadyApproved))
@@ -1289,8 +1506,10 @@ fn test_recovery_split_success() {
         sigs.push_back(s.council.get(i).unwrap());
     }
     // Fund contract first
-    s.token.transfer(&s.owner, &s.contract.address, &20_000_000i128);
-    s.contract.recovery_split(&sigs, &recipients, &20_000_000i128);
+    s.token
+        .transfer(&s.owner, &s.contract.address, &20_000_000i128);
+    s.contract
+        .recovery_split(&sigs, &recipients, &20_000_000i128);
     assert_eq!(s.token.balance(&alice), 20_000_000);
 }
 
@@ -1304,7 +1523,8 @@ fn test_recovery_split_insufficient_signatures_rejected() {
         sigs.push_back(s.council.get(i).unwrap());
     }
     assert_eq!(
-        s.contract.try_recovery_split(&sigs, &recipients, &20_000_000i128),
+        s.contract
+            .try_recovery_split(&sigs, &recipients, &20_000_000i128),
         Err(Ok(Error::InsufficientCouncilSignatures))
     );
 }
@@ -1321,7 +1541,8 @@ fn test_recovery_split_invalid_signer_rejected() {
     // 5th signer is a random address — not in council
     sigs.push_back(Address::generate(&s.env));
     assert_eq!(
-        s.contract.try_recovery_split(&sigs, &recipients, &20_000_000i128),
+        s.contract
+            .try_recovery_split(&sigs, &recipients, &20_000_000i128),
         Err(Ok(Error::InvalidCouncilSigner))
     );
 }
@@ -1340,7 +1561,9 @@ fn test_recovery_split_duplicate_signer_rejected() {
         sigs.push_back(s.council.get(i).unwrap());
     }
     sigs.push_back(s.council.get(0).unwrap()); // duplicate
-    let result = s.contract.try_recovery_split(&sigs, &recipients, &20_000_000i128);
+    let result = s
+        .contract
+        .try_recovery_split(&sigs, &recipients, &20_000_000i128);
     assert!(result.is_err(), "duplicate signer must be rejected");
 }
 
@@ -1356,7 +1579,8 @@ fn test_recovery_split_invalid_bps_sum_rejected() {
         sigs.push_back(s.council.get(i).unwrap());
     }
     assert_eq!(
-        s.contract.try_recovery_split(&sigs, &recipients, &20_000_000i128),
+        s.contract
+            .try_recovery_split(&sigs, &recipients, &20_000_000i128),
         Err(Ok(Error::InvalidSplit))
     );
 }
@@ -1374,7 +1598,10 @@ fn test_set_affiliate_and_withdraw() {
     s.contract.set_verification_status(&alice, &true);
     let recipients = single_recipient(&s.env, &alice);
     s.contract.split(
-        &s.owner, &recipients, &100_000_000, &None,
+        &s.owner,
+        &recipients,
+        &100_000_000,
+        &None,
         &BytesN::from_array(&s.env, &[60u8; 32]),
     );
     // affiliate is protocol-level (set_affiliate), not per-call affiliate
@@ -1383,7 +1610,8 @@ fn test_set_affiliate_and_withdraw() {
     // Reset: test affiliate via split_pull
     let alice2 = Address::generate(&s.env);
     let recipients2 = single_recipient(&s.env, &alice2);
-    s.contract.split_pull(&s.owner, &recipients2, &100_000_000, &Some(aff.clone()));
+    s.contract
+        .split_pull(&s.owner, &recipients2, &100_000_000, &Some(aff.clone()));
     // affiliate gets 0.1% = 100_000_000 * 10 / 10_000 = 100_000
     assert_eq!(s.token.balance(&aff), 100_000);
 }
@@ -1434,17 +1662,32 @@ fn test_split_multi_asset_two_groups() {
     quorum.push_back(admin_b.clone());
     quorum.push_back(admin_c.clone());
     let mut council = Vec::new(&env);
-    for _ in 0..7 { council.push_back(Address::generate(&env)); }
+    for _ in 0..7 {
+        council.push_back(Address::generate(&env));
+    }
 
-    contract.initialize(&owner, &t1_id.address(), &0u32, &treasury, &quorum, &council);
+    contract.initialize(
+        &owner,
+        &t1_id.address(),
+        &0u32,
+        &treasury,
+        &quorum,
+        &council,
+    );
 
     let alice = Address::generate(&env);
     let bob = Address::generate(&env);
 
     let mut r1 = Vec::new(&env);
-    r1.push_back(Recipient { address: alice.clone(), share_bps: 10_000 });
+    r1.push_back(Recipient {
+        address: alice.clone(),
+        share_bps: 10_000,
+    });
     let mut r2 = Vec::new(&env);
-    r2.push_back(Recipient { address: bob.clone(), share_bps: 10_000 });
+    r2.push_back(Recipient {
+        address: bob.clone(),
+        share_bps: 10_000,
+    });
 
     let mut groups = Vec::new(&env);
     groups.push_back(AssetGroup {
@@ -1478,7 +1721,10 @@ fn test_split_multi_asset_invalid_bps_sum_rejected() {
     let s = setup();
     let alice = Address::generate(&s.env);
     let mut r = Vec::new(&s.env);
-    r.push_back(Recipient { address: alice.clone(), share_bps: 9_000 }); // not 10_000
+    r.push_back(Recipient {
+        address: alice.clone(),
+        share_bps: 9_000,
+    }); // not 10_000
     let mut groups = Vec::new(&s.env);
     groups.push_back(AssetGroup {
         asset_address: s.token.address.clone(),
@@ -1502,7 +1748,10 @@ fn test_split_multi_asset_paused_rejected() {
     s.contract.set_contract_state(&s.admin_c, &pid);
     let alice = Address::generate(&s.env);
     let mut r = Vec::new(&s.env);
-    r.push_back(Recipient { address: alice.clone(), share_bps: 10_000 });
+    r.push_back(Recipient {
+        address: alice.clone(),
+        share_bps: 10_000,
+    });
     let mut groups = Vec::new(&s.env);
     groups.push_back(AssetGroup {
         asset_address: s.token.address.clone(),
@@ -1525,11 +1774,19 @@ fn test_claim_after_split_funds_pull() {
     let alice = Address::generate(&s.env);
     let token_addr = s.token.address.clone();
     let recipients = single_recipient(&s.env, &alice);
-    s.token.transfer(&s.owner, &s.contract.address, &20_000_000i128);
+    s.token
+        .transfer(&s.owner, &s.contract.address, &20_000_000i128);
     s.contract.split_funds(
-        &s.owner, &token_addr, &recipients, &20_000_000i128, &SplitMode::Pull,
+        &s.owner,
+        &token_addr,
+        &recipients,
+        &20_000_000i128,
+        &SplitMode::Pull,
     );
-    assert_eq!(s.contract.claimable_balance(&alice, &token_addr), 20_000_000);
+    assert_eq!(
+        s.contract.claimable_balance(&alice, &token_addr),
+        20_000_000
+    );
     s.contract.claim(&alice, &token_addr);
     assert_eq!(s.token.balance(&alice), 20_000_000);
     assert_eq!(s.contract.claimable_balance(&alice, &token_addr), 0);
@@ -1564,52 +1821,111 @@ fn test_set_and_remove_identity_validator() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 #[test]
-fn test_120_recipient_split_baseline() {
+fn test_split_at_max_recipients_succeeds() {
     let env = Env::default();
     env.mock_all_auths();
-
     let owner = Address::generate(&env);
     let treasury = Address::generate(&env);
     let admin_a = Address::generate(&env);
     let admin_b = Address::generate(&env);
     let admin_c = Address::generate(&env);
-
     let token_admin = Address::generate(&env);
     let token_id = env.register_stellar_asset_contract_v2(token_admin.clone());
-    let token = TokenClient::new(&env, &token_id.address());
     let sac = StellarAssetClient::new(&env, &token_id.address());
     sac.mint(&owner, &10_000_000_000i128);
-
     let contract_id = env.register(SplitterV3, ());
     let contract = SplitterV3Client::new(&env, &contract_id);
-
     let mut quorum = Vec::new(&env);
     quorum.push_back(admin_a.clone());
     quorum.push_back(admin_b.clone());
     quorum.push_back(admin_c.clone());
     let mut council = Vec::new(&env);
-    for _ in 0..7 { council.push_back(Address::generate(&env)); }
-
-    contract.initialize(&owner, &token_id.address(), &0u32, &treasury, &quorum, &council);
-
-    let n: u32 = 120;
+    for _ in 0..7 {
+        council.push_back(Address::generate(&env));
+    }
+    contract.initialize(
+        &owner,
+        &token_id.address(),
+        &0u32,
+        &treasury,
+        &quorum,
+        &council,
+    );
+    let n: u32 = 100;
     let base_bps: u32 = 10_000 / n;
     let remainder_bps: u32 = 10_000 - base_bps * (n - 1);
-
     let mut recipients = Vec::new(&env);
     for i in 0..n {
         let addr = Address::generate(&env);
         contract.set_verification_status(&addr, &true);
         let bps = if i == n - 1 { remainder_bps } else { base_bps };
-        recipients.push_back(Recipient { address: addr, share_bps: bps });
+        recipients.push_back(Recipient {
+            address: addr,
+            share_bps: bps,
+        });
     }
-
-    let total_amount: i128 = 1_300_000_000;
+    let total_amount: i128 = 1_000_000_000;
     contract.split(
-        &owner, &recipients, &total_amount, &None,
+        &owner,
+        &recipients,
+        &total_amount,
+        &None,
         &BytesN::from_array(&env, &[99u8; 32]),
     );
-    assert_eq!(token.balance(&owner), 8_700_000_000);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #36)")]
+fn test_split_above_max_recipients_rejected() {
+    let env = Env::default();
+    env.mock_all_auths();
+    let owner = Address::generate(&env);
+    let treasury = Address::generate(&env);
+    let admin_a = Address::generate(&env);
+    let admin_b = Address::generate(&env);
+    let admin_c = Address::generate(&env);
+    let token_admin = Address::generate(&env);
+    let token_id = env.register_stellar_asset_contract_v2(token_admin.clone());
+    let sac = StellarAssetClient::new(&env, &token_id.address());
+    sac.mint(&owner, &10_000_000_000i128);
+    let contract_id = env.register(SplitterV3, ());
+    let contract = SplitterV3Client::new(&env, &contract_id);
+    let mut quorum = Vec::new(&env);
+    quorum.push_back(admin_a.clone());
+    quorum.push_back(admin_b.clone());
+    quorum.push_back(admin_c.clone());
+    let mut council = Vec::new(&env);
+    for _ in 0..7 {
+        council.push_back(Address::generate(&env));
+    }
+    contract.initialize(
+        &owner,
+        &token_id.address(),
+        &0u32,
+        &treasury,
+        &quorum,
+        &council,
+    );
+    let n: u32 = 101;
+    let base_bps: u32 = 10_000 / n;
+    let remainder_bps: u32 = 10_000 - base_bps * (n - 1);
+    let mut recipients = Vec::new(&env);
+    for i in 0..n {
+        let addr = Address::generate(&env);
+        contract.set_verification_status(&addr, &true);
+        let bps = if i == n - 1 { remainder_bps } else { base_bps };
+        recipients.push_back(Recipient {
+            address: addr,
+            share_bps: bps,
+        });
+    }
+    contract.split(
+        &owner,
+        &recipients,
+        &1_000_000_000,
+        &None,
+        &BytesN::from_array(&env, &[99u8; 32]),
+    );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1624,7 +1940,10 @@ fn test_single_recipient_gets_full_amount_after_fee() {
     s.contract.set_verification_status(&alice, &true);
     let recipients = single_recipient(&s.env, &alice);
     s.contract.split(
-        &s.owner, &recipients, &100_000_000, &None,
+        &s.owner,
+        &recipients,
+        &100_000_000,
+        &None,
         &BytesN::from_array(&s.env, &[70u8; 32]),
     );
     // fee = 1_000_000; alice gets 99_000_000
@@ -1636,7 +1955,9 @@ fn test_single_recipient_gets_full_amount_after_fee() {
 #[test]
 fn test_100_percent_fee_leaves_nothing_to_distribute() {
     let s = setup();
-    let id = s.contract.propose_change(&s.admin_a, &AdminAction::UpdateFee(10_000));
+    let id = s
+        .contract
+        .propose_change(&s.admin_a, &AdminAction::UpdateFee(10_000));
     s.contract.approve_proposal(&s.admin_b, &id);
     s.contract.execute_proposal(&s.admin_c, &id);
 
@@ -1645,7 +1966,10 @@ fn test_100_percent_fee_leaves_nothing_to_distribute() {
     let recipients = single_recipient(&s.env, &alice);
     // 100% fee — alice share = 0 * 10_000 / 10_000 = 0 — no transfer happens
     s.contract.split(
-        &s.owner, &recipients, &100_000_000, &None,
+        &s.owner,
+        &recipients,
+        &100_000_000,
+        &None,
         &BytesN::from_array(&s.env, &[71u8; 32]),
     );
     assert_eq!(s.token.balance(&alice), 0);
@@ -1662,7 +1986,9 @@ fn test_integration_schedule_execute_lifecycle() {
 
     let now = s.env.ledger().timestamp();
     let release = now + 2_000;
-    let split_id = s.contract.schedule_split(&s.owner, &recipients, &200_000_000, &release);
+    let split_id = s
+        .contract
+        .schedule_split(&s.owner, &recipients, &200_000_000, &release);
 
     // Too early
     assert_eq!(
@@ -1676,7 +2002,10 @@ fn test_integration_schedule_execute_lifecycle() {
 
     assert_eq!(s.token.balance(&alice), 100_000_000);
     assert_eq!(s.token.balance(&bob), 100_000_000);
-    assert_eq!(s.contract.get_split(&split_id).unwrap().status, SplitStatus::Executed);
+    assert_eq!(
+        s.contract.get_split(&split_id).unwrap().status,
+        SplitStatus::Executed
+    );
 }
 
 /// Integration: pull lifecycle — split_pull → accumulate → claim
@@ -1688,9 +2017,13 @@ fn test_integration_pull_accumulate_claim() {
     let recipients = single_recipient(&s.env, &alice);
 
     for _ in 0..3 {
-        s.contract.split_pull(&s.owner, &recipients, &10_000_000, &None);
+        s.contract
+            .split_pull(&s.owner, &recipients, &10_000_000, &None);
     }
-    assert_eq!(s.contract.claimable_balance(&alice, &token_addr), 30_000_000);
+    assert_eq!(
+        s.contract.claimable_balance(&alice, &token_addr),
+        30_000_000
+    );
     s.contract.claim_share(&alice, &token_addr);
     assert_eq!(s.token.balance(&alice), 30_000_000);
     // Second claim should fail
@@ -1718,13 +2051,17 @@ fn test_integration_pause_blocks_all_ops() {
 
     assert_eq!(
         s.contract.try_split(
-            &s.owner, &recipients, &20_000_000, &None,
+            &s.owner,
+            &recipients,
+            &20_000_000,
+            &None,
             &BytesN::from_array(&s.env, &[80u8; 32]),
         ),
         Err(Ok(Error::ContractPaused))
     );
     assert_eq!(
-        s.contract.try_split_pull(&s.owner, &recipients, &20_000_000, &None),
+        s.contract
+            .try_split_pull(&s.owner, &recipients, &20_000_000, &None),
         Err(Ok(Error::ContractPaused))
     );
 
@@ -1737,17 +2074,25 @@ fn test_integration_pause_blocks_all_ops() {
     s.contract.set_contract_state(&s.admin_c, &pid2);
 
     // split should work now
-    assert!(s.contract.try_split(
-        &s.owner, &recipients, &20_000_000, &None,
-        &BytesN::from_array(&s.env, &[81u8; 32]),
-    ).is_ok());
+    assert!(s
+        .contract
+        .try_split(
+            &s.owner,
+            &recipients,
+            &20_000_000,
+            &None,
+            &BytesN::from_array(&s.env, &[81u8; 32]),
+        )
+        .is_ok());
 }
 
 /// Integration: fee update via quorum then split uses new fee
 #[test]
 fn test_integration_fee_update_then_split() {
     let s = setup();
-    let id = s.contract.propose_change(&s.admin_a, &AdminAction::UpdateFee(500)); // 5%
+    let id = s
+        .contract
+        .propose_change(&s.admin_a, &AdminAction::UpdateFee(500)); // 5%
     s.contract.approve_proposal(&s.admin_b, &id);
     s.contract.execute_proposal(&s.admin_c, &id);
 
@@ -1755,7 +2100,10 @@ fn test_integration_fee_update_then_split() {
     s.contract.set_verification_status(&alice, &true);
     let recipients = single_recipient(&s.env, &alice);
     s.contract.split(
-        &s.owner, &recipients, &100_000_000, &None,
+        &s.owner,
+        &recipients,
+        &100_000_000,
+        &None,
         &BytesN::from_array(&s.env, &[90u8; 32]),
     );
     // fee = 5% of 100_000_000 = 5_000_000; alice gets 95_000_000
@@ -1771,7 +2119,10 @@ fn test_edge_max_bps_single_recipient() {
     s.contract.set_verification_status(&alice, &true);
     let recipients = single_recipient(&s.env, &alice);
     s.contract.split(
-        &s.owner, &recipients, &1_000_000_000, &None,
+        &s.owner,
+        &recipients,
+        &1_000_000_000,
+        &None,
         &BytesN::from_array(&s.env, &[91u8; 32]),
     );
     assert_eq!(s.token.balance(&alice), 1_000_000_000);
@@ -1788,7 +2139,10 @@ fn test_edge_bps_overflow_rejected() {
     let recipients = two_recipients(&s.env, &alice, 6_000, &bob, 6_000); // sum = 12_000
     assert_eq!(
         s.contract.try_split(
-            &s.owner, &recipients, &20_000_000, &None,
+            &s.owner,
+            &recipients,
+            &20_000_000,
+            &None,
             &BytesN::from_array(&s.env, &[92u8; 32]),
         ),
         Err(Ok(Error::InvalidSplit))
@@ -1806,7 +2160,10 @@ fn test_edge_many_unique_salts_all_succeed() {
         let mut salt = [0u8; 32];
         salt[0] = i;
         s.contract.split(
-            &s.owner, &recipients, &20_000_000, &None,
+            &s.owner,
+            &recipients,
+            &20_000_000,
+            &None,
             &BytesN::from_array(&s.env, &salt),
         );
     }

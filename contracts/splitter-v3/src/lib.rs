@@ -26,6 +26,8 @@ pub trait IdentityValidator {
 
 /// Minimum payment per recipient: 1 XLM equivalent in stroops (10^7).
 const MINIMUM_PAYMENT_AMOUNT: i128 = 10_000_000;
+/// Maximum number of recipients per split to prevent storage bloat (#1161).
+const MAX_RECIPIENTS: u32 = 100;
 
 // ── Public types ─────────────────────────────────────────────────────────────
 
@@ -131,7 +133,6 @@ pub enum ContractState {
 /// or credits claimable balances they must claim themselves (PULL).
 /// PULL mode bypasses trustline issues for recipients.
 // ── #911: V3 base contract types ──────────────────────────────────────────────
-
 /// Disbursement status for a V3 split config entry.
 #[contracttype]
 #[derive(Clone, PartialEq)]
@@ -203,7 +204,7 @@ impl SplitterV3 {
             .set(&DataKey::ContractState, &ContractState::Active);
         // #916: default admin threshold = majority of quorum_admins (at least 2)
         let threshold: u32 = if quorum_admins.len() >= 2 {
-            (quorum_admins.len() / 2 + 1) as u32
+            quorum_admins.len() / 2 + 1
         } else {
             1
         };
@@ -230,8 +231,9 @@ impl SplitterV3 {
             return Err(Error::NotAdmin);
         }
         caller.require_auth();
-        let action = Self::_consume_admin_proposal(&env, &caller, proposal_id,
-            |action| matches!(action, AdminChangeAction::UpdateFeeWallet(_)))?;
+        let action = Self::_consume_admin_proposal(&env, &caller, proposal_id, |action| {
+            matches!(action, AdminChangeAction::UpdateFeeWallet(_))
+        })?;
         if let AdminChangeAction::UpdateFeeWallet(fee_wallet) = action {
             env.storage()
                 .instance()
@@ -300,18 +302,13 @@ impl SplitterV3 {
         Self::_bump_persistent_ttl(&env, &DataKey::AdminProposal(id));
         Self::_bump_instance_ttl(&env);
 
-        env.events()
-            .publish((symbol_short!("admprop"), caller), id);
+        env.events().publish((symbol_short!("admprop"), caller), id);
         Ok(id)
     }
 
     /// Approve a pending admin change proposal. Once approvals reach the
     /// threshold the proposal is ready to be executed via the gated function.
-    pub fn approve_admin_change(
-        env: Env,
-        caller: Address,
-        proposal_id: u64,
-    ) -> Result<(), Error> {
+    pub fn approve_admin_change(env: Env, caller: Address, proposal_id: u64) -> Result<(), Error> {
         caller.require_auth();
         Self::_require_quorum_admin(&env, &caller)?;
 
@@ -362,8 +359,9 @@ impl SplitterV3 {
     /// a `SetContractState` proposal, then call this with the proposal_id.
     pub fn set_contract_state(env: Env, caller: Address, proposal_id: u64) -> Result<(), Error> {
         caller.require_auth();
-        let new_state = Self::_consume_admin_proposal(&env, &caller, proposal_id,
-            |action| matches!(action, AdminChangeAction::SetContractState(_)))?;
+        let new_state = Self::_consume_admin_proposal(&env, &caller, proposal_id, |action| {
+            matches!(action, AdminChangeAction::SetContractState(_))
+        })?;
         if let AdminChangeAction::SetContractState(state) = new_state {
             env.storage()
                 .instance()
@@ -384,8 +382,9 @@ impl SplitterV3 {
     /// an `UpgradeWasm` proposal, then call this with the proposal_id.
     pub fn upgrade(env: Env, caller: Address, proposal_id: u64) -> Result<(), Error> {
         caller.require_auth();
-        let action = Self::_consume_admin_proposal(&env, &caller, proposal_id,
-            |action| matches!(action, AdminChangeAction::UpgradeWasm(_, _)))?;
+        let action = Self::_consume_admin_proposal(&env, &caller, proposal_id, |action| {
+            matches!(action, AdminChangeAction::UpgradeWasm(_, _))
+        })?;
         if let AdminChangeAction::UpgradeWasm(new_wasm_hash, migration_version) = action {
             let current_version: u32 = env
                 .storage()
@@ -461,9 +460,7 @@ impl SplitterV3 {
     /// Remove the identity validator (disables external compliance checks).
     pub fn remove_identity_validator(env: Env) -> Result<(), Error> {
         Self::_require_admin(&env)?;
-        env.storage()
-            .instance()
-            .remove(&DataKey::IdentityValidator);
+        env.storage().instance().remove(&DataKey::IdentityValidator);
         Ok(())
     }
 
@@ -642,6 +639,9 @@ impl SplitterV3 {
             .instance()
             .get(&DataKey::StrictMode)
             .unwrap_or(false);
+        if recipients.len() > MAX_RECIPIENTS {
+            return Err(Error::TooManyRecipients);
+        }
         let mut bps_sum: u32 = 0;
         for r in recipients.iter() {
             bps_sum = bps_sum.checked_add(r.share_bps).ok_or(Error::Overflow)?;
@@ -726,7 +726,14 @@ impl SplitterV3 {
                     share_bps: new_bps,
                 });
             }
-            Self::_distribute(&env, &token_client, &token_addr, &contract_addr, &scaled, distributable)?;
+            Self::_distribute(
+                &env,
+                &token_client,
+                &token_addr,
+                &contract_addr,
+                &scaled,
+                distributable,
+            )?;
         }
 
         // ── Mark hash as processed (temporary storage, TTL ~1 day) ───────────
@@ -1013,6 +1020,10 @@ impl SplitterV3 {
             Self::_unlock(&env);
             return Err(Error::EmptyRecipients);
         }
+        if recipients.len() > MAX_RECIPIENTS {
+            Self::_unlock(&env);
+            return Err(Error::TooManyRecipients);
+        }
 
         // #927: whitelist-only guard.
         let whitelist_only: bool = env
@@ -1059,7 +1070,10 @@ impl SplitterV3 {
         for r in recipients.iter() {
             let amount = match total_amount.checked_mul(r.share_bps as i128) {
                 Some(v) => v / 10_000,
-                None => { Self::_unlock(&env); return Err(Error::Overflow); }
+                None => {
+                    Self::_unlock(&env);
+                    return Err(Error::Overflow);
+                }
             };
             if amount > 0 && amount < MINIMUM_PAYMENT_AMOUNT {
                 Self::_unlock(&env);
@@ -1070,7 +1084,10 @@ impl SplitterV3 {
         // Pull funds from sender into contract first.
         let _ = token_client
             .try_transfer(&sender, &contract_addr, &total_amount)
-            .map_err(|_| { Self::_unlock(&env); Error::TransferFailed })?;
+            .map_err(|_| {
+                Self::_unlock(&env);
+                Error::TransferFailed
+            })?;
 
         match mode {
             SplitMode::Push => {
@@ -1078,12 +1095,18 @@ impl SplitterV3 {
                 for r in recipients.iter() {
                     let amount = match total_amount.checked_mul(r.share_bps as i128) {
                         Some(v) => v / 10_000,
-                        None => { Self::_unlock(&env); return Err(Error::Overflow); }
+                        None => {
+                            Self::_unlock(&env);
+                            return Err(Error::Overflow);
+                        }
                     };
                     if amount > 0 {
                         let _ = token_client
                             .try_transfer(&contract_addr, &r.address, &amount)
-                            .map_err(|_| { Self::_unlock(&env); Error::TransferFailed })?;
+                            .map_err(|_| {
+                                Self::_unlock(&env);
+                                Error::TransferFailed
+                            })?;
                         // #921: emit per-recipient payment event
                         emit_individual_payment(&env, &r.address, &asset, amount, r.share_bps);
                     }
@@ -1094,7 +1117,10 @@ impl SplitterV3 {
                 for r in recipients.iter() {
                     let amount = match total_amount.checked_mul(r.share_bps as i128) {
                         Some(v) => v / 10_000,
-                        None => { Self::_unlock(&env); return Err(Error::Overflow); }
+                        None => {
+                            Self::_unlock(&env);
+                            return Err(Error::Overflow);
+                        }
                     };
                     if amount > 0 {
                         if let Err(e) = Self::_credit_claimable(&env, &r.address, &asset, amount) {

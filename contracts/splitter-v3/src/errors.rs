@@ -1,6 +1,5 @@
 // Error descriptions have been moved to ERROR_CODES.md (Issue #840).
 // Numeric codes are the on-chain surface; human-readable text lives off-chain.
-use souraban_sdk::{contracterror, contractimpl};
 
 #[soroban_sdk::contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -49,21 +48,24 @@ pub enum Error {
     InsufficientFunds = 34,
     // #913: reentrancy detected
     Reentrant = 35,
+    // #1161: recipient count limit
+    TooManyRecipients = 36,
 }
 
+#[allow(dead_code)]
 pub enum ContractError {
     /// Access control credentials validation failure
     Unauthorized = 101,
-    
+
     /// The split percentages or recipient vector geometries are malformed
     InvalidShareConfiguration = 102,
-    
+
     /// Operational actions rejected due to an active safety state freeze
     ContractPaused = 103,
-    
+
     /// Requested distribution allocation exceeds available liquidity balances
     InsufficientBalance = 104,
-    
+
     /// Operation halted because the computed payout amount rounds down to zero
     ZeroTransferAmount = 105,
 }
