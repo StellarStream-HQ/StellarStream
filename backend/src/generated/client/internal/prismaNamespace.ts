@@ -384,7 +384,9 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
-  Stream: 'Stream'
+  Stream: 'Stream',
+  SyncMetadata: 'SyncMetadata',
+  ClawbackHistory: 'ClawbackHistory'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -400,7 +402,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "stream"
+    modelProps: "stream" | "syncMetadata" | "clawbackHistory"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -478,6 +480,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SyncMetadata: {
+      payload: Prisma.$SyncMetadataPayload<ExtArgs>
+      fields: Prisma.SyncMetadataFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SyncMetadataFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncMetadataPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SyncMetadataFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncMetadataPayload>
+        }
+        findFirst: {
+          args: Prisma.SyncMetadataFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncMetadataPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SyncMetadataFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncMetadataPayload>
+        }
+        findMany: {
+          args: Prisma.SyncMetadataFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncMetadataPayload>[]
+        }
+        create: {
+          args: Prisma.SyncMetadataCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncMetadataPayload>
+        }
+        createMany: {
+          args: Prisma.SyncMetadataCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SyncMetadataCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncMetadataPayload>[]
+        }
+        delete: {
+          args: Prisma.SyncMetadataDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncMetadataPayload>
+        }
+        update: {
+          args: Prisma.SyncMetadataUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncMetadataPayload>
+        }
+        deleteMany: {
+          args: Prisma.SyncMetadataDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SyncMetadataUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SyncMetadataUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncMetadataPayload>[]
+        }
+        upsert: {
+          args: Prisma.SyncMetadataUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncMetadataPayload>
+        }
+        aggregate: {
+          args: Prisma.SyncMetadataAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSyncMetadata>
+        }
+        groupBy: {
+          args: Prisma.SyncMetadataGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SyncMetadataGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SyncMetadataCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SyncMetadataCountAggregateOutputType> | number
+        }
+      }
+    }
+    ClawbackHistory: {
+      payload: Prisma.$ClawbackHistoryPayload<ExtArgs>
+      fields: Prisma.ClawbackHistoryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ClawbackHistoryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ClawbackHistoryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload>
+        }
+        findFirst: {
+          args: Prisma.ClawbackHistoryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ClawbackHistoryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload>
+        }
+        findMany: {
+          args: Prisma.ClawbackHistoryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload>[]
+        }
+        create: {
+          args: Prisma.ClawbackHistoryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload>
+        }
+        createMany: {
+          args: Prisma.ClawbackHistoryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ClawbackHistoryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload>[]
+        }
+        delete: {
+          args: Prisma.ClawbackHistoryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload>
+        }
+        update: {
+          args: Prisma.ClawbackHistoryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload>
+        }
+        deleteMany: {
+          args: Prisma.ClawbackHistoryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ClawbackHistoryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ClawbackHistoryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload>[]
+        }
+        upsert: {
+          args: Prisma.ClawbackHistoryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload>
+        }
+        aggregate: {
+          args: Prisma.ClawbackHistoryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateClawbackHistory>
+        }
+        groupBy: {
+          args: Prisma.ClawbackHistoryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ClawbackHistoryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ClawbackHistoryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ClawbackHistoryCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -527,6 +677,28 @@ export const StreamScalarFieldEnum = {
 } as const
 
 export type StreamScalarFieldEnum = (typeof StreamScalarFieldEnum)[keyof typeof StreamScalarFieldEnum]
+
+
+export const SyncMetadataScalarFieldEnum = {
+  id: 'id',
+  lastLedgerSequence: 'lastLedgerSequence'
+} as const
+
+export type SyncMetadataScalarFieldEnum = (typeof SyncMetadataScalarFieldEnum)[keyof typeof SyncMetadataScalarFieldEnum]
+
+
+export const ClawbackHistoryScalarFieldEnum = {
+  id: 'id',
+  streamId: 'streamId',
+  amount: 'amount',
+  reason: 'reason',
+  createdAt: 'createdAt',
+  executedAt: 'executedAt',
+  txHash: 'txHash',
+  status: 'status'
+} as const
+
+export type ClawbackHistoryScalarFieldEnum = (typeof ClawbackHistoryScalarFieldEnum)[keyof typeof ClawbackHistoryScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -674,6 +846,8 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   stream?: Prisma.StreamOmit
+  syncMetadata?: Prisma.SyncMetadataOmit
+  clawbackHistory?: Prisma.ClawbackHistoryOmit
 }
 
 /* Types for Logging */

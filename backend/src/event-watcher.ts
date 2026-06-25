@@ -2,12 +2,12 @@
  * Core event watcher service for Stellar blockchain
  */
 
-import { SorobanRpc } from "@stellar/stellar-sdk";
+import { SorobanRpc, scValToNative, xdr } from "@stellar/stellar-sdk";
 import { EventWatcherConfig, WatcherState, ParsedContractEvent } from "./types";
 import { logger } from "./logger";
 import { parseContractEvent, extractEventType } from "./event-parser";
-import { scValToNative, xdr } from "@stellar/stellar-sdk";
 import { PrismaClient } from "./generated/client/client.js";
+import { StreamLifecycleService, toObjectOrNull, toBigIntOrNull } from "./services/stream-lifecycle-service.js";
 
 // @ts-expect-error Prisma Client may not be generated yet
 const prisma = new PrismaClient();

@@ -6,3 +6,11 @@ export {
   toBigIntOrNull,
   toObjectOrNull,
 } from "./stream-lifecycle-service.js";
+
+export {
+  ClawbackService,
+  getClawbackService,
+  ValidationResult,
+  ClawbackRecord,
+  ClawbackExecuteInput,
+} from "./clawback.service.js";

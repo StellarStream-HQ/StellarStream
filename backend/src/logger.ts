@@ -19,9 +19,6 @@
 import winston from "winston";
 import path from "path";
 
-// ─── Level type (keep backward compat with existing code) ────────────────────
-type LogLevel = "debug" | "info" | "warn" | "error";
-
 // ─── Console format: colorized, human-readable ────────────────────────────────
 const consoleFmt = winston.format.combine(
   winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss.SSS" }),

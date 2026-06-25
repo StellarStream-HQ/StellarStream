@@ -9,7 +9,9 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "lint": "eslint src/ --ext .ts",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest run --reporter verbose",
+    "test:watch": "vitest"
   },
   "keywords": [
     "stellar",
@@ -20,9 +22,13 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@libsql/client": "^0.17.4",
+    "@prisma/adapter-libsql": "^7.8.0",
     "@prisma/client": "^7.4.1",
     "@stellar/stellar-sdk": "^12.3.0",
-    "express": "^4.18.2"
+    "dotenv": "^17.4.2",
+    "express": "^4.18.2",
+    "winston": "^3.19.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
@@ -32,6 +38,7 @@
     "eslint": "^10.0.2",
     "prisma": "^7.4.1",
     "tsx": "^4.7.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^4.1.9"
   }
 }
