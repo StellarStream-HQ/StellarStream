@@ -7,6 +7,13 @@ export {
   toObjectOrNull,
 } from "./stream-lifecycle-service.js";
 
+export {
+  ClawbackService,
+  getClawbackService,
+  ValidationResult,
+  ClawbackRecord,
+  ClawbackExecuteInput,
+} from "./clawback.service.js";
 export { LedgerVerificationService } from "./ledger-verification.service.js";
 export { AuditLogService } from "./audit-log.service.js";
 export { AuditChainVerificationService } from "./audit-chain-verification.service.js";

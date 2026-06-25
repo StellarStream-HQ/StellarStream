@@ -8,6 +8,36 @@
  * single points of failure.
  */
 
+import { SorobanRpc, scValToNative, xdr } from "@stellar/stellar-sdk";
+import { EventWatcherConfig, WatcherState, ParsedContractEvent } from "./types";
+import { logger } from "./logger";
+import { parseContractEvent, extractEventType } from "./event-parser";
+import { PrismaClient } from "./generated/client/client.js";
+import { StreamLifecycleService, toObjectOrNull, toBigIntOrNull } from "./services/stream-lifecycle-service.js";
+
+// @ts-expect-error Prisma Client may not be generated yet
+const prisma = new PrismaClient();
+
+export class EventWatcher {
+  private server: SorobanRpc.Server;
+  private config: EventWatcherConfig;
+  private state: WatcherState;
+  private isShuttingDown: boolean = false;
+  private pollTimeout?: NodeJS.Timeout;
+  private streamLifecycleService: StreamLifecycleService;
+
+  constructor(config: EventWatcherConfig) {
+    this.config = config;
+    this.server = new SorobanRpc.Server(config.rpcUrl, {
+      allowHttp: config.rpcUrl.startsWith("http://"),
+    });
+
+    this.state = {
+      lastProcessedLedger: 0,
+      isRunning: false,
+      errorCount: 0,
+    };
+    this.streamLifecycleService = new StreamLifecycleService();
 import * as Sentry from "@sentry/node";
 import { EventWatcherService } from "./services/event-watcher.service.js";
 import { ensureRedis, closeRedis } from "./lib/redis.js";

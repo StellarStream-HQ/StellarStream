@@ -2,6 +2,9 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
+  provider   = "prisma-client"
+  output     = "../src/generated/client"
+  engineType = "binary"
   provider = "prisma-client-js"
   output   = "../src/generated/client"
 }
@@ -299,6 +302,21 @@ model LedgerHash {
   createdAt DateTime @default(now())
 }
 
+model SyncMetadata {
+  id                String @id
+  lastLedgerSequence Int
+}
+
+model ClawbackHistory {
+  id          String   @id @default(uuid())
+  streamId    String
+  amount      String   // clawback amount as string for high precision
+  reason      String   @default("")
+  createdAt   DateTime @default(now())
+  executedAt  DateTime @default(now())
+  txHash      String?  // optional tx hash if executed on-chain
+  status      String   @default("executed") // executed | pending | failed
+}
 // Notification subscriptions — maps a Stellar address to a Discord/Telegram endpoint
 model NotificationSubscription {
   id             String   @id @default(cuid())

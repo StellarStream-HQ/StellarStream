@@ -1,3 +1,5 @@
+import express, { Express, Request, Response } from 'express';
+import apiRoutes from './api/index.js';
 import * as Sentry from "@sentry/node";
 import express, { Express, Request, Response } from "express";
 import compression from "compression";
@@ -161,6 +163,16 @@ app.use("/api/v3", apiV3Router);
 // ── Batch metadata + stream graph ─────────────────────────────────────────────
 app.use("/api/v1", batchRoutes);
 
+// Health check
+app.get('/health', (_req: Request, res: Response) => {
+  res.json({ status: 'ok', message: 'StellarStream Backend is running' });
+});
+
+// API routes
+app.use('/api', apiRoutes);
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running on port ${PORT}`);
 // ── Health / sync status ──────────────────────────────────────────────────────
 app.use("/api/v1", healthRoutes);
 

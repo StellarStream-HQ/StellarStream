@@ -22,3 +22,13 @@ export * from './enums.js';
  * 
  */
 export type Stream = Prisma.StreamModel
+/**
+ * Model SyncMetadata
+ * 
+ */
+export type SyncMetadata = Prisma.SyncMetadataModel
+/**
+ * Model ClawbackHistory
+ * 
+ */
+export type ClawbackHistory = Prisma.ClawbackHistoryModel

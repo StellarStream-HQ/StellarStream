@@ -9,4 +9,6 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/Stream.js'
+export type * from './models/SyncMetadata.js'
+export type * from './models/ClawbackHistory.js'
 export type * from './commonInputTypes.js'

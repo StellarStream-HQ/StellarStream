@@ -51,7 +51,9 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  Stream: 'Stream'
+  Stream: 'Stream',
+  SyncMetadata: 'SyncMetadata',
+  ClawbackHistory: 'ClawbackHistory'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -80,6 +82,28 @@ export const StreamScalarFieldEnum = {
 } as const
 
 export type StreamScalarFieldEnum = (typeof StreamScalarFieldEnum)[keyof typeof StreamScalarFieldEnum]
+
+
+export const SyncMetadataScalarFieldEnum = {
+  id: 'id',
+  lastLedgerSequence: 'lastLedgerSequence'
+} as const
+
+export type SyncMetadataScalarFieldEnum = (typeof SyncMetadataScalarFieldEnum)[keyof typeof SyncMetadataScalarFieldEnum]
+
+
+export const ClawbackHistoryScalarFieldEnum = {
+  id: 'id',
+  streamId: 'streamId',
+  amount: 'amount',
+  reason: 'reason',
+  createdAt: 'createdAt',
+  executedAt: 'executedAt',
+  txHash: 'txHash',
+  status: 'status'
+} as const
+
+export type ClawbackHistoryScalarFieldEnum = (typeof ClawbackHistoryScalarFieldEnum)[keyof typeof ClawbackHistoryScalarFieldEnum]
 
 
 export const SortOrder = {
