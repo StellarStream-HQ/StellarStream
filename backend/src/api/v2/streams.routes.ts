@@ -5,6 +5,7 @@ import { StreamService } from "../../services/stream.service.js";
 import { ExportService } from "../../services/export.service.js";
 import stellarAddressSchema from "../../validation/stellar.js";
 import { prisma } from "../../lib/db.js";
+import { requireOfacCheck } from "../../middleware/requireOfacCheck.js";
 
 const router = Router();
 const streamService = new StreamService();

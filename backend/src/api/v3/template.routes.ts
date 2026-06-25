@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { TemplateService } from "../../services/template.service.js";
+import { requireOfacCheck } from "../../middleware/requireOfacCheck.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 
 const router = Router();
@@ -28,6 +29,7 @@ router.get(
  */
 router.post(
   "/templates",
+  requireOfacCheck(),
   asyncHandler(async (req: Request, res: Response) => {
     const { name, asset, recipientAddress, splitEnabled, splitAddress, splitPercent, totalAmount, rateType, durationPreset, createdBy } = req.body;
 

@@ -1,7 +1,8 @@
 import { Router, Request, Response } from "express";
 import { invoiceLinkService } from "../services/invoice-link.service.js";
 import { requireWalletAuth } from "../middleware/requireWalletAuth.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import { requireOfacCheck } from "../middleware/requireOfacCheck.js";
+import asyncHandler from "../utils/asyncHandler.js";
 
 const router = Router();
 
@@ -12,6 +13,7 @@ const router = Router();
 router.post(
   "/",
   requireWalletAuth,
+  requireOfacCheck(),
   asyncHandler(async (req: Request, res: Response) => {
     const { receiver, amount, tokenAddress, duration, description, pdfUrl, expiresAt } = req.body;
     const sender = req.user?.address;

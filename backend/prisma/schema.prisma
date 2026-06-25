@@ -718,3 +718,18 @@ model SplitLink {
   @@index([createdAt])
   @@map("SplitLink")
 }
+
+// OFAC compliance audit log (#1186)
+model OfacAuditLog {
+  id           String   @id @default(cuid())
+  address      String
+  isSanctioned Boolean  @map("is_sanctioned")
+  checkedAt    DateTime @map("checked_at")
+  source       String
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([address])
+  @@index([isSanctioned])
+  @@index([checkedAt])
+  @@map("OfacAuditLog")
+}
