@@ -4,7 +4,10 @@ module.exports = {
   testEnvironment: "node",
   // Point Jest at the dedicated jest tests folder so it doesn't pick up
   // the existing node:test files in src/__tests__
-  testMatch: ["**/src/__jest__/**/*.test.ts"],
+  testMatch: [
+    "**/src/__jest__/**/*.test.ts",
+    "**/src/__jest__/integration/**/*.test.ts",
+  ],
   moduleNameMapper: {
     // Strip .js extensions from ESM imports so ts-jest can resolve them
     "^(\\.{1,2}/.*)\\.js$": "$1",
@@ -24,4 +27,6 @@ module.exports = {
   },
   // Silence noisy logger output during tests
   setupFiles: ["<rootDir>/src/__jest__/setup.ts"],
+  // Integration tests may take slightly longer — allow up to 10 s per test
+  testTimeout: 10000,
 };
