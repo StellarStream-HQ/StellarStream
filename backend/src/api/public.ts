@@ -4,7 +4,39 @@ import { prisma } from '../lib/db.js';
 const MAX_SEARCH_LIMIT = 50;
 
 /**
- * GET /stats - Aggregate stream statistics (rate-limited).
+ * @swagger
+ * /api/v1/stats:
+ *   get:
+ *     summary: Get aggregate stream statistics
+ *     description: Returns global protocol statistics including total streams, unique participants, TVL, and active stream count. This endpoint is rate-limited.
+ *     tags: [Public]
+ *     responses:
+ *       200:
+ *         description: Statistics returned successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               totalStreams: 1042
+ *               uniqueSenders: 318
+ *               uniqueReceivers: 524
+ *               globalTvl: "98540000000"
+ *               activeStreams: 204
+ *               tvlRefreshedAt: "2024-06-01T12:00:00.000Z"
+ *       429:
+ *         description: Rate limited
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Too Many Requests
+ *       500:
+ *         description: Failed to compute stats
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Internal Server Error
+ *               message: Failed to compute stats.
  */
 export async function getStats(_req: Request, res: Response): Promise<void> {
   try {
@@ -91,8 +123,74 @@ async function getGlobalTvlSnapshot(): Promise<{
 }
 
 /**
- * GET /search - Search streams with optional filters (rate-limited).
- * Query params: q (search in id, sender, receiver), sender, receiver, limit (cap 50), offset.
+ * @swagger
+ * /api/v1/search:
+ *   get:
+ *     summary: Search streams
+ *     description: Search streams by a general query string or by specific sender/receiver addresses. Supports pagination. This endpoint is rate-limited.
+ *     tags: [Public]
+ *     parameters:
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *           example: GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN
+ *         description: General search term matched against stream ID, sender, and receiver
+ *       - in: query
+ *         name: sender
+ *         schema:
+ *           type: string
+ *           example: GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN
+ *         description: Filter by sender address (partial match)
+ *       - in: query
+ *         name: receiver
+ *         schema:
+ *           type: string
+ *           example: GBBB...
+ *         description: Filter by receiver address (partial match)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *           maximum: 50
+ *         description: Number of results to return (max 50)
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *         description: Number of results to skip for pagination
+ *     responses:
+ *       200:
+ *         description: Search results returned successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               streams:
+ *                 - streamId: stream-001
+ *                   sender: GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN
+ *                   receiver: GBBB...
+ *                   amount: "5000000"
+ *                   status: active
+ *               total: 1
+ *               limit: 20
+ *               offset: 0
+ *       429:
+ *         description: Rate limited
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Too Many Requests
+ *       500:
+ *         description: Search failed
+ *         content:
+ *           application/json:
+ *             example:
+ *               error: Internal Server Error
+ *               message: Search failed.
  */
 export async function getSearch(req: Request, res: Response): Promise<void> {
   try {

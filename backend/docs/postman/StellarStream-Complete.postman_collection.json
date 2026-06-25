@@ -1,0 +1,480 @@
+{
+  "info": {
+    "name": "StellarStream Complete API",
+    "_postman_id": "stellarstream-complete",
+    "description": "Full API collection for StellarStream v1 and v3 endpoints.\n\nSet variables: baseUrl, apiKey, stellarAddress, receiverAddress, streamId, webhookId.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
+    { "key": "apiKey", "value": "your-api-key-here", "type": "string" },
+    { "key": "stellarAddress", "value": "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN", "type": "string" },
+    { "key": "receiverAddress", "value": "GD6FMKDCUA5BQYBPNBPZRWQZFHXQNIRQZ7PFSGKF7KVHRJUALDVF2HP", "type": "string" },
+    { "key": "streamId", "value": "stream-abc123", "type": "string" },
+    { "key": "webhookId", "value": "wh_abc123", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Get Nonce",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/nonce", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","nonce"] },
+            "description": "Returns a one-time nonce. Sign it with your Stellar private key, then pass the address, nonce, and signature to authenticated endpoints."
+          }
+        },
+        {
+          "name": "Get Me (authenticated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Stellar-Address", "value": "{{stellarAddress}}" },
+              { "key": "X-Auth-Nonce", "value": "replace-with-nonce-from-previous-call" },
+              { "key": "X-Auth-Signature", "value": "replace-with-base64-signature" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/me", "host": ["{{baseUrl}}"], "path": ["api","v1","auth","me"] },
+            "description": "Returns the authenticated wallet address. Requires wallet auth headers."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public (no auth)",
+      "item": [
+        {
+          "name": "Get Stats",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/stats", "host": ["{{baseUrl}}"], "path": ["api","v1","stats"] },
+            "description": "Global protocol stats: total streams, TVL, active streams."
+          }
+        },
+        {
+          "name": "Search - by query",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/search?q=GAAZI&limit=10", "host": ["{{baseUrl}}"], "path": ["api","v1","search"], "query": [{"key":"q","value":"GAAZI"},{"key":"limit","value":"10"}] },
+            "description": "Search streams by address fragment."
+          }
+        },
+        {
+          "name": "Search - by sender",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v1/search?sender={{stellarAddress}}&limit=20", "host": ["{{baseUrl}}"], "path": ["api","v1","search"], "query": [{"key":"sender","value":"{{stellarAddress}}"},{"key":"limit","value":"20"}] },
+            "description": "Filter streams by exact sender address."
+          }
+        }
+      ]
+    }
+    ,
+    {
+      "name": "Streams (v1)",
+      "item": [
+        {
+          "name": "Get streams for address",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/streams/{{stellarAddress}}", "host": ["{{baseUrl}}"], "path": ["api","v1","streams","{{stellarAddress}}"] },
+            "description": "Returns all streams where address is sender or receiver."
+          }
+        },
+        {
+          "name": "Get streams - outbound active",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/streams/{{stellarAddress}}?direction=outbound&status=active", "host": ["{{baseUrl}}"], "path": ["api","v1","streams","{{stellarAddress}}"], "query": [{"key":"direction","value":"outbound"},{"key":"status","value":"active"}] },
+            "description": "Filter to only active outbound streams."
+          }
+        },
+        {
+          "name": "Get streams - inbound",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/streams/{{stellarAddress}}?direction=inbound", "host": ["{{baseUrl}}"], "path": ["api","v1","streams","{{stellarAddress}}"], "query": [{"key":"direction","value":"inbound"}] }
+          }
+        },
+        {
+          "name": "Export streams as CSV",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/streams/export/{{stellarAddress}}", "host": ["{{baseUrl}}"], "path": ["api","v1","streams","export","{{stellarAddress}}"] },
+            "description": "Downloads a CSV file with stream history for the address."
+          }
+        },
+        {
+          "name": "Estimate stream creation fee",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/streams/estimate-fee", "host": ["{{baseUrl}}"], "path": ["api","v1","streams","estimate-fee"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sender\": \"GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN\",\n  \"receiver\": \"GD6FMKDCUA5BQYBPNBPZRWQZFHXQNIRQZ7PFSGKF7KVHRJUALDVF2HP\",\n  \"token\": \"GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN\",\n  \"totalAmount\": \"100000000\",\n  \"startTime\": 1750000000,\n  \"endTime\": 1752592000,\n  \"curveType\": \"linear\",\n  \"isSoulbound\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Estimates Soroban fee in XLM for creating a new stream."
+          }
+        },
+        {
+          "name": "Verify stream",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/streams/verify/{{streamId}}", "host": ["{{baseUrl}}"], "path": ["api","v1","streams","verify","{{streamId}}"] },
+            "description": "Fetches on-chain events to verify the stream state."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit Log (v1)",
+      "item": [
+        {
+          "name": "Get recent audit log",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/audit-log", "host": ["{{baseUrl}}"], "path": ["api","v1","audit-log"] }
+          }
+        },
+        {
+          "name": "Get audit log - limited",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/audit-log?limit=20", "host": ["{{baseUrl}}"], "path": ["api","v1","audit-log"], "query": [{"key":"limit","value":"20"}] }
+          }
+        },
+        {
+          "name": "Get audit log for stream",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/audit-log/{{streamId}}", "host": ["{{baseUrl}}"], "path": ["api","v1","audit-log","{{streamId}}"] },
+            "description": "Returns all events for a specific stream ID."
+          }
+        },
+        {
+          "name": "Verify audit log chain integrity",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/audit-log/chain/verify", "host": ["{{baseUrl}}"], "path": ["api","v1","audit-log","chain","verify"] },
+            "description": "Verifies the hash chain of the audit log. Returns any broken links."
+          }
+        },
+        {
+          "name": "Get transaction by hash",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/transaction/3b7f2a1c9d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a", "host": ["{{baseUrl}}"], "path": ["api","v1","transaction","3b7f2a1c9d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a"] },
+            "description": "Returns raw XDR and Soroban events for a transaction hash."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Webhooks (v1)",
+      "item": [
+        {
+          "name": "Register webhook - split.completed",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/webhooks/register", "host": ["{{baseUrl}}"], "path": ["api","v1","webhooks","register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://example.com/hooks/stellarstream\",\n  \"eventType\": \"split.completed\",\n  \"description\": \"ERP settlement callback\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Store the returned secretKey — it is shown only once."
+          }
+        },
+        {
+          "name": "Register webhook - all events",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/webhooks/register", "host": ["{{baseUrl}}"], "path": ["api","v1","webhooks","register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://example.com/hooks/all\",\n  \"eventType\": \"*\",\n  \"description\": \"Subscribe to every event\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Test webhook delivery",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/webhooks/test", "host": ["{{baseUrl}}"], "path": ["api","v1","webhooks","test"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"webhookId\": \"{{webhookId}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "V3 - Disbursement",
+      "item": [
+        {
+          "name": "Process JSON recipients",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Api-Key", "value": "{{apiKey}}" },
+              { "key": "X-Idempotency-Key", "value": "batch-2026-06-24-payroll" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/v3/process-disbursement-file?format=json", "host": ["{{baseUrl}}"], "path": ["api","v3","process-disbursement-file"], "query": [{"key":"format","value":"json"}] },
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  { \"address\": \"GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN\", \"amount\": \"100.50\" },\n  { \"address\": \"INVALID_ADDRESS\", \"amount\": \"50.00\" },\n  { \"address\": \"GD6FMKDCUA5BQYBPNBPZRWQZFHXQNIRQZ7PFSGKF7KVHRJUALDVF2HP\", \"amount\": \"200.1234567\" }\n]",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Row 2 (INVALID_ADDRESS) will appear in errors. Rows 1 and 3 will be in valid."
+          }
+        },
+        {
+          "name": "Process CSV recipients",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "text/csv" },
+              { "key": "X-Api-Key", "value": "{{apiKey}}" },
+              { "key": "X-Idempotency-Key", "value": "batch-2026-06-24-csv" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/v3/process-disbursement-file?format=csv", "host": ["{{baseUrl}}"], "path": ["api","v3","process-disbursement-file"], "query": [{"key":"format","value":"csv"}] },
+            "body": {
+              "mode": "raw",
+              "raw": "address,amount\nGAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN,100.50\nGD6FMKDCUA5BQYBPNBPZRWQZFHXQNIRQZ7PFSGKF7KVHRJUALDVF2HP,200.00",
+              "options": { "raw": { "language": "text" } }
+            }
+          }
+        },
+        {
+          "name": "Analyze split (duplicate detection)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v3/split/analyze", "host": ["{{baseUrl}}"], "path": ["api","v3","split","analyze"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipients\": [\n    { \"address\": \"GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN\" },\n    { \"address\": \"GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN\" },\n    { \"address\": \"GD6FMKDCUA5BQYBPNBPZRWQZFHXQNIRQZ7PFSGKF7KVHRJUALDVF2HP\" }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Detects duplicate rows. Should return a merge suggestion for the repeated address."
+          }
+        },
+        {
+          "name": "Validate split",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v3/validate-split", "host": ["{{baseUrl}}"], "path": ["api","v3","validate-split"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipients\": [\n    { \"address\": \"GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN\", \"amountStroops\": \"10000000\" }\n  ],\n  \"asset\": \"USDC:GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "V3 - Safe Vault",
+      "item": [
+        {
+          "name": "Resolve vault routes",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v3/resolve-vault-routes", "host": ["{{baseUrl}}"], "path": ["api","v3","resolve-vault-routes"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipients\": [\n    { \"address\": \"GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN\", \"amountStroops\": \"10000000\" },\n    { \"address\": \"CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSC4\", \"amountStroops\": \"50000000\" }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "G-address → transfer route. C-address (vault contract) → invoke_contract route."
+          }
+        }
+      ]
+    },
+    {
+      "name": "V3 - Organization",
+      "item": [
+        {
+          "name": "Get org gas status",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v3/org-gas-status", "host": ["{{baseUrl}}"], "path": ["api","v3","org-gas-status"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "V3 - Analytics",
+      "item": [
+        {
+          "name": "Leaderboard - all time",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v3/analytics/leaderboard", "host": ["{{baseUrl}}"], "path": ["api","v3","analytics","leaderboard"] }
+          }
+        },
+        {
+          "name": "Leaderboard - weekly",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/v3/analytics/leaderboard?timeframe=weekly", "host": ["{{baseUrl}}"], "path": ["api","v3","analytics","leaderboard"], "query": [{"key":"timeframe","value":"weekly"}] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "V3 - Templates",
+      "item": [
+        {
+          "name": "List templates",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v3/template", "host": ["{{baseUrl}}"], "path": ["api","v3","template"] }
+          }
+        },
+        {
+          "name": "Create template",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v3/template", "host": ["{{baseUrl}}"], "path": ["api","v3","template"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Monthly Contractor Payroll\",\n  \"recipients\": [\n    { \"address\": \"GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN\", \"amountStroops\": \"50000000\" },\n    { \"address\": \"GD6FMKDCUA5BQYBPNBPZRWQZFHXQNIRQZ7PFSGKF7KVHRJUALDVF2HP\", \"amountStroops\": \"30000000\" }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "V3 - Multisig",
+      "item": [
+        {
+          "name": "Propose multisig split",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v3/multisig/propose", "host": ["{{baseUrl}}"], "path": ["api","v3","multisig","propose"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"recipients\": [\n    { \"address\": \"GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN\", \"amountStroops\": \"10000000\" }\n  ],\n  \"threshold\": 2,\n  \"expiresInSeconds\": 86400\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Approve proposal",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v3/multisig/approve", "host": ["{{baseUrl}}"], "path": ["api","v3","multisig","approve"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"proposalId\": \"prop-7a3b2c1d\",\n  \"signature\": \"base64-encoded-stellar-signature\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "V3 - Assets",
+      "item": [
+        {
+          "name": "Get asset price - USDC",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v3/assets/price/USDC:GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN", "host": ["{{baseUrl}}"], "path": ["api","v3","assets","price","USDC:GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN"] }
+          }
+        },
+        {
+          "name": "Get asset price - XLM",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v3/assets/price/XLM", "host": ["{{baseUrl}}"], "path": ["api","v3","assets","price","XLM"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "V3 - Webhooks",
+      "item": [
+        {
+          "name": "Register webhook",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v3/webhooks/register", "host": ["{{baseUrl}}"], "path": ["api","v3","webhooks","register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://erp.example.com/stellarstream/webhooks\",\n  \"eventType\": \"split.completed\",\n  \"description\": \"ERP settlement callback\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Store the returned secretKey securely — it will not be shown again."
+          }
+        }
+      ]
+    },
+    {
+      "name": "V3 - History & Proof",
+      "item": [
+        {
+          "name": "Get transaction history",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v3/history/{{stellarAddress}}", "host": ["{{baseUrl}}"], "path": ["api","v3","history","{{stellarAddress}}"] }
+          }
+        },
+        {
+          "name": "Get proof of payment",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v3/proof-of-payment/3b7f2a1c9d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a", "host": ["{{baseUrl}}"], "path": ["api","v3","proof-of-payment","3b7f2a1c9d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a"] },
+            "description": "Verifies a transaction on-chain and returns a signed proof record."
+          }
+        }
+      ]
+    },
+    {
+      "name": "V2 - Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Api-Key", "value": "{{apiKey}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v2/health", "host": ["{{baseUrl}}"], "path": ["api","v2","health"] }
+          }
+        }
+      ]
+    }
+  ]
+}

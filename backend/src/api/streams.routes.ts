@@ -55,8 +55,44 @@ interface ExportRow {
 }
 
 /**
- * GET /api/v1/streams/export/:address
- * Returns downloadable CSV export for a wallet's stream history.
+ * @swagger
+ * /streams/export/{address}:
+ *   get:
+ *     summary: Export stream history as CSV
+ *     description: Returns a downloadable CSV file containing all streams for the given Stellar address (as sender or receiver).
+ *     tags: [Streams]
+ *     parameters:
+ *       - in: path
+ *         name: address
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN
+ *         description: Stellar G-address of the wallet
+ *     responses:
+ *       200:
+ *         description: CSV file download
+ *         content:
+ *           text/csv:
+ *             schema:
+ *               type: string
+ *             example: |
+ *               Stream ID,Token,Amount,Start Date,End Date,Total Withdrawn
+ *               stream-123,GABC...,1000000,2024-01-01T00:00:00.000Z,2024-12-31T00:00:00.000Z,500000
+ *       400:
+ *         description: Invalid Stellar address
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               error: Invalid address format
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               error: Internal server error
  */
 router.get(
   "/streams/export/:address",
@@ -145,12 +181,79 @@ router.get(
 );
 
 /**
- * GET /api/v1/streams/:address
- * Returns streams for a given address with optional filtering.
- * Query params:
- *   - direction: inbound | outbound (optional)
- *   - status: active | paused | completed (optional)
- *   - tokens: comma-separated token addresses (optional)
+ * @swagger
+ * /streams/{address}:
+ *   get:
+ *     summary: Get streams for a Stellar address
+ *     description: Returns all streams associated with the given Stellar address, with optional filtering by direction, status, and token.
+ *     tags: [Streams]
+ *     parameters:
+ *       - in: path
+ *         name: address
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN
+ *         description: Stellar G-address of the wallet
+ *       - in: query
+ *         name: direction
+ *         schema:
+ *           type: string
+ *           enum: [inbound, outbound]
+ *         description: Filter by stream direction relative to the address
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [active, paused, completed]
+ *         description: Filter by stream status
+ *       - in: query
+ *         name: tokens
+ *         schema:
+ *           type: string
+ *           example: GABC...,GDEF...
+ *         description: Comma-separated list of token contract addresses to filter by
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               success: true
+ *               address: GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN
+ *               count: 2
+ *               filters:
+ *                 direction: inbound
+ *                 status: active
+ *               streams:
+ *                 - streamId: stream-001
+ *                   sender: GABC...
+ *                   receiver: GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN
+ *                   amount: "5000000"
+ *                   status: active
+ *       400:
+ *         description: Invalid address or query parameters
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               error: Invalid Stellar address
+ *       404:
+ *         description: Address not found
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               error: Address not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               error: Internal server error
  */
 router.get(
   "/streams/:address",
@@ -188,8 +291,81 @@ router.get(
 );
 
 /**
- * POST /api/v1/streams/estimate-fee
- * Estimates Soroban fee (resource + inclusion) for create_stream in XLM.
+ * @swagger
+ * /streams/estimate-fee:
+ *   post:
+ *     summary: Estimate Soroban fee for creating a stream
+ *     description: Estimates the Soroban resource + inclusion fee (in XLM) for invoking the create_stream contract function.
+ *     tags: [Streams]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [sender, receiver, token, totalAmount, startTime, endTime]
+ *             properties:
+ *               sender:
+ *                 type: string
+ *                 example: GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN
+ *               receiver:
+ *                 type: string
+ *                 example: GBBB...
+ *               token:
+ *                 type: string
+ *                 example: GCCC...
+ *               totalAmount:
+ *                 type: string
+ *                 description: Integer string in stroops
+ *                 example: "10000000"
+ *               startTime:
+ *                 type: integer
+ *                 description: Unix timestamp (seconds)
+ *                 example: 1700000000
+ *               endTime:
+ *                 type: integer
+ *                 description: Unix timestamp (seconds), must be > startTime
+ *                 example: 1730000000
+ *               curveType:
+ *                 type: string
+ *                 enum: [linear, exponential]
+ *                 default: linear
+ *               isSoulbound:
+ *                 type: boolean
+ *                 default: false
+ *     responses:
+ *       200:
+ *         description: Fee estimate returned successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               success: true
+ *               estimate:
+ *                 fee: "0.00501"
+ *                 feeStroops: "501"
+ *       400:
+ *         description: Invalid request body or endTime <= startTime
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               error: endTime must be greater than startTime.
+ *       422:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               error: totalAmount must be an integer string in stroops.
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               error: Internal server error
  */
 router.post(
   "/streams/estimate-fee",
@@ -327,8 +503,57 @@ function toCsv(rows: ExportRow[]): string {
 }
 
 /**
- * GET /api/v1/streams/verify/:streamId
- * Verifies a stream by fetching its events from the blockchain
+ * @swagger
+ * /streams/verify/{streamId}:
+ *   get:
+ *     summary: Verify a stream by ID
+ *     description: Fetches and verifies a stream's on-chain event history to confirm its integrity.
+ *     tags: [Streams]
+ *     parameters:
+ *       - in: path
+ *         name: streamId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: stream-001
+ *         description: The unique stream identifier
+ *     responses:
+ *       200:
+ *         description: Stream verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               success: true
+ *               data:
+ *                 streamId: stream-001
+ *                 status: active
+ *                 events:
+ *                   - eventType: create
+ *                     txHash: abc123
+ *                     ledgerClosedAt: "2024-01-01T00:00:00.000Z"
+ *       404:
+ *         description: Stream not found or verification failed
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               error: Stream not found or verification failed
+ *       400:
+ *         description: Invalid stream ID
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               error: Invalid stream ID
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               error: Internal server error
  */
 router.get(
   "/streams/verify/:streamId",
