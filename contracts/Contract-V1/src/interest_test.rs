@@ -191,7 +191,7 @@ fn test_invalid_interest_strategy() {
         &receiver,
         &token_address,
         &1000,
-        &100,
+        &100, &100,
         &100,
         &200,
         &99, // Invalid strategy (> 7)

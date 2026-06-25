@@ -22,6 +22,9 @@ mod stream_active_test;
 mod pause_resume_test;
 
 #[cfg(test)]
+mod cliff_test;
+
+#[cfg(test)]
 #[cfg(all(test, feature = "allowlist_tests"))]
 mod allowlist_test;
 #[cfg(all(test, feature = "clawback_tests"))]
@@ -205,6 +208,7 @@ impl StellarStreamContract {
             token: proposal.token.clone(),
             total_amount: proposal.total_amount,
             start_time: proposal.start_time,
+            cliff_time: proposal.start_time,
             end_time: proposal.end_time,
             withdrawn_amount: 0,
             interest_strategy: 0,
@@ -266,6 +270,7 @@ impl StellarStreamContract {
         token: Address,
         total_amount: i128,
         start_time: u64,
+        cliff_time: u64,
         end_time: u64,
         curve_type: CurveType,
         is_soulbound: bool,
@@ -278,6 +283,7 @@ impl StellarStreamContract {
             token,
             total_amount,
             start_time,
+            cliff_time,
             end_time,
             milestones,
             curve_type,
@@ -298,6 +304,7 @@ impl StellarStreamContract {
         token: Address,
         total_amount: i128,
         start_time: u64,
+        cliff_time: u64,
         end_time: u64,
         milestones: Vec<Milestone>,
         curve_type: CurveType,
@@ -315,6 +322,11 @@ impl StellarStreamContract {
         }
         if Self::is_address_restricted(env.clone(), receiver.clone()) {
             soroban_sdk::panic_with_error!(&env, Error::AddressRestricted);
+        }
+
+        // Validate cliff period
+        if cliff_time < start_time || cliff_time > end_time {
+            panic!("Cliff time must be between start and end time");
         }
 
         // Validate vault if provided
@@ -342,6 +354,7 @@ impl StellarStreamContract {
             token: token.clone(),
             total_amount,
             start_time,
+            cliff_time,
             end_time,
             withdrawn_amount: 0,
             interest_strategy: 0,
@@ -450,6 +463,7 @@ impl StellarStreamContract {
                 token.clone(),
                 req.amount,
                 req.start_time,
+                req.cliff_time,
                 req.end_time,
                 milestones,
                 CurveType::Linear,
@@ -1012,6 +1026,11 @@ impl StellarStreamContract {
             effective_time = stream.paused_time;
         }
 
+        let adjusted_cliff = stream.cliff_time + stream.total_paused_duration;
+        if effective_time < adjusted_cliff {
+            return 0;
+        }
+
         let adjusted_end = stream.end_time + stream.total_paused_duration;
         if effective_time >= adjusted_end {
             return stream.total_amount;
@@ -1426,7 +1445,7 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &100,
+            &100, &100,
             &200,
             &CurveType::Linear,
             &false,
@@ -1467,7 +1486,7 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &100,
+            &100, &100,
             &200,
             &CurveType::Linear,
             &false,
@@ -1505,7 +1524,7 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &100,
+            &100, &100,
             &200,
             &CurveType::Linear,
             &false,
@@ -1543,7 +1562,7 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &100,
+            &100, &100,
             &200,
             &CurveType::Linear,
             &false,
@@ -1646,7 +1665,7 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &100,
+            &100, &100,
             &300,
             &CurveType::Linear,
             &false,
@@ -1690,7 +1709,7 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &100,
+            &100, &100,
             &300,
             &CurveType::Linear,
             &false,
@@ -1724,7 +1743,7 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &100,
+            &100, &100,
             &300,
             &CurveType::Linear,
             &false,
@@ -1888,7 +1907,7 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &100,
+            &100, &100,
             &200,
             &CurveType::Linear,
             &false,
@@ -1920,7 +1939,7 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &100,
+            &100, &100,
             &200,
             &CurveType::Linear,
             &false,
@@ -1954,7 +1973,7 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &100,
+            &100, &100,
             &200,
             &CurveType::Linear,
             &false,
@@ -1987,7 +2006,7 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &100,
+            &100, &100,
             &200,
             &CurveType::Linear,
             &false,
@@ -2021,7 +2040,7 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &100,
+            &100, &100,
             &300,
             &CurveType::Linear,
             &false,
@@ -2054,7 +2073,7 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &100,
+            &100, &100,
             &300,
             &CurveType::Linear,
             &false,
@@ -2124,7 +2143,7 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &0,
+            &0, &0,
             &100,
             &CurveType::Exponential,
             &false,
@@ -2252,7 +2271,7 @@ mod test {
             &restricted_receiver,
             &token_id,
             &1000,
-            &100,
+            &100, &100,
             &200,
             &CurveType::Linear,
             &false,
@@ -2330,7 +2349,7 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &100,
+            &100, &100,
             &200,
             &CurveType::Linear,
             &false,
@@ -2437,7 +2456,7 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &100,
+            &100, &100,
             &200,
             &CurveType::Linear,
             &false,

@@ -110,7 +110,7 @@ fn test_stream_survives_vault_pause() {
         &receiver,
         &token_address,
         &10000,
-        &100,
+        &100, &100,
         &300,
         &CurveType::Linear,
         &false,

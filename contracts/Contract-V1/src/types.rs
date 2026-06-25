@@ -64,6 +64,7 @@ pub struct Stream {
     pub token: Address,
     pub total_amount: i128,
     pub start_time: u64,
+    pub cliff_time: u64,
     pub end_time: u64,
     pub withdrawn: i128,
     pub withdrawn_amount: i128,

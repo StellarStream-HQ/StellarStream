@@ -33,7 +33,7 @@ fn test_remaining_time_counts_down() {
         &receiver,
         &token_id,
         &1000,
-        &100,
+        &100, &100,
         &600,
         &CurveType::Linear,
         &false,
