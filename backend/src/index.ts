@@ -19,6 +19,7 @@ import {
   sensitiveRateLimitMiddleware,
 } from "./middleware/rateLimit.js";
 import { requireWalletAuth } from "./middleware/requireWalletAuth.js";
+import { auditLogMiddleware } from "./middleware/audit-log.middleware.js";
 import { getStats, getSearch } from "./api/public.js";
 import { getNonce, getMe } from "./api/auth.js";
 import { ensureRedis, closeRedis } from "./lib/redis.js";
@@ -101,6 +102,10 @@ app.use(
 app.use(bigintSerializer);
 app.use(compression());
 app.use(express.json());
+
+// ── Admin Audit Logging Middleware (IMPORTANT: after body parser, before routes) ────
+app.use(auditLogMiddleware);
+
 app.use(authMiddleware);
 
 // ── Root redirect → Swagger docs ──────────────────────────────────────────────
