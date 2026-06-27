@@ -1,6 +1,7 @@
 import { prisma } from "../lib/db.js";
 import { computeEntryHash } from "../lib/audit-hash-chain.js";
 import { logger } from "../logger.js";
+import { InternalError } from "../lib/app-error.js";
 
 export interface EventLogEntry {
   eventType: string;
@@ -170,7 +171,8 @@ export class AuditLogService {
       );
     } catch (error) {
       logger.error("Failed to retrieve audit log", error);
-      throw error;
+      // Re-throw as a typed InternalError so error middleware can report consistently.
+      throw new InternalError("Failed to retrieve audit log", { cause: error });
     }
   }
 
@@ -221,7 +223,11 @@ export class AuditLogService {
       );
     } catch (error) {
       logger.error("Failed to retrieve stream events", error, { streamId });
-      throw error;
+      // Re-throw as a typed InternalError so error middleware can report consistently.
+      throw new InternalError("Failed to retrieve stream events", {
+        cause: error,
+        details: { streamId },
+      });
     }
   }
 }

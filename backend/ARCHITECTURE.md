@@ -481,6 +481,140 @@ ps aux | grep node
 node --inspect dist/index.js
 ```
 
+## Error Handling Strategy (Issue #1150)
+
+All backend services share a single, consistent error-handling pipeline built
+on three layers. Together they guarantee that:
+
+- Services never leak raw exceptions to callers.
+- API responses always have the same `{ success, data, error, code, details, requestId }` shape.
+- Stack traces and internal infrastructure details are stripped from HTTP
+  responses in production, while remaining fully available to Sentry and the
+  structured logger.
+- Per-request correlation ids allow tracing errors from a single response
+  through every log line and Sentry event.
+
+### Layer 1 — AppError hierarchy (`backend/src/lib/app-error.ts`)
+
+The `AppError` base class carries a stable `code` (e.g. `ERR_NOT_FOUND`), the
+HTTP `statusCode` it maps to, optional structured `details`, and the ES2022
+`cause` chain. Subclasses encode the most common HTTP failure modes:
+
+| Class                   | Status | Code                       | Use for                              |
+|------------------------|--------|----------------------------|--------------------------------------|
+| `ValidationError`       | 400    | `ERR_VALIDATION`           | Generic input validation failure      |
+| `MissingFieldError`     | 400    | `ERR_VALIDATION`           | A required field was omitted          |
+| `UnauthorizedError`     | 401    | `ERR_UNAUTHORIZED`         | Caller is not authenticated           |
+| `ForbiddenError`        | 403    | `ERR_FORBIDDEN`            | Caller lacks permission               |
+| `NotFoundError`         | 404    | `ERR_NOT_FOUND`            | Resource does not exist               |
+| `ConflictError`         | 409    | `ERR_CONFLICT`             | State conflict (e.g. non-DRAFT draft) |
+| `BusinessRuleError`     | 422    | `ERR_BUSINESS_RULE`        | Well-formed but violates business     |
+| `RateLimitError`        | 429    | `ERR_RATE_LIMIT`           | Caller exceeded rate limit            |
+| `InternalError`         | 500    | `ERR_INTERNAL`             | Unexpected programming / runtime bug |
+| `ConfigurationError`    | 500    | `ERR_CONFIGURATION`        | Service misconfigured                |
+| `ExternalServiceError`  | 502    | `ERR_EXTERNAL_SERVICE`     | Upstream (RPC, Horizon) failed       |
+| `ServiceUnavailableError` | 503  | `ERR_SERVICE_UNAVAILABLE`  | Dependency down                      |
+
+The `isOperational` flag distinguishes expected caller-facing errors
+(operational = true) from programming bugs (operational = false). Non-
+operational errors are forwarded to Sentry; operational errors are not.
+
+Two helpers reduce boilerplate at the service / middleware boundary:
+
+- `isAppError(err)` — typed guard, `err is AppError`.
+- `toAppError(err)` — coerces any thrown value (including `ZodError`) into
+  an `AppError`. The error middleware calls this on every error.
+
+### Layer 2 — `errorHandler` middleware (`backend/src/middleware/errorHandler.ts`)
+
+Registered as `app.use(errorHandler)` after all routes and the Sentry
+safety-net handler. For every error:
+
+1. Coerces to `AppError` via `toAppError`.
+2. Writes a structured log line (method, path, ip, requestId, error
+   context). Operational 4xx are logged at WARN; everything else at ERROR
+   with the full stack.
+3. Forwards non-operational errors (and any `InternalError`) to
+   `Sentry.captureException` inside a tagged scope so the corresponding
+   Sentry event carries the same `requestId` / `errorCode` as the
+   structured log line.
+4. Renders the response body:
+
+```json
+{
+  "success": false,
+  "data": null,
+  "error": "Stream not found: abc-123",
+  "code": "ERR_NOT_FOUND",
+  "details": { "resource": "Stream", "identifier": "abc-123" },
+  "requestId": "9b6c3d2a-..."
+}
+```
+
+   In production, the `stack` field is omitted and any non-operational
+   error message is replaced with `"An unexpected error occurred"` so
+   callers never see internal infrastructure details. The body ALWAYS
+   includes `data: null` so the existing `responseWrapper` middleware
+   takes its pass-through branch and forwards every field (including
+   `requestId` and `stack`) instead of dropping them.
+
+5. If `res.headersSent` is already `true`, the handler delegates to
+   Express's default handler so the connection is closed cleanly
+   instead of trying to write headers twice.
+
+`buildErrorResponseBody` is exported for non-Express call sites
+(workers, schedulers) that want the same response shape for their own
+error logs.
+
+### Layer 3 — `requestId` middleware (`backend/src/middleware/requestId.ts`)
+
+Registered as `app.use(requestIdMiddleware)` immediately after body
+parsing and auth. It attaches a `req.id` (echoing the upstream
+`x-request-id` header when present, otherwise a fresh UUID), sets the
+`x-request-id` response header, and declares an Express module
+augmentation so `req.id` is typed.
+
+Security: the upstream id is filtered to printable ASCII (no CR/LF/TAB
+or other control characters) before being trusted — otherwise an
+attacker could smuggle fake log lines into structured logs via
+control-character-laden headers.
+
+Every error log and response body carries this id for cross-system
+correlation with Sentry and client-side bug reports.
+
+### Accepted response shape
+
+In combination with the existing `responseWrapper` middleware, every API
+response conforms to:
+
+```json
+{
+  "success": true | false,
+  "data":    <payload | null>,
+  "error":   <localised human-readable message | null>,
+  "code":    "<stable machine code>",
+  "details": <optional structured metadata>,
+  "requestId": "<per-request correlation id>"
+}
+```
+
+Clients should branch on `code` (stable string) and `success` (boolean),
+**not** on the localised `error` string.
+
+### Migration plan
+
+This PR lands the **foundation**: the hierarchy, both middlewares, and
+35 tests covering them. Migration of the remaining ~75 services to throw
+`AppError` subclasses will follow in separate, scoped PRs:
+
+1. Auth, wallet, and KYC services.
+2. Streams, snapshots, and audit log services.
+3. Background workers and schedulers (catch blocks within `.catch(...)`).
+4. Routes and granular request validation — including migrating
+   `backend/src/middleware/validateRequest.ts` to `next(err)` for
+   `ZodError` so a single error-code style flows through the centralized
+   handler.
+
 ## Conclusion
 
 This architecture provides a solid foundation for monitoring Stellar smart contracts. It's designed to be:

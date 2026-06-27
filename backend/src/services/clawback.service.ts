@@ -19,6 +19,11 @@
 import { PrismaClient } from "../generated/client/client.js";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { logger } from "../logger.js";
+import {
+  NotFoundError,
+  BusinessRuleError,
+  ValidationError,
+} from "../lib/app-error.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -219,7 +224,16 @@ export class ClawbackService {
     if (!validation.valid) {
       const errorMsg = `Clawback validation failed: ${validation.errors.join("; ")}`;
       logger.error(errorMsg, { streamId: input.streamId, amount: input.amount });
-      throw new Error(errorMsg);
+      // Use BusinessRuleError (422) since validation failures represent
+      // well-formed requests that violate clawback business rules.
+      throw new BusinessRuleError(errorMsg, {
+        details: {
+          streamId: input.streamId,
+          amount: input.amount,
+          errors: validation.errors,
+          warnings: validation.warnings,
+        },
+      });
     }
 
     // Resolve the stream record to get the proper ID
@@ -233,7 +247,7 @@ export class ClawbackService {
     });
 
     if (!stream) {
-      throw new Error(`Stream not found: ${input.streamId}`);
+      throw new NotFoundError("Stream", input.streamId);
     }
 
     // Create the clawback history record

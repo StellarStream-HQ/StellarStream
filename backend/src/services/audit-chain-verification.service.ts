@@ -1,6 +1,7 @@
 import { prisma } from "../lib/db.js";
 import { computeEntryHash, type AuditHashInput } from "../lib/audit-hash-chain.js";
 import { logger } from "../logger.js";
+import { InternalError } from "../lib/app-error.js";
 
 export interface ChainVerificationResult {
   totalEntries: number;
@@ -17,10 +18,16 @@ export interface ChainVerificationResult {
 
 export class AuditChainVerificationService {
   async verifyChain(limit?: number): Promise<ChainVerificationResult> {
-    const entries = await prisma.eventLog.findMany({
-      orderBy: { createdAt: "asc" },
-      ...(limit ? { take: limit } : {}),
-    });
+    let entries: Awaited<ReturnType<typeof prisma.eventLog.findMany>>;
+    try {
+      entries = await prisma.eventLog.findMany({
+        orderBy: { createdAt: "asc" },
+        ...(limit ? { take: limit } : {}),
+      });
+    } catch (cause) {
+      logger.error("Failed to verify audit log chain", cause);
+      throw new InternalError("Failed to verify audit log chain", { cause });
+    }
 
     const brokenLinks: ChainVerificationResult["brokenLinks"] = [];
     let previousHash: string | null = null;

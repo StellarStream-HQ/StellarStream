@@ -1,5 +1,9 @@
 import { prisma } from "../lib/db.js";
 import { logger } from "../logger.js";
+import {
+  NotFoundError,
+  ConflictError,
+} from "../lib/app-error.js";
 
 export interface DraftRecipient {
   address: string;
@@ -18,6 +22,25 @@ export interface UpdateDraftInput {
   recipients: DraftRecipient[];
   changeNote?: string;
   changedBy: string;
+}
+
+/**
+ * Internal guard shared by `saveNewVersion` and `restoreVersion`. Both
+ * operations are only legal on a draft that still exists AND is in the
+ * `DRAFT` state (not yet published). Throws the right AppError otherwise
+ * so route handlers can rely on the centralized error middleware.
+ */
+async function assertDraftEditable(draftId: string) {
+  const draft = await prisma.disbursementDraft.findUnique({ where: { id: draftId } });
+  if (!draft) {
+    throw new NotFoundError("DisbursementDraft", draftId);
+  }
+  if (draft.status !== "DRAFT") {
+    throw new ConflictError("Cannot modify a non-DRAFT disbursement", {
+      details: { draftId, status: draft.status },
+    });
+  }
+  return draft;
 }
 
 export class DisbursementDraftService {
@@ -52,14 +75,10 @@ export class DisbursementDraftService {
   }
 
   async saveNewVersion(draftId: string, input: UpdateDraftInput) {
-    const draft = await prisma.disbursementDraft.findUnique({ where: { id: draftId } });
-    if (!draft) {
-      throw new Error("Draft not found");
-    }
-    if (draft.status !== "DRAFT") {
-      throw new Error("Cannot modify a non-DRAFT disbursement");
-    }
-
+    // Reject early if the draft is missing or has been published.
+    // `assertDraftEditable` throws NotFoundError / ConflictError, both of
+    // which the centralized errorHandler renders into the standard shape.
+    const draft = await assertDraftEditable(draftId);
     const newVersion = draft.currentVersion + 1;
     const totalAmount = this.calculateTotal(input.recipients);
 
@@ -95,19 +114,13 @@ export class DisbursementDraftService {
   }
 
   async restoreVersion(draftId: string, targetVersion: number, changedBy: string) {
-    const draft = await prisma.disbursementDraft.findUnique({ where: { id: draftId } });
-    if (!draft) {
-      throw new Error("Draft not found");
-    }
-    if (draft.status !== "DRAFT") {
-      throw new Error("Cannot modify a non-DRAFT disbursement");
-    }
+    const draft = await assertDraftEditable(draftId);
 
     const targetVersionRecord = await prisma.disbursementDraftVersion.findUnique({
       where: { draftId_version: { draftId, version: targetVersion } },
     });
     if (!targetVersionRecord) {
-      throw new Error(`Version ${targetVersion} not found`);
+      throw new NotFoundError("DisbursementDraftVersion", `${draftId}@v${targetVersion}`);
     }
 
     const newVersion = draft.currentVersion + 1;
@@ -186,3 +199,6 @@ export class DisbursementDraftService {
     return recipients.reduce((sum, recipient) => sum + BigInt(recipient.amount), 0n).toString();
   }
 }
+
+/* Re-exported for testability of the guard helper. */
+export { assertDraftEditable };

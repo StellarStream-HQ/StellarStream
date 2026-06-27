@@ -1,6 +1,7 @@
 import { StrKey } from "@stellar/stellar-sdk";
 import { parse } from "csv-parse";
 import { Readable } from "stream";
+import { ValidationError } from "../lib/app-error.js";
 
 export interface RawRecipientRow {
   address: string;
@@ -13,9 +14,15 @@ export interface CleanRecipient {
   amountStroops: string;
 }
 
+export interface ProcessFileError {
+  row: number;
+  address: string;
+  reason: string;
+}
+
 export interface ProcessFileResult {
   valid: CleanRecipient[];
-  errors: { row: number; address: string; reason: string }[];
+  errors: ProcessFileError[];
   totalRows: number;
 }
 
@@ -57,7 +64,7 @@ function parseCsvStream(raw: string): Promise<RawRecipientRow[]> {
 
 export function processRows(rows: RawRecipientRow[]): ProcessFileResult {
   const valid: CleanRecipient[] = [];
-  const errors: ProcessFileResult["errors"] = [];
+  const errors: ProcessFileError[] = [];
 
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
@@ -95,9 +102,18 @@ export async function processFile(
   if (format === "csv") {
     rows = await parseCsvStream(content);
   } else {
-    const parsed = JSON.parse(content) as RawRecipientRow[];
-    if (!Array.isArray(parsed)) throw new Error("JSON input must be an array");
-    rows = parsed;
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(content);
+    } catch (cause) {
+      throw new ValidationError("JSON input is not valid JSON", { cause });
+    }
+    if (!Array.isArray(parsed)) {
+      throw new ValidationError("JSON input must be an array", {
+        details: { receivedType: typeof parsed },
+      });
+    }
+    rows = parsed as RawRecipientRow[];
   }
 
   return processRows(rows);

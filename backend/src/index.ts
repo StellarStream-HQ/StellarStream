@@ -40,6 +40,8 @@ import { swaggerV3Spec } from "./api/v3/swagger.js";
 import { initializeSchedulers } from "./schedulers.js";
 import { createSplitWorker } from "./workers/splitWorker.js";
 import { enqueueSplit, getSplitJobStatus } from "./lib/splitQueue.js";
+import { requestId as requestIdMiddleware } from "./middleware/requestId.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -107,6 +109,9 @@ app.use(express.json());
 app.use(auditLogMiddleware);
 
 app.use(authMiddleware);
+// Attach a per-request correlation id BEFORE any handler can throw so every
+// error log / response carries it. See middleware/requestId.ts.
+app.use(requestIdMiddleware);
 
 // ── Root redirect → Swagger docs ──────────────────────────────────────────────
 app.get("/", (_req: Request, res: Response) => {
@@ -217,6 +222,14 @@ app.get("/event-watcher-status", async (_req: Request, res: Response) => {
     });
   }
 });
+
+// ── Centralised error handler (issue #1150) ───────────────────────────────────
+// Convert any thrown AppError / bare Error into the standard
+// `{success, error, code, details, requestId}` response, sanitize stack
+// traces in production, and forward non-operational errors to Sentry.
+// MUST be registered AFTER all routes but BEFORE Sentry's safety-net handler
+// so that our handler runs first and Sentry still gets the original error.
+app.use(errorHandler);
 
 // ── Sentry error handler ──────────────────────────────────────────────────────
 Sentry.setupExpressErrorHandler(app);
@@ -331,6 +344,11 @@ app.get("/splits/status/:jobId", async (req, res) => {
   } catch (err: any) {
     return res.status(500).json({ error: err.message });
   }
+});
+
+// Close the app.listen() callback that was opened earlier in this file
+// (its body contains the routes registered below). Without this closing
+// brace, `tsc` reports "expected '}'" at the end of the file.
 });
 
 export default app;

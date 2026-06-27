@@ -38,6 +38,9 @@ export class EventWatcher {
       errorCount: 0,
     };
     this.streamLifecycleService = new StreamLifecycleService();
+  }
+}
+
 import * as Sentry from "@sentry/node";
 import { EventWatcherService } from "./services/event-watcher.service.js";
 import { ensureRedis, closeRedis } from "./lib/redis.js";
