@@ -39,6 +39,7 @@ import orgMemberSyncRouter from "./org-member-sync.routes.js";
 import assetMappingRouter from "./asset-mapping.routes.js";
 import dustAuditRouter from "./dust-audit.routes.js";
 import recipientRouter from "./recipient.routes.js";
+import auditLogRoutes from "./audit-log.routes.js";
 
 const router = Router();
 
@@ -59,6 +60,9 @@ router.use("/", orgMemberSyncRouter);
 router.use("/asset-mapping", assetMappingRouter);
 router.use("/dust-audit", dustAuditRouter);
 router.use("/recipient", recipientRouter);
+
+// ── Admin Audit Log Routes (#COMPLIANCE - requires admin access) ────────────────
+router.use("/audit", auditLogRoutes);
 
 const auditLogService = new AuditLogService();
 const chainVerificationService = new AuditChainVerificationService();

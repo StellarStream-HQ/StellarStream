@@ -751,3 +751,33 @@ model OfacAuditLog {
   @@index([checkedAt])
   @@map("OfacAuditLog")
 }
+
+// Admin audit log for comprehensive compliance tracking (#HIGH_COMPLIANCE)
+model AdminAuditLog {
+  id               String    @id @default(cuid())
+  timestamp        DateTime  @default(now())
+  userId           String?
+  userEmail        String?
+  method           String    // GET, POST, PUT, DELETE, PATCH
+  path             String
+  statusCode       Int
+  executionTimeMs  Float
+  clientIp         String?
+  userAgent        String?
+  requestBody      String?   // JSON string of request body (sanitized)
+  responseBody     String?   // JSON string of response (truncated for large responses)
+  beforeSnapshot   String?   // JSON snapshot of data before change
+  afterSnapshot    String?   // JSON snapshot of data after change
+  error            String?   // Error message if operation failed
+  changesSummary   String?   // Human-readable summary of changes made
+  createdAt        DateTime  @default(now())
+
+  @@index([timestamp(sort: Desc)])
+  @@index([userId])
+  @@index([method])
+  @@index([path])
+  @@index([statusCode])
+  @@index([userId, timestamp(sort: Desc)])
+  @@index([path, timestamp(sort: Desc)])
+  @@map("admin_audit_log")
+}
