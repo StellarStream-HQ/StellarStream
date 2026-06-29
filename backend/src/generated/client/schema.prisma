@@ -2,8 +2,9 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/client"
+  provider   = "prisma-client-js"
+  output     = "../src/generated/client"
+  engineType = "binary"
 }
 
 datasource db {
@@ -297,6 +298,22 @@ model LedgerHash {
   sequence  Int      @id
   hash      String
   createdAt DateTime @default(now())
+}
+
+model SyncMetadata {
+  id                 String @id
+  lastLedgerSequence Int
+}
+
+model ClawbackHistory {
+  id         String   @id @default(uuid())
+  streamId   String
+  amount     String // clawback amount as string for high precision
+  reason     String   @default("")
+  createdAt  DateTime @default(now())
+  executedAt DateTime @default(now())
+  txHash     String? // optional tx hash if executed on-chain
+  status     String   @default("executed") // executed | pending | failed
 }
 
 // Notification subscriptions — maps a Stellar address to a Discord/Telegram endpoint
@@ -718,4 +735,49 @@ model SplitLink {
   @@index([creatorAddress])
   @@index([createdAt])
   @@map("SplitLink")
+}
+
+// OFAC compliance audit log (#1186)
+model OfacAuditLog {
+  id           String   @id @default(cuid())
+  address      String
+  isSanctioned Boolean  @map("is_sanctioned")
+  checkedAt    DateTime @map("checked_at")
+  source       String
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([address])
+  @@index([isSanctioned])
+  @@index([checkedAt])
+  @@map("OfacAuditLog")
+}
+
+// Admin audit log for comprehensive compliance tracking (#HIGH_COMPLIANCE)
+model AdminAuditLog {
+  id              String   @id @default(cuid())
+  timestamp       DateTime @default(now())
+  userId          String?
+  userEmail       String?
+  method          String // GET, POST, PUT, DELETE, PATCH
+  path            String
+  statusCode      Int
+  executionTimeMs Float
+  clientIp        String?
+  userAgent       String?
+  requestBody     String? // JSON string of request body (sanitized)
+  responseBody    String? // JSON string of response (truncated for large responses)
+  beforeSnapshot  String? // JSON snapshot of data before change
+  afterSnapshot   String? // JSON snapshot of data after change
+  error           String? // Error message if operation failed
+  changesSummary  String? // Human-readable summary of changes made
+  createdAt       DateTime @default(now())
+
+  @@index([timestamp(sort: Desc)])
+  @@index([userId])
+  @@index([method])
+  @@index([path])
+  @@index([statusCode])
+  @@index([userId, timestamp(sort: Desc)])
+  @@index([path, timestamp(sort: Desc)])
+  @@map("admin_audit_log")
 }
