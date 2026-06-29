@@ -42,6 +42,7 @@ import { createSplitWorker } from "./workers/splitWorker.js";
 import { enqueueSplit, getSplitJobStatus } from "./lib/splitQueue.js";
 import { requestId as requestIdMiddleware } from "./middleware/requestId.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import { v1DeprecationWarning } from "./middleware/deprecationWarning.js";
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -98,6 +99,13 @@ app.use(
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Api-Key"],
+    exposedHeaders: [
+      "Deprecation",
+      "Sunset",
+      "Link",
+      "Warning",
+      "X-StellarStream-API-Deprecation",
+    ],
   }),
 );
 
@@ -117,6 +125,9 @@ app.use(requestIdMiddleware);
 app.get("/", (_req: Request, res: Response) => {
   res.redirect("/api/v1/docs");
 });
+
+// ── V1 deprecation notice ────────────────────────────────────────────────────
+app.use("/api/v1", v1DeprecationWarning);
 
 // ── Swagger UI ────────────────────────────────────────────────────────────────
 app.use("/api/v1/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));

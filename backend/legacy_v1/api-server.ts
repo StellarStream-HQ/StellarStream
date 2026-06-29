@@ -1,9 +1,13 @@
 import express, { type Request, type Response } from "express";
 import { config } from "../config";
+import { v1DeprecationWarning } from "../src/middleware/deprecationWarning";
 import streamsRouter from "./streams";
 
 const app = express();
 app.use(express.json());
+
+// ── V1 deprecation notice ─────────────────────────────────────────────────────
+app.use("/api", v1DeprecationWarning);
 
 // ── Health check ──────────────────────────────────────────────────────────────
 app.get("/health", (_req: Request, res: Response) => {
