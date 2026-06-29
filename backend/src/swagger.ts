@@ -8,13 +8,14 @@ const options: swaggerJsdoc.Options = {
       version: "1.0.0",
       description:
         "REST API for the StellarStream Stellar payment streaming indexer. " +
-        "Provides endpoints to query streams, audit logs, statistics, authentication, and webhook management.",
+        "Provides endpoints to query streams, audit logs, statistics, authentication, and webhook management. " +
+        "API v1 is deprecated; see DEPRECATION_TIMELINE.md and docs/V1_MIGRATION_GUIDE.md.",
       contact: { name: "StellarStream", url: "https://github.com/StellarStream-HQ/StellarStream" },
       license: { name: "MIT" },
     },
     servers: [
-      { url: "/api/v1", description: "V1 API (current)" },
-      { url: "http://localhost:3000/api/v1", description: "Local development" },
+      { url: "/api/v1", description: "V1 API (deprecated)" },
+      { url: "http://localhost:3000/api/v1", description: "Local development (deprecated v1)" },
     ],
     tags: [
       { name: "Streams", description: "Stellar payment stream queries and fee estimation" },
