@@ -173,10 +173,37 @@ app.use("/api/v3", apiV3Router);
 // ── Batch metadata + stream graph ─────────────────────────────────────────────
 app.use("/api/v1", batchRoutes);
 
-// Health check
-app.get('/health', (_req: Request, res: Response) => {
-  res.json({ status: 'ok', message: 'StellarStream Backend is running' });
+// Health check (DB-aware)
+app.get("/health", async (req: Request, res: Response) => {
+  try {
+    const correlationId = req.id;
+    const ok = await (await import("./lib/database-health.js")).checkDbConnection(correlationId);
+    const state = (await import("./lib/database-health.js")).getDbHealthState().state;
+
+    if (ok) {
+      res.status(200).json({
+        status: "healthy",
+        database: "connected",
+        circuit: state,
+      });
+      return;
+    }
+
+    res.status(503).json({
+      status: "degraded",
+      database: "disconnected",
+      mode: "read-only",
+      circuit: state,
+    });
+  } catch {
+    res.status(503).json({
+      status: "degraded",
+      database: "disconnected",
+      mode: "read-only",
+    });
+  }
 });
+
 
 // API routes
 app.use('/api', apiRoutes);
@@ -237,6 +264,17 @@ Sentry.setupExpressErrorHandler(app);
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
 async function start(): Promise<void> {
   await ensureRedis();
+
+  // Do not hard-crash the app on transient DB failures.
+  // Attempt DB connect with exponential backoff; if it fails,
+  // server will still start in degraded mode.
+  try {
+    const { initDatabaseWithRetry } = await import("./lib/database-health.js");
+    await initDatabaseWithRetry(undefined);
+  } catch (err) {
+    console.error("[db] Failed to initialize DB (starting degraded):", err);
+  }
+
   scheduleSnapshotMaintenance();
   initializeSchedulers();
   createSplitWorker();
@@ -254,6 +292,7 @@ async function start(): Promise<void> {
   await eventWatcherClient.startListening();
 
   server.listen(PORT, () => {
+
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📖 API docs: http://localhost:${PORT}/api/v1/docs`);
     console.log(`🔌 WebSocket ready`);
