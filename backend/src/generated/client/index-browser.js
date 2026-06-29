@@ -317,6 +317,22 @@ exports.Prisma.LedgerHashScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.SyncMetadataScalarFieldEnum = {
+  id: 'id',
+  lastLedgerSequence: 'lastLedgerSequence'
+};
+
+exports.Prisma.ClawbackHistoryScalarFieldEnum = {
+  id: 'id',
+  streamId: 'streamId',
+  amount: 'amount',
+  reason: 'reason',
+  createdAt: 'createdAt',
+  executedAt: 'executedAt',
+  txHash: 'txHash',
+  status: 'status'
+};
+
 exports.Prisma.NotificationSubscriptionScalarFieldEnum = {
   id: 'id',
   stellarAddress: 'stellarAddress',
@@ -605,6 +621,35 @@ exports.Prisma.SplitLinkScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.OfacAuditLogScalarFieldEnum = {
+  id: 'id',
+  address: 'address',
+  isSanctioned: 'isSanctioned',
+  checkedAt: 'checkedAt',
+  source: 'source',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.AdminAuditLogScalarFieldEnum = {
+  id: 'id',
+  timestamp: 'timestamp',
+  userId: 'userId',
+  userEmail: 'userEmail',
+  method: 'method',
+  path: 'path',
+  statusCode: 'statusCode',
+  executionTimeMs: 'executionTimeMs',
+  clientIp: 'clientIp',
+  userAgent: 'userAgent',
+  requestBody: 'requestBody',
+  responseBody: 'responseBody',
+  beforeSnapshot: 'beforeSnapshot',
+  afterSnapshot: 'afterSnapshot',
+  error: 'error',
+  changesSummary: 'changesSummary',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -672,6 +717,8 @@ exports.Prisma.ModelName = {
   OrganizationMember: 'OrganizationMember',
   ApiKey: 'ApiKey',
   LedgerHash: 'LedgerHash',
+  SyncMetadata: 'SyncMetadata',
+  ClawbackHistory: 'ClawbackHistory',
   NotificationSubscription: 'NotificationSubscription',
   InvoiceLink: 'InvoiceLink',
   Affiliate: 'Affiliate',
@@ -693,7 +740,9 @@ exports.Prisma.ModelName = {
   MultisigProposal: 'MultisigProposal',
   CachedAsset: 'CachedAsset',
   StreamTemplate: 'StreamTemplate',
-  SplitLink: 'SplitLink'
+  SplitLink: 'SplitLink',
+  OfacAuditLog: 'OfacAuditLog',
+  AdminAuditLog: 'AdminAuditLog'
 };
 
 /**

@@ -1,0 +1,75 @@
+name: Contracts CI
+
+on:
+  push:
+    branches: [ main, StellarStream-HQ ]
+    paths:
+      - 'contracts/**'
+      - '.github/workflows/contracts-ci.yml'
+  pull_request:
+    branches: [ main, StellarStream-HQ ]
+    paths:
+      - 'contracts/**'
+      - '.github/workflows/contracts-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contracts-check:
+    name: Check ${{ matrix.contract }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        contract: [Contract-V1, Contract-V2, splitter-factory, splitter-v3]
+      fail-fast: false
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Rust Cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: contracts/${{ matrix.contract }}
+
+      - name: Format Check
+        run: cargo fmt --all -- --check
+        working-directory: contracts/${{ matrix.contract }}
+
+      - name: Clippy Linting
+        run: cargo clippy -- -D warnings
+        working-directory: contracts/${{ matrix.contract }}
+
+      - name: Cargo Build
+        run: cargo build --release
+        working-directory: contracts/${{ matrix.contract }}
+
+      - name: Cargo Test
+        run: cargo test
+        working-directory: contracts/${{ matrix.contract }}
+
+      - name: Install cargo-audit
+        run: cargo install cargo-audit || true
+
+      - name: Cargo Audit
+        run: |
+          if [ ! -f Cargo.lock ]; then
+            cargo generate-lockfile
+          fi
+          cargo audit
+        working-directory: contracts/${{ matrix.contract }}
+        continue-on-error: true # Security advisory audits might trigger failures, we log but continue
+
+      - name: Cargo Bench
+        run: cargo test bench_ --release || cargo bench
+        working-directory: contracts/${{ matrix.contract }}

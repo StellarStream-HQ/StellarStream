@@ -1,0 +1,73 @@
+name: Quality Gate
+
+on:
+  workflow_run:
+    workflows: ["Contracts CI", "Backend CI", "Frontend CI"]
+    types:
+      - completed
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false # We don't want to cancel ongoing gatekeeper checks, they are fast and sequential
+
+jobs:
+  gatekeeper:
+    name: Evaluate Status Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify Upstream Workflow Conclusion
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Evaluating completion of upstream pipeline triggered by commit: ${{ github.event.workflow_run.head_sha }}"
+          
+          # Fetch all runs for the triggering commit SHA
+          runs=$(gh run list --commit ${{ github.event.workflow_run.head_sha }} --json name,conclusion,status)
+          echo "Workflow runs found for this commit:"
+          echo "$runs" | jq .
+          
+          target_runs=$(echo "$runs" | jq -c '.[] | select(.name=="Contracts CI" or .name=="Backend CI" or .name=="Frontend CI")')
+          
+          if [ -z "$target_runs" ]; then
+            echo "❌ No target CI runs found for this commit. Exiting."
+            exit 1
+          fi
+          
+          all_completed=true
+          any_failed=false
+          
+          while read -r run; do
+            if [ -z "$run" ]; then continue; fi
+            name=$(echo "$run" | jq -r '.name')
+            status=$(echo "$run" | jq -r '.status')
+            conclusion=$(echo "$run" | jq -r '.conclusion')
+            
+            echo "Inspecting '$name': status='$status', conclusion='$conclusion'"
+            
+            if [ "$status" != "completed" ]; then
+              echo "⏳ Pipeline '$name' is currently '$status'. Quality Gate is not yet satisfied."
+              all_completed=false
+            elif [ "$conclusion" != "success" ] && [ "$conclusion" != "skipped" ]; then
+              echo "❌ Pipeline '$name' failed with conclusion '$conclusion'."
+              any_failed=true
+            fi
+          done <<EOF
+          $target_runs
+          EOF
+          
+          if [ "$any_failed" = "true" ]; then
+            echo "❌ Quality Gate failed due to upstream failures."
+            exit 1
+          fi
+          
+          if [ "$all_completed" = "false" ]; then
+            echo "⏳ Some pipelines are still in progress. Exiting to wait for remaining triggers."
+            exit 1
+          fi
+          
+          echo "✅ All active pipelines completed successfully! Quality Gate satisfied."
+          exit 0

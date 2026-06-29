@@ -7,11 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@albedo-link/intent": "^0.13.0",
     "@headlessui/react": "^2.2.9",
+    "@heroicons/react": "^2.1.3",
     "@radix-ui/react-dialog": "^1.1.15",
     "@sentry/browser": "^10.46.0",
     "@stellar/freighter-api": "^6.0.1",

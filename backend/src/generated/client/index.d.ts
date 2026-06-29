@@ -3,7 +3,7 @@
  * Client
 **/
 
-import * as runtime from './runtime/library.js';
+import * as runtime from './runtime/binary.js';
 import $Types = runtime.Types // general types
 import $Public = runtime.Types.Public
 import $Utils = runtime.Types.Utils
@@ -88,6 +88,16 @@ export type ApiKey = $Result.DefaultSelection<Prisma.$ApiKeyPayload>
  * 
  */
 export type LedgerHash = $Result.DefaultSelection<Prisma.$LedgerHashPayload>
+/**
+ * Model SyncMetadata
+ * 
+ */
+export type SyncMetadata = $Result.DefaultSelection<Prisma.$SyncMetadataPayload>
+/**
+ * Model ClawbackHistory
+ * 
+ */
+export type ClawbackHistory = $Result.DefaultSelection<Prisma.$ClawbackHistoryPayload>
 /**
  * Model NotificationSubscription
  * 
@@ -198,6 +208,16 @@ export type StreamTemplate = $Result.DefaultSelection<Prisma.$StreamTemplatePayl
  * 
  */
 export type SplitLink = $Result.DefaultSelection<Prisma.$SplitLinkPayload>
+/**
+ * Model OfacAuditLog
+ * 
+ */
+export type OfacAuditLog = $Result.DefaultSelection<Prisma.$OfacAuditLogPayload>
+/**
+ * Model AdminAuditLog
+ * 
+ */
+export type AdminAuditLog = $Result.DefaultSelection<Prisma.$AdminAuditLogPayload>
 
 /**
  * Enums
@@ -296,7 +316,7 @@ export class PrismaClient<
    */
 
   constructor(optionsArg ?: Prisma.Subset<ClientOptions, Prisma.PrismaClientOptions>);
-  $on<V extends U>(eventType: V, callback: (event: V extends 'query' ? Prisma.QueryEvent : Prisma.LogEvent) => void): void;
+  $on<V extends (U | 'beforeExit')>(eventType: V, callback: (event: V extends 'query' ? Prisma.QueryEvent : V extends 'beforeExit' ? () => $Utils.JsPromise<void> : Prisma.LogEvent) => void): void;
 
   /**
    * Connect with the database
@@ -533,6 +553,26 @@ export class PrismaClient<
   get ledgerHash(): Prisma.LedgerHashDelegate<ExtArgs>;
 
   /**
+   * `prisma.syncMetadata`: Exposes CRUD operations for the **SyncMetadata** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SyncMetadata
+    * const syncMetadata = await prisma.syncMetadata.findMany()
+    * ```
+    */
+  get syncMetadata(): Prisma.SyncMetadataDelegate<ExtArgs>;
+
+  /**
+   * `prisma.clawbackHistory`: Exposes CRUD operations for the **ClawbackHistory** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ClawbackHistories
+    * const clawbackHistories = await prisma.clawbackHistory.findMany()
+    * ```
+    */
+  get clawbackHistory(): Prisma.ClawbackHistoryDelegate<ExtArgs>;
+
+  /**
    * `prisma.notificationSubscription`: Exposes CRUD operations for the **NotificationSubscription** model.
     * Example usage:
     * ```ts
@@ -751,6 +791,26 @@ export class PrismaClient<
     * ```
     */
   get splitLink(): Prisma.SplitLinkDelegate<ExtArgs>;
+
+  /**
+   * `prisma.ofacAuditLog`: Exposes CRUD operations for the **OfacAuditLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OfacAuditLogs
+    * const ofacAuditLogs = await prisma.ofacAuditLog.findMany()
+    * ```
+    */
+  get ofacAuditLog(): Prisma.OfacAuditLogDelegate<ExtArgs>;
+
+  /**
+   * `prisma.adminAuditLog`: Exposes CRUD operations for the **AdminAuditLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AdminAuditLogs
+    * const adminAuditLogs = await prisma.adminAuditLog.findMany()
+    * ```
+    */
+  get adminAuditLog(): Prisma.AdminAuditLogDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1207,6 +1267,8 @@ export namespace Prisma {
     OrganizationMember: 'OrganizationMember',
     ApiKey: 'ApiKey',
     LedgerHash: 'LedgerHash',
+    SyncMetadata: 'SyncMetadata',
+    ClawbackHistory: 'ClawbackHistory',
     NotificationSubscription: 'NotificationSubscription',
     InvoiceLink: 'InvoiceLink',
     Affiliate: 'Affiliate',
@@ -1228,7 +1290,9 @@ export namespace Prisma {
     MultisigProposal: 'MultisigProposal',
     CachedAsset: 'CachedAsset',
     StreamTemplate: 'StreamTemplate',
-    SplitLink: 'SplitLink'
+    SplitLink: 'SplitLink',
+    OfacAuditLog: 'OfacAuditLog',
+    AdminAuditLog: 'AdminAuditLog'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1244,7 +1308,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "stream" | "contractEvent" | "tokenPrice" | "webhook" | "webhookDelivery" | "syncState" | "eventLog" | "streamSnapshot" | "streamArchive" | "bridgeLog" | "proposal" | "event" | "organizationMember" | "apiKey" | "ledgerHash" | "notificationSubscription" | "invoiceLink" | "affiliate" | "globalStats" | "globalStats_V3" | "tvlSnapshot" | "asset" | "autopilotSchedule" | "assetConfig" | "archivedDisbursement" | "disbursement" | "assetMapping" | "priceHistory" | "protocolInefficiencyReport" | "splitLog" | "monitoredTransaction" | "disbursementDraft" | "disbursementDraftVersion" | "multisigProposal" | "cachedAsset" | "streamTemplate" | "splitLink"
+      modelProps: "stream" | "contractEvent" | "tokenPrice" | "webhook" | "webhookDelivery" | "syncState" | "eventLog" | "streamSnapshot" | "streamArchive" | "bridgeLog" | "proposal" | "event" | "organizationMember" | "apiKey" | "ledgerHash" | "syncMetadata" | "clawbackHistory" | "notificationSubscription" | "invoiceLink" | "affiliate" | "globalStats" | "globalStats_V3" | "tvlSnapshot" | "asset" | "autopilotSchedule" | "assetConfig" | "archivedDisbursement" | "disbursement" | "assetMapping" | "priceHistory" | "protocolInefficiencyReport" | "splitLog" | "monitoredTransaction" | "disbursementDraft" | "disbursementDraftVersion" | "multisigProposal" | "cachedAsset" | "streamTemplate" | "splitLink" | "ofacAuditLog" | "adminAuditLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2295,6 +2359,146 @@ export namespace Prisma {
           count: {
             args: Prisma.LedgerHashCountArgs<ExtArgs>
             result: $Utils.Optional<LedgerHashCountAggregateOutputType> | number
+          }
+        }
+      }
+      SyncMetadata: {
+        payload: Prisma.$SyncMetadataPayload<ExtArgs>
+        fields: Prisma.SyncMetadataFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SyncMetadataFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncMetadataPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SyncMetadataFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncMetadataPayload>
+          }
+          findFirst: {
+            args: Prisma.SyncMetadataFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncMetadataPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SyncMetadataFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncMetadataPayload>
+          }
+          findMany: {
+            args: Prisma.SyncMetadataFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncMetadataPayload>[]
+          }
+          create: {
+            args: Prisma.SyncMetadataCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncMetadataPayload>
+          }
+          createMany: {
+            args: Prisma.SyncMetadataCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SyncMetadataCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncMetadataPayload>[]
+          }
+          delete: {
+            args: Prisma.SyncMetadataDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncMetadataPayload>
+          }
+          update: {
+            args: Prisma.SyncMetadataUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncMetadataPayload>
+          }
+          deleteMany: {
+            args: Prisma.SyncMetadataDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SyncMetadataUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.SyncMetadataUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SyncMetadataPayload>
+          }
+          aggregate: {
+            args: Prisma.SyncMetadataAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSyncMetadata>
+          }
+          groupBy: {
+            args: Prisma.SyncMetadataGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SyncMetadataGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SyncMetadataCountArgs<ExtArgs>
+            result: $Utils.Optional<SyncMetadataCountAggregateOutputType> | number
+          }
+        }
+      }
+      ClawbackHistory: {
+        payload: Prisma.$ClawbackHistoryPayload<ExtArgs>
+        fields: Prisma.ClawbackHistoryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ClawbackHistoryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ClawbackHistoryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload>
+          }
+          findFirst: {
+            args: Prisma.ClawbackHistoryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ClawbackHistoryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload>
+          }
+          findMany: {
+            args: Prisma.ClawbackHistoryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload>[]
+          }
+          create: {
+            args: Prisma.ClawbackHistoryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload>
+          }
+          createMany: {
+            args: Prisma.ClawbackHistoryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ClawbackHistoryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload>[]
+          }
+          delete: {
+            args: Prisma.ClawbackHistoryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload>
+          }
+          update: {
+            args: Prisma.ClawbackHistoryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload>
+          }
+          deleteMany: {
+            args: Prisma.ClawbackHistoryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ClawbackHistoryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ClawbackHistoryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ClawbackHistoryPayload>
+          }
+          aggregate: {
+            args: Prisma.ClawbackHistoryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateClawbackHistory>
+          }
+          groupBy: {
+            args: Prisma.ClawbackHistoryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ClawbackHistoryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ClawbackHistoryCountArgs<ExtArgs>
+            result: $Utils.Optional<ClawbackHistoryCountAggregateOutputType> | number
           }
         }
       }
@@ -3835,6 +4039,146 @@ export namespace Prisma {
           count: {
             args: Prisma.SplitLinkCountArgs<ExtArgs>
             result: $Utils.Optional<SplitLinkCountAggregateOutputType> | number
+          }
+        }
+      }
+      OfacAuditLog: {
+        payload: Prisma.$OfacAuditLogPayload<ExtArgs>
+        fields: Prisma.OfacAuditLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OfacAuditLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfacAuditLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OfacAuditLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfacAuditLogPayload>
+          }
+          findFirst: {
+            args: Prisma.OfacAuditLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfacAuditLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OfacAuditLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfacAuditLogPayload>
+          }
+          findMany: {
+            args: Prisma.OfacAuditLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfacAuditLogPayload>[]
+          }
+          create: {
+            args: Prisma.OfacAuditLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfacAuditLogPayload>
+          }
+          createMany: {
+            args: Prisma.OfacAuditLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OfacAuditLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfacAuditLogPayload>[]
+          }
+          delete: {
+            args: Prisma.OfacAuditLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfacAuditLogPayload>
+          }
+          update: {
+            args: Prisma.OfacAuditLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfacAuditLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.OfacAuditLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OfacAuditLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.OfacAuditLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OfacAuditLogPayload>
+          }
+          aggregate: {
+            args: Prisma.OfacAuditLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOfacAuditLog>
+          }
+          groupBy: {
+            args: Prisma.OfacAuditLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OfacAuditLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OfacAuditLogCountArgs<ExtArgs>
+            result: $Utils.Optional<OfacAuditLogCountAggregateOutputType> | number
+          }
+        }
+      }
+      AdminAuditLog: {
+        payload: Prisma.$AdminAuditLogPayload<ExtArgs>
+        fields: Prisma.AdminAuditLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AdminAuditLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminAuditLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AdminAuditLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminAuditLogPayload>
+          }
+          findFirst: {
+            args: Prisma.AdminAuditLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminAuditLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AdminAuditLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminAuditLogPayload>
+          }
+          findMany: {
+            args: Prisma.AdminAuditLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminAuditLogPayload>[]
+          }
+          create: {
+            args: Prisma.AdminAuditLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminAuditLogPayload>
+          }
+          createMany: {
+            args: Prisma.AdminAuditLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AdminAuditLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminAuditLogPayload>[]
+          }
+          delete: {
+            args: Prisma.AdminAuditLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminAuditLogPayload>
+          }
+          update: {
+            args: Prisma.AdminAuditLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminAuditLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.AdminAuditLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AdminAuditLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.AdminAuditLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AdminAuditLogPayload>
+          }
+          aggregate: {
+            args: Prisma.AdminAuditLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAdminAuditLog>
+          }
+          groupBy: {
+            args: Prisma.AdminAuditLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AdminAuditLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AdminAuditLogCountArgs<ExtArgs>
+            result: $Utils.Optional<AdminAuditLogCountAggregateOutputType> | number
           }
         }
       }
@@ -18507,6 +18851,1796 @@ export namespace Prisma {
      * Select specific fields to fetch from the LedgerHash
      */
     select?: LedgerHashSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SyncMetadata
+   */
+
+  export type AggregateSyncMetadata = {
+    _count: SyncMetadataCountAggregateOutputType | null
+    _avg: SyncMetadataAvgAggregateOutputType | null
+    _sum: SyncMetadataSumAggregateOutputType | null
+    _min: SyncMetadataMinAggregateOutputType | null
+    _max: SyncMetadataMaxAggregateOutputType | null
+  }
+
+  export type SyncMetadataAvgAggregateOutputType = {
+    lastLedgerSequence: number | null
+  }
+
+  export type SyncMetadataSumAggregateOutputType = {
+    lastLedgerSequence: number | null
+  }
+
+  export type SyncMetadataMinAggregateOutputType = {
+    id: string | null
+    lastLedgerSequence: number | null
+  }
+
+  export type SyncMetadataMaxAggregateOutputType = {
+    id: string | null
+    lastLedgerSequence: number | null
+  }
+
+  export type SyncMetadataCountAggregateOutputType = {
+    id: number
+    lastLedgerSequence: number
+    _all: number
+  }
+
+
+  export type SyncMetadataAvgAggregateInputType = {
+    lastLedgerSequence?: true
+  }
+
+  export type SyncMetadataSumAggregateInputType = {
+    lastLedgerSequence?: true
+  }
+
+  export type SyncMetadataMinAggregateInputType = {
+    id?: true
+    lastLedgerSequence?: true
+  }
+
+  export type SyncMetadataMaxAggregateInputType = {
+    id?: true
+    lastLedgerSequence?: true
+  }
+
+  export type SyncMetadataCountAggregateInputType = {
+    id?: true
+    lastLedgerSequence?: true
+    _all?: true
+  }
+
+  export type SyncMetadataAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SyncMetadata to aggregate.
+     */
+    where?: SyncMetadataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SyncMetadata to fetch.
+     */
+    orderBy?: SyncMetadataOrderByWithRelationInput | SyncMetadataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SyncMetadataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SyncMetadata from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SyncMetadata.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SyncMetadata
+    **/
+    _count?: true | SyncMetadataCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SyncMetadataAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SyncMetadataSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SyncMetadataMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SyncMetadataMaxAggregateInputType
+  }
+
+  export type GetSyncMetadataAggregateType<T extends SyncMetadataAggregateArgs> = {
+        [P in keyof T & keyof AggregateSyncMetadata]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSyncMetadata[P]>
+      : GetScalarType<T[P], AggregateSyncMetadata[P]>
+  }
+
+
+
+
+  export type SyncMetadataGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SyncMetadataWhereInput
+    orderBy?: SyncMetadataOrderByWithAggregationInput | SyncMetadataOrderByWithAggregationInput[]
+    by: SyncMetadataScalarFieldEnum[] | SyncMetadataScalarFieldEnum
+    having?: SyncMetadataScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SyncMetadataCountAggregateInputType | true
+    _avg?: SyncMetadataAvgAggregateInputType
+    _sum?: SyncMetadataSumAggregateInputType
+    _min?: SyncMetadataMinAggregateInputType
+    _max?: SyncMetadataMaxAggregateInputType
+  }
+
+  export type SyncMetadataGroupByOutputType = {
+    id: string
+    lastLedgerSequence: number
+    _count: SyncMetadataCountAggregateOutputType | null
+    _avg: SyncMetadataAvgAggregateOutputType | null
+    _sum: SyncMetadataSumAggregateOutputType | null
+    _min: SyncMetadataMinAggregateOutputType | null
+    _max: SyncMetadataMaxAggregateOutputType | null
+  }
+
+  type GetSyncMetadataGroupByPayload<T extends SyncMetadataGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SyncMetadataGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SyncMetadataGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SyncMetadataGroupByOutputType[P]>
+            : GetScalarType<T[P], SyncMetadataGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SyncMetadataSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    lastLedgerSequence?: boolean
+  }, ExtArgs["result"]["syncMetadata"]>
+
+  export type SyncMetadataSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    lastLedgerSequence?: boolean
+  }, ExtArgs["result"]["syncMetadata"]>
+
+  export type SyncMetadataSelectScalar = {
+    id?: boolean
+    lastLedgerSequence?: boolean
+  }
+
+
+  export type $SyncMetadataPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SyncMetadata"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      lastLedgerSequence: number
+    }, ExtArgs["result"]["syncMetadata"]>
+    composites: {}
+  }
+
+  type SyncMetadataGetPayload<S extends boolean | null | undefined | SyncMetadataDefaultArgs> = $Result.GetResult<Prisma.$SyncMetadataPayload, S>
+
+  type SyncMetadataCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<SyncMetadataFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: SyncMetadataCountAggregateInputType | true
+    }
+
+  export interface SyncMetadataDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SyncMetadata'], meta: { name: 'SyncMetadata' } }
+    /**
+     * Find zero or one SyncMetadata that matches the filter.
+     * @param {SyncMetadataFindUniqueArgs} args - Arguments to find a SyncMetadata
+     * @example
+     * // Get one SyncMetadata
+     * const syncMetadata = await prisma.syncMetadata.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SyncMetadataFindUniqueArgs>(args: SelectSubset<T, SyncMetadataFindUniqueArgs<ExtArgs>>): Prisma__SyncMetadataClient<$Result.GetResult<Prisma.$SyncMetadataPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one SyncMetadata that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {SyncMetadataFindUniqueOrThrowArgs} args - Arguments to find a SyncMetadata
+     * @example
+     * // Get one SyncMetadata
+     * const syncMetadata = await prisma.syncMetadata.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SyncMetadataFindUniqueOrThrowArgs>(args: SelectSubset<T, SyncMetadataFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SyncMetadataClient<$Result.GetResult<Prisma.$SyncMetadataPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first SyncMetadata that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncMetadataFindFirstArgs} args - Arguments to find a SyncMetadata
+     * @example
+     * // Get one SyncMetadata
+     * const syncMetadata = await prisma.syncMetadata.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SyncMetadataFindFirstArgs>(args?: SelectSubset<T, SyncMetadataFindFirstArgs<ExtArgs>>): Prisma__SyncMetadataClient<$Result.GetResult<Prisma.$SyncMetadataPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first SyncMetadata that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncMetadataFindFirstOrThrowArgs} args - Arguments to find a SyncMetadata
+     * @example
+     * // Get one SyncMetadata
+     * const syncMetadata = await prisma.syncMetadata.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SyncMetadataFindFirstOrThrowArgs>(args?: SelectSubset<T, SyncMetadataFindFirstOrThrowArgs<ExtArgs>>): Prisma__SyncMetadataClient<$Result.GetResult<Prisma.$SyncMetadataPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more SyncMetadata that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncMetadataFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SyncMetadata
+     * const syncMetadata = await prisma.syncMetadata.findMany()
+     * 
+     * // Get first 10 SyncMetadata
+     * const syncMetadata = await prisma.syncMetadata.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const syncMetadataWithIdOnly = await prisma.syncMetadata.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SyncMetadataFindManyArgs>(args?: SelectSubset<T, SyncMetadataFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SyncMetadataPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a SyncMetadata.
+     * @param {SyncMetadataCreateArgs} args - Arguments to create a SyncMetadata.
+     * @example
+     * // Create one SyncMetadata
+     * const SyncMetadata = await prisma.syncMetadata.create({
+     *   data: {
+     *     // ... data to create a SyncMetadata
+     *   }
+     * })
+     * 
+     */
+    create<T extends SyncMetadataCreateArgs>(args: SelectSubset<T, SyncMetadataCreateArgs<ExtArgs>>): Prisma__SyncMetadataClient<$Result.GetResult<Prisma.$SyncMetadataPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many SyncMetadata.
+     * @param {SyncMetadataCreateManyArgs} args - Arguments to create many SyncMetadata.
+     * @example
+     * // Create many SyncMetadata
+     * const syncMetadata = await prisma.syncMetadata.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SyncMetadataCreateManyArgs>(args?: SelectSubset<T, SyncMetadataCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SyncMetadata and returns the data saved in the database.
+     * @param {SyncMetadataCreateManyAndReturnArgs} args - Arguments to create many SyncMetadata.
+     * @example
+     * // Create many SyncMetadata
+     * const syncMetadata = await prisma.syncMetadata.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SyncMetadata and only return the `id`
+     * const syncMetadataWithIdOnly = await prisma.syncMetadata.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SyncMetadataCreateManyAndReturnArgs>(args?: SelectSubset<T, SyncMetadataCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SyncMetadataPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a SyncMetadata.
+     * @param {SyncMetadataDeleteArgs} args - Arguments to delete one SyncMetadata.
+     * @example
+     * // Delete one SyncMetadata
+     * const SyncMetadata = await prisma.syncMetadata.delete({
+     *   where: {
+     *     // ... filter to delete one SyncMetadata
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SyncMetadataDeleteArgs>(args: SelectSubset<T, SyncMetadataDeleteArgs<ExtArgs>>): Prisma__SyncMetadataClient<$Result.GetResult<Prisma.$SyncMetadataPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one SyncMetadata.
+     * @param {SyncMetadataUpdateArgs} args - Arguments to update one SyncMetadata.
+     * @example
+     * // Update one SyncMetadata
+     * const syncMetadata = await prisma.syncMetadata.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SyncMetadataUpdateArgs>(args: SelectSubset<T, SyncMetadataUpdateArgs<ExtArgs>>): Prisma__SyncMetadataClient<$Result.GetResult<Prisma.$SyncMetadataPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more SyncMetadata.
+     * @param {SyncMetadataDeleteManyArgs} args - Arguments to filter SyncMetadata to delete.
+     * @example
+     * // Delete a few SyncMetadata
+     * const { count } = await prisma.syncMetadata.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SyncMetadataDeleteManyArgs>(args?: SelectSubset<T, SyncMetadataDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SyncMetadata.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncMetadataUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SyncMetadata
+     * const syncMetadata = await prisma.syncMetadata.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SyncMetadataUpdateManyArgs>(args: SelectSubset<T, SyncMetadataUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one SyncMetadata.
+     * @param {SyncMetadataUpsertArgs} args - Arguments to update or create a SyncMetadata.
+     * @example
+     * // Update or create a SyncMetadata
+     * const syncMetadata = await prisma.syncMetadata.upsert({
+     *   create: {
+     *     // ... data to create a SyncMetadata
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SyncMetadata we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SyncMetadataUpsertArgs>(args: SelectSubset<T, SyncMetadataUpsertArgs<ExtArgs>>): Prisma__SyncMetadataClient<$Result.GetResult<Prisma.$SyncMetadataPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of SyncMetadata.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncMetadataCountArgs} args - Arguments to filter SyncMetadata to count.
+     * @example
+     * // Count the number of SyncMetadata
+     * const count = await prisma.syncMetadata.count({
+     *   where: {
+     *     // ... the filter for the SyncMetadata we want to count
+     *   }
+     * })
+    **/
+    count<T extends SyncMetadataCountArgs>(
+      args?: Subset<T, SyncMetadataCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SyncMetadataCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SyncMetadata.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncMetadataAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SyncMetadataAggregateArgs>(args: Subset<T, SyncMetadataAggregateArgs>): Prisma.PrismaPromise<GetSyncMetadataAggregateType<T>>
+
+    /**
+     * Group by SyncMetadata.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SyncMetadataGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SyncMetadataGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SyncMetadataGroupByArgs['orderBy'] }
+        : { orderBy?: SyncMetadataGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SyncMetadataGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSyncMetadataGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SyncMetadata model
+   */
+  readonly fields: SyncMetadataFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SyncMetadata.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SyncMetadataClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SyncMetadata model
+   */ 
+  interface SyncMetadataFieldRefs {
+    readonly id: FieldRef<"SyncMetadata", 'String'>
+    readonly lastLedgerSequence: FieldRef<"SyncMetadata", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SyncMetadata findUnique
+   */
+  export type SyncMetadataFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncMetadata
+     */
+    select?: SyncMetadataSelect<ExtArgs> | null
+    /**
+     * Filter, which SyncMetadata to fetch.
+     */
+    where: SyncMetadataWhereUniqueInput
+  }
+
+  /**
+   * SyncMetadata findUniqueOrThrow
+   */
+  export type SyncMetadataFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncMetadata
+     */
+    select?: SyncMetadataSelect<ExtArgs> | null
+    /**
+     * Filter, which SyncMetadata to fetch.
+     */
+    where: SyncMetadataWhereUniqueInput
+  }
+
+  /**
+   * SyncMetadata findFirst
+   */
+  export type SyncMetadataFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncMetadata
+     */
+    select?: SyncMetadataSelect<ExtArgs> | null
+    /**
+     * Filter, which SyncMetadata to fetch.
+     */
+    where?: SyncMetadataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SyncMetadata to fetch.
+     */
+    orderBy?: SyncMetadataOrderByWithRelationInput | SyncMetadataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SyncMetadata.
+     */
+    cursor?: SyncMetadataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SyncMetadata from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SyncMetadata.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SyncMetadata.
+     */
+    distinct?: SyncMetadataScalarFieldEnum | SyncMetadataScalarFieldEnum[]
+  }
+
+  /**
+   * SyncMetadata findFirstOrThrow
+   */
+  export type SyncMetadataFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncMetadata
+     */
+    select?: SyncMetadataSelect<ExtArgs> | null
+    /**
+     * Filter, which SyncMetadata to fetch.
+     */
+    where?: SyncMetadataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SyncMetadata to fetch.
+     */
+    orderBy?: SyncMetadataOrderByWithRelationInput | SyncMetadataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SyncMetadata.
+     */
+    cursor?: SyncMetadataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SyncMetadata from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SyncMetadata.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SyncMetadata.
+     */
+    distinct?: SyncMetadataScalarFieldEnum | SyncMetadataScalarFieldEnum[]
+  }
+
+  /**
+   * SyncMetadata findMany
+   */
+  export type SyncMetadataFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncMetadata
+     */
+    select?: SyncMetadataSelect<ExtArgs> | null
+    /**
+     * Filter, which SyncMetadata to fetch.
+     */
+    where?: SyncMetadataWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SyncMetadata to fetch.
+     */
+    orderBy?: SyncMetadataOrderByWithRelationInput | SyncMetadataOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SyncMetadata.
+     */
+    cursor?: SyncMetadataWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SyncMetadata from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SyncMetadata.
+     */
+    skip?: number
+    distinct?: SyncMetadataScalarFieldEnum | SyncMetadataScalarFieldEnum[]
+  }
+
+  /**
+   * SyncMetadata create
+   */
+  export type SyncMetadataCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncMetadata
+     */
+    select?: SyncMetadataSelect<ExtArgs> | null
+    /**
+     * The data needed to create a SyncMetadata.
+     */
+    data: XOR<SyncMetadataCreateInput, SyncMetadataUncheckedCreateInput>
+  }
+
+  /**
+   * SyncMetadata createMany
+   */
+  export type SyncMetadataCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SyncMetadata.
+     */
+    data: SyncMetadataCreateManyInput | SyncMetadataCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SyncMetadata createManyAndReturn
+   */
+  export type SyncMetadataCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncMetadata
+     */
+    select?: SyncMetadataSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many SyncMetadata.
+     */
+    data: SyncMetadataCreateManyInput | SyncMetadataCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SyncMetadata update
+   */
+  export type SyncMetadataUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncMetadata
+     */
+    select?: SyncMetadataSelect<ExtArgs> | null
+    /**
+     * The data needed to update a SyncMetadata.
+     */
+    data: XOR<SyncMetadataUpdateInput, SyncMetadataUncheckedUpdateInput>
+    /**
+     * Choose, which SyncMetadata to update.
+     */
+    where: SyncMetadataWhereUniqueInput
+  }
+
+  /**
+   * SyncMetadata updateMany
+   */
+  export type SyncMetadataUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SyncMetadata.
+     */
+    data: XOR<SyncMetadataUpdateManyMutationInput, SyncMetadataUncheckedUpdateManyInput>
+    /**
+     * Filter which SyncMetadata to update
+     */
+    where?: SyncMetadataWhereInput
+  }
+
+  /**
+   * SyncMetadata upsert
+   */
+  export type SyncMetadataUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncMetadata
+     */
+    select?: SyncMetadataSelect<ExtArgs> | null
+    /**
+     * The filter to search for the SyncMetadata to update in case it exists.
+     */
+    where: SyncMetadataWhereUniqueInput
+    /**
+     * In case the SyncMetadata found by the `where` argument doesn't exist, create a new SyncMetadata with this data.
+     */
+    create: XOR<SyncMetadataCreateInput, SyncMetadataUncheckedCreateInput>
+    /**
+     * In case the SyncMetadata was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SyncMetadataUpdateInput, SyncMetadataUncheckedUpdateInput>
+  }
+
+  /**
+   * SyncMetadata delete
+   */
+  export type SyncMetadataDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncMetadata
+     */
+    select?: SyncMetadataSelect<ExtArgs> | null
+    /**
+     * Filter which SyncMetadata to delete.
+     */
+    where: SyncMetadataWhereUniqueInput
+  }
+
+  /**
+   * SyncMetadata deleteMany
+   */
+  export type SyncMetadataDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SyncMetadata to delete
+     */
+    where?: SyncMetadataWhereInput
+  }
+
+  /**
+   * SyncMetadata without action
+   */
+  export type SyncMetadataDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SyncMetadata
+     */
+    select?: SyncMetadataSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ClawbackHistory
+   */
+
+  export type AggregateClawbackHistory = {
+    _count: ClawbackHistoryCountAggregateOutputType | null
+    _min: ClawbackHistoryMinAggregateOutputType | null
+    _max: ClawbackHistoryMaxAggregateOutputType | null
+  }
+
+  export type ClawbackHistoryMinAggregateOutputType = {
+    id: string | null
+    streamId: string | null
+    amount: string | null
+    reason: string | null
+    createdAt: Date | null
+    executedAt: Date | null
+    txHash: string | null
+    status: string | null
+  }
+
+  export type ClawbackHistoryMaxAggregateOutputType = {
+    id: string | null
+    streamId: string | null
+    amount: string | null
+    reason: string | null
+    createdAt: Date | null
+    executedAt: Date | null
+    txHash: string | null
+    status: string | null
+  }
+
+  export type ClawbackHistoryCountAggregateOutputType = {
+    id: number
+    streamId: number
+    amount: number
+    reason: number
+    createdAt: number
+    executedAt: number
+    txHash: number
+    status: number
+    _all: number
+  }
+
+
+  export type ClawbackHistoryMinAggregateInputType = {
+    id?: true
+    streamId?: true
+    amount?: true
+    reason?: true
+    createdAt?: true
+    executedAt?: true
+    txHash?: true
+    status?: true
+  }
+
+  export type ClawbackHistoryMaxAggregateInputType = {
+    id?: true
+    streamId?: true
+    amount?: true
+    reason?: true
+    createdAt?: true
+    executedAt?: true
+    txHash?: true
+    status?: true
+  }
+
+  export type ClawbackHistoryCountAggregateInputType = {
+    id?: true
+    streamId?: true
+    amount?: true
+    reason?: true
+    createdAt?: true
+    executedAt?: true
+    txHash?: true
+    status?: true
+    _all?: true
+  }
+
+  export type ClawbackHistoryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ClawbackHistory to aggregate.
+     */
+    where?: ClawbackHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClawbackHistories to fetch.
+     */
+    orderBy?: ClawbackHistoryOrderByWithRelationInput | ClawbackHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ClawbackHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClawbackHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClawbackHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ClawbackHistories
+    **/
+    _count?: true | ClawbackHistoryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ClawbackHistoryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ClawbackHistoryMaxAggregateInputType
+  }
+
+  export type GetClawbackHistoryAggregateType<T extends ClawbackHistoryAggregateArgs> = {
+        [P in keyof T & keyof AggregateClawbackHistory]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateClawbackHistory[P]>
+      : GetScalarType<T[P], AggregateClawbackHistory[P]>
+  }
+
+
+
+
+  export type ClawbackHistoryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ClawbackHistoryWhereInput
+    orderBy?: ClawbackHistoryOrderByWithAggregationInput | ClawbackHistoryOrderByWithAggregationInput[]
+    by: ClawbackHistoryScalarFieldEnum[] | ClawbackHistoryScalarFieldEnum
+    having?: ClawbackHistoryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ClawbackHistoryCountAggregateInputType | true
+    _min?: ClawbackHistoryMinAggregateInputType
+    _max?: ClawbackHistoryMaxAggregateInputType
+  }
+
+  export type ClawbackHistoryGroupByOutputType = {
+    id: string
+    streamId: string
+    amount: string
+    reason: string
+    createdAt: Date
+    executedAt: Date
+    txHash: string | null
+    status: string
+    _count: ClawbackHistoryCountAggregateOutputType | null
+    _min: ClawbackHistoryMinAggregateOutputType | null
+    _max: ClawbackHistoryMaxAggregateOutputType | null
+  }
+
+  type GetClawbackHistoryGroupByPayload<T extends ClawbackHistoryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ClawbackHistoryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ClawbackHistoryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ClawbackHistoryGroupByOutputType[P]>
+            : GetScalarType<T[P], ClawbackHistoryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ClawbackHistorySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    streamId?: boolean
+    amount?: boolean
+    reason?: boolean
+    createdAt?: boolean
+    executedAt?: boolean
+    txHash?: boolean
+    status?: boolean
+  }, ExtArgs["result"]["clawbackHistory"]>
+
+  export type ClawbackHistorySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    streamId?: boolean
+    amount?: boolean
+    reason?: boolean
+    createdAt?: boolean
+    executedAt?: boolean
+    txHash?: boolean
+    status?: boolean
+  }, ExtArgs["result"]["clawbackHistory"]>
+
+  export type ClawbackHistorySelectScalar = {
+    id?: boolean
+    streamId?: boolean
+    amount?: boolean
+    reason?: boolean
+    createdAt?: boolean
+    executedAt?: boolean
+    txHash?: boolean
+    status?: boolean
+  }
+
+
+  export type $ClawbackHistoryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ClawbackHistory"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      streamId: string
+      amount: string
+      reason: string
+      createdAt: Date
+      executedAt: Date
+      txHash: string | null
+      status: string
+    }, ExtArgs["result"]["clawbackHistory"]>
+    composites: {}
+  }
+
+  type ClawbackHistoryGetPayload<S extends boolean | null | undefined | ClawbackHistoryDefaultArgs> = $Result.GetResult<Prisma.$ClawbackHistoryPayload, S>
+
+  type ClawbackHistoryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ClawbackHistoryFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ClawbackHistoryCountAggregateInputType | true
+    }
+
+  export interface ClawbackHistoryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ClawbackHistory'], meta: { name: 'ClawbackHistory' } }
+    /**
+     * Find zero or one ClawbackHistory that matches the filter.
+     * @param {ClawbackHistoryFindUniqueArgs} args - Arguments to find a ClawbackHistory
+     * @example
+     * // Get one ClawbackHistory
+     * const clawbackHistory = await prisma.clawbackHistory.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ClawbackHistoryFindUniqueArgs>(args: SelectSubset<T, ClawbackHistoryFindUniqueArgs<ExtArgs>>): Prisma__ClawbackHistoryClient<$Result.GetResult<Prisma.$ClawbackHistoryPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one ClawbackHistory that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {ClawbackHistoryFindUniqueOrThrowArgs} args - Arguments to find a ClawbackHistory
+     * @example
+     * // Get one ClawbackHistory
+     * const clawbackHistory = await prisma.clawbackHistory.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ClawbackHistoryFindUniqueOrThrowArgs>(args: SelectSubset<T, ClawbackHistoryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ClawbackHistoryClient<$Result.GetResult<Prisma.$ClawbackHistoryPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first ClawbackHistory that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClawbackHistoryFindFirstArgs} args - Arguments to find a ClawbackHistory
+     * @example
+     * // Get one ClawbackHistory
+     * const clawbackHistory = await prisma.clawbackHistory.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ClawbackHistoryFindFirstArgs>(args?: SelectSubset<T, ClawbackHistoryFindFirstArgs<ExtArgs>>): Prisma__ClawbackHistoryClient<$Result.GetResult<Prisma.$ClawbackHistoryPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first ClawbackHistory that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClawbackHistoryFindFirstOrThrowArgs} args - Arguments to find a ClawbackHistory
+     * @example
+     * // Get one ClawbackHistory
+     * const clawbackHistory = await prisma.clawbackHistory.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ClawbackHistoryFindFirstOrThrowArgs>(args?: SelectSubset<T, ClawbackHistoryFindFirstOrThrowArgs<ExtArgs>>): Prisma__ClawbackHistoryClient<$Result.GetResult<Prisma.$ClawbackHistoryPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more ClawbackHistories that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClawbackHistoryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ClawbackHistories
+     * const clawbackHistories = await prisma.clawbackHistory.findMany()
+     * 
+     * // Get first 10 ClawbackHistories
+     * const clawbackHistories = await prisma.clawbackHistory.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const clawbackHistoryWithIdOnly = await prisma.clawbackHistory.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ClawbackHistoryFindManyArgs>(args?: SelectSubset<T, ClawbackHistoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClawbackHistoryPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a ClawbackHistory.
+     * @param {ClawbackHistoryCreateArgs} args - Arguments to create a ClawbackHistory.
+     * @example
+     * // Create one ClawbackHistory
+     * const ClawbackHistory = await prisma.clawbackHistory.create({
+     *   data: {
+     *     // ... data to create a ClawbackHistory
+     *   }
+     * })
+     * 
+     */
+    create<T extends ClawbackHistoryCreateArgs>(args: SelectSubset<T, ClawbackHistoryCreateArgs<ExtArgs>>): Prisma__ClawbackHistoryClient<$Result.GetResult<Prisma.$ClawbackHistoryPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many ClawbackHistories.
+     * @param {ClawbackHistoryCreateManyArgs} args - Arguments to create many ClawbackHistories.
+     * @example
+     * // Create many ClawbackHistories
+     * const clawbackHistory = await prisma.clawbackHistory.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ClawbackHistoryCreateManyArgs>(args?: SelectSubset<T, ClawbackHistoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ClawbackHistories and returns the data saved in the database.
+     * @param {ClawbackHistoryCreateManyAndReturnArgs} args - Arguments to create many ClawbackHistories.
+     * @example
+     * // Create many ClawbackHistories
+     * const clawbackHistory = await prisma.clawbackHistory.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ClawbackHistories and only return the `id`
+     * const clawbackHistoryWithIdOnly = await prisma.clawbackHistory.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ClawbackHistoryCreateManyAndReturnArgs>(args?: SelectSubset<T, ClawbackHistoryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ClawbackHistoryPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a ClawbackHistory.
+     * @param {ClawbackHistoryDeleteArgs} args - Arguments to delete one ClawbackHistory.
+     * @example
+     * // Delete one ClawbackHistory
+     * const ClawbackHistory = await prisma.clawbackHistory.delete({
+     *   where: {
+     *     // ... filter to delete one ClawbackHistory
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ClawbackHistoryDeleteArgs>(args: SelectSubset<T, ClawbackHistoryDeleteArgs<ExtArgs>>): Prisma__ClawbackHistoryClient<$Result.GetResult<Prisma.$ClawbackHistoryPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one ClawbackHistory.
+     * @param {ClawbackHistoryUpdateArgs} args - Arguments to update one ClawbackHistory.
+     * @example
+     * // Update one ClawbackHistory
+     * const clawbackHistory = await prisma.clawbackHistory.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ClawbackHistoryUpdateArgs>(args: SelectSubset<T, ClawbackHistoryUpdateArgs<ExtArgs>>): Prisma__ClawbackHistoryClient<$Result.GetResult<Prisma.$ClawbackHistoryPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more ClawbackHistories.
+     * @param {ClawbackHistoryDeleteManyArgs} args - Arguments to filter ClawbackHistories to delete.
+     * @example
+     * // Delete a few ClawbackHistories
+     * const { count } = await prisma.clawbackHistory.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ClawbackHistoryDeleteManyArgs>(args?: SelectSubset<T, ClawbackHistoryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ClawbackHistories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClawbackHistoryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ClawbackHistories
+     * const clawbackHistory = await prisma.clawbackHistory.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ClawbackHistoryUpdateManyArgs>(args: SelectSubset<T, ClawbackHistoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ClawbackHistory.
+     * @param {ClawbackHistoryUpsertArgs} args - Arguments to update or create a ClawbackHistory.
+     * @example
+     * // Update or create a ClawbackHistory
+     * const clawbackHistory = await prisma.clawbackHistory.upsert({
+     *   create: {
+     *     // ... data to create a ClawbackHistory
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ClawbackHistory we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ClawbackHistoryUpsertArgs>(args: SelectSubset<T, ClawbackHistoryUpsertArgs<ExtArgs>>): Prisma__ClawbackHistoryClient<$Result.GetResult<Prisma.$ClawbackHistoryPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of ClawbackHistories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClawbackHistoryCountArgs} args - Arguments to filter ClawbackHistories to count.
+     * @example
+     * // Count the number of ClawbackHistories
+     * const count = await prisma.clawbackHistory.count({
+     *   where: {
+     *     // ... the filter for the ClawbackHistories we want to count
+     *   }
+     * })
+    **/
+    count<T extends ClawbackHistoryCountArgs>(
+      args?: Subset<T, ClawbackHistoryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ClawbackHistoryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ClawbackHistory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClawbackHistoryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ClawbackHistoryAggregateArgs>(args: Subset<T, ClawbackHistoryAggregateArgs>): Prisma.PrismaPromise<GetClawbackHistoryAggregateType<T>>
+
+    /**
+     * Group by ClawbackHistory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ClawbackHistoryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ClawbackHistoryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ClawbackHistoryGroupByArgs['orderBy'] }
+        : { orderBy?: ClawbackHistoryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ClawbackHistoryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetClawbackHistoryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ClawbackHistory model
+   */
+  readonly fields: ClawbackHistoryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ClawbackHistory.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ClawbackHistoryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ClawbackHistory model
+   */ 
+  interface ClawbackHistoryFieldRefs {
+    readonly id: FieldRef<"ClawbackHistory", 'String'>
+    readonly streamId: FieldRef<"ClawbackHistory", 'String'>
+    readonly amount: FieldRef<"ClawbackHistory", 'String'>
+    readonly reason: FieldRef<"ClawbackHistory", 'String'>
+    readonly createdAt: FieldRef<"ClawbackHistory", 'DateTime'>
+    readonly executedAt: FieldRef<"ClawbackHistory", 'DateTime'>
+    readonly txHash: FieldRef<"ClawbackHistory", 'String'>
+    readonly status: FieldRef<"ClawbackHistory", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ClawbackHistory findUnique
+   */
+  export type ClawbackHistoryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClawbackHistory
+     */
+    select?: ClawbackHistorySelect<ExtArgs> | null
+    /**
+     * Filter, which ClawbackHistory to fetch.
+     */
+    where: ClawbackHistoryWhereUniqueInput
+  }
+
+  /**
+   * ClawbackHistory findUniqueOrThrow
+   */
+  export type ClawbackHistoryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClawbackHistory
+     */
+    select?: ClawbackHistorySelect<ExtArgs> | null
+    /**
+     * Filter, which ClawbackHistory to fetch.
+     */
+    where: ClawbackHistoryWhereUniqueInput
+  }
+
+  /**
+   * ClawbackHistory findFirst
+   */
+  export type ClawbackHistoryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClawbackHistory
+     */
+    select?: ClawbackHistorySelect<ExtArgs> | null
+    /**
+     * Filter, which ClawbackHistory to fetch.
+     */
+    where?: ClawbackHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClawbackHistories to fetch.
+     */
+    orderBy?: ClawbackHistoryOrderByWithRelationInput | ClawbackHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ClawbackHistories.
+     */
+    cursor?: ClawbackHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClawbackHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClawbackHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ClawbackHistories.
+     */
+    distinct?: ClawbackHistoryScalarFieldEnum | ClawbackHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * ClawbackHistory findFirstOrThrow
+   */
+  export type ClawbackHistoryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClawbackHistory
+     */
+    select?: ClawbackHistorySelect<ExtArgs> | null
+    /**
+     * Filter, which ClawbackHistory to fetch.
+     */
+    where?: ClawbackHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClawbackHistories to fetch.
+     */
+    orderBy?: ClawbackHistoryOrderByWithRelationInput | ClawbackHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ClawbackHistories.
+     */
+    cursor?: ClawbackHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClawbackHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClawbackHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ClawbackHistories.
+     */
+    distinct?: ClawbackHistoryScalarFieldEnum | ClawbackHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * ClawbackHistory findMany
+   */
+  export type ClawbackHistoryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClawbackHistory
+     */
+    select?: ClawbackHistorySelect<ExtArgs> | null
+    /**
+     * Filter, which ClawbackHistories to fetch.
+     */
+    where?: ClawbackHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ClawbackHistories to fetch.
+     */
+    orderBy?: ClawbackHistoryOrderByWithRelationInput | ClawbackHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ClawbackHistories.
+     */
+    cursor?: ClawbackHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ClawbackHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ClawbackHistories.
+     */
+    skip?: number
+    distinct?: ClawbackHistoryScalarFieldEnum | ClawbackHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * ClawbackHistory create
+   */
+  export type ClawbackHistoryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClawbackHistory
+     */
+    select?: ClawbackHistorySelect<ExtArgs> | null
+    /**
+     * The data needed to create a ClawbackHistory.
+     */
+    data: XOR<ClawbackHistoryCreateInput, ClawbackHistoryUncheckedCreateInput>
+  }
+
+  /**
+   * ClawbackHistory createMany
+   */
+  export type ClawbackHistoryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ClawbackHistories.
+     */
+    data: ClawbackHistoryCreateManyInput | ClawbackHistoryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ClawbackHistory createManyAndReturn
+   */
+  export type ClawbackHistoryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClawbackHistory
+     */
+    select?: ClawbackHistorySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many ClawbackHistories.
+     */
+    data: ClawbackHistoryCreateManyInput | ClawbackHistoryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ClawbackHistory update
+   */
+  export type ClawbackHistoryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClawbackHistory
+     */
+    select?: ClawbackHistorySelect<ExtArgs> | null
+    /**
+     * The data needed to update a ClawbackHistory.
+     */
+    data: XOR<ClawbackHistoryUpdateInput, ClawbackHistoryUncheckedUpdateInput>
+    /**
+     * Choose, which ClawbackHistory to update.
+     */
+    where: ClawbackHistoryWhereUniqueInput
+  }
+
+  /**
+   * ClawbackHistory updateMany
+   */
+  export type ClawbackHistoryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ClawbackHistories.
+     */
+    data: XOR<ClawbackHistoryUpdateManyMutationInput, ClawbackHistoryUncheckedUpdateManyInput>
+    /**
+     * Filter which ClawbackHistories to update
+     */
+    where?: ClawbackHistoryWhereInput
+  }
+
+  /**
+   * ClawbackHistory upsert
+   */
+  export type ClawbackHistoryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClawbackHistory
+     */
+    select?: ClawbackHistorySelect<ExtArgs> | null
+    /**
+     * The filter to search for the ClawbackHistory to update in case it exists.
+     */
+    where: ClawbackHistoryWhereUniqueInput
+    /**
+     * In case the ClawbackHistory found by the `where` argument doesn't exist, create a new ClawbackHistory with this data.
+     */
+    create: XOR<ClawbackHistoryCreateInput, ClawbackHistoryUncheckedCreateInput>
+    /**
+     * In case the ClawbackHistory was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ClawbackHistoryUpdateInput, ClawbackHistoryUncheckedUpdateInput>
+  }
+
+  /**
+   * ClawbackHistory delete
+   */
+  export type ClawbackHistoryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClawbackHistory
+     */
+    select?: ClawbackHistorySelect<ExtArgs> | null
+    /**
+     * Filter which ClawbackHistory to delete.
+     */
+    where: ClawbackHistoryWhereUniqueInput
+  }
+
+  /**
+   * ClawbackHistory deleteMany
+   */
+  export type ClawbackHistoryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ClawbackHistories to delete
+     */
+    where?: ClawbackHistoryWhereInput
+  }
+
+  /**
+   * ClawbackHistory without action
+   */
+  export type ClawbackHistoryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ClawbackHistory
+     */
+    select?: ClawbackHistorySelect<ExtArgs> | null
   }
 
 
@@ -39970,6 +42104,1956 @@ export namespace Prisma {
 
 
   /**
+   * Model OfacAuditLog
+   */
+
+  export type AggregateOfacAuditLog = {
+    _count: OfacAuditLogCountAggregateOutputType | null
+    _min: OfacAuditLogMinAggregateOutputType | null
+    _max: OfacAuditLogMaxAggregateOutputType | null
+  }
+
+  export type OfacAuditLogMinAggregateOutputType = {
+    id: string | null
+    address: string | null
+    isSanctioned: boolean | null
+    checkedAt: Date | null
+    source: string | null
+    createdAt: Date | null
+  }
+
+  export type OfacAuditLogMaxAggregateOutputType = {
+    id: string | null
+    address: string | null
+    isSanctioned: boolean | null
+    checkedAt: Date | null
+    source: string | null
+    createdAt: Date | null
+  }
+
+  export type OfacAuditLogCountAggregateOutputType = {
+    id: number
+    address: number
+    isSanctioned: number
+    checkedAt: number
+    source: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type OfacAuditLogMinAggregateInputType = {
+    id?: true
+    address?: true
+    isSanctioned?: true
+    checkedAt?: true
+    source?: true
+    createdAt?: true
+  }
+
+  export type OfacAuditLogMaxAggregateInputType = {
+    id?: true
+    address?: true
+    isSanctioned?: true
+    checkedAt?: true
+    source?: true
+    createdAt?: true
+  }
+
+  export type OfacAuditLogCountAggregateInputType = {
+    id?: true
+    address?: true
+    isSanctioned?: true
+    checkedAt?: true
+    source?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type OfacAuditLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OfacAuditLog to aggregate.
+     */
+    where?: OfacAuditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OfacAuditLogs to fetch.
+     */
+    orderBy?: OfacAuditLogOrderByWithRelationInput | OfacAuditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OfacAuditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OfacAuditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OfacAuditLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OfacAuditLogs
+    **/
+    _count?: true | OfacAuditLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OfacAuditLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OfacAuditLogMaxAggregateInputType
+  }
+
+  export type GetOfacAuditLogAggregateType<T extends OfacAuditLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateOfacAuditLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOfacAuditLog[P]>
+      : GetScalarType<T[P], AggregateOfacAuditLog[P]>
+  }
+
+
+
+
+  export type OfacAuditLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OfacAuditLogWhereInput
+    orderBy?: OfacAuditLogOrderByWithAggregationInput | OfacAuditLogOrderByWithAggregationInput[]
+    by: OfacAuditLogScalarFieldEnum[] | OfacAuditLogScalarFieldEnum
+    having?: OfacAuditLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OfacAuditLogCountAggregateInputType | true
+    _min?: OfacAuditLogMinAggregateInputType
+    _max?: OfacAuditLogMaxAggregateInputType
+  }
+
+  export type OfacAuditLogGroupByOutputType = {
+    id: string
+    address: string
+    isSanctioned: boolean
+    checkedAt: Date
+    source: string
+    createdAt: Date
+    _count: OfacAuditLogCountAggregateOutputType | null
+    _min: OfacAuditLogMinAggregateOutputType | null
+    _max: OfacAuditLogMaxAggregateOutputType | null
+  }
+
+  type GetOfacAuditLogGroupByPayload<T extends OfacAuditLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OfacAuditLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OfacAuditLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OfacAuditLogGroupByOutputType[P]>
+            : GetScalarType<T[P], OfacAuditLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OfacAuditLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    address?: boolean
+    isSanctioned?: boolean
+    checkedAt?: boolean
+    source?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["ofacAuditLog"]>
+
+  export type OfacAuditLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    address?: boolean
+    isSanctioned?: boolean
+    checkedAt?: boolean
+    source?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["ofacAuditLog"]>
+
+  export type OfacAuditLogSelectScalar = {
+    id?: boolean
+    address?: boolean
+    isSanctioned?: boolean
+    checkedAt?: boolean
+    source?: boolean
+    createdAt?: boolean
+  }
+
+
+  export type $OfacAuditLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OfacAuditLog"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      address: string
+      isSanctioned: boolean
+      checkedAt: Date
+      source: string
+      createdAt: Date
+    }, ExtArgs["result"]["ofacAuditLog"]>
+    composites: {}
+  }
+
+  type OfacAuditLogGetPayload<S extends boolean | null | undefined | OfacAuditLogDefaultArgs> = $Result.GetResult<Prisma.$OfacAuditLogPayload, S>
+
+  type OfacAuditLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<OfacAuditLogFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: OfacAuditLogCountAggregateInputType | true
+    }
+
+  export interface OfacAuditLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OfacAuditLog'], meta: { name: 'OfacAuditLog' } }
+    /**
+     * Find zero or one OfacAuditLog that matches the filter.
+     * @param {OfacAuditLogFindUniqueArgs} args - Arguments to find a OfacAuditLog
+     * @example
+     * // Get one OfacAuditLog
+     * const ofacAuditLog = await prisma.ofacAuditLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OfacAuditLogFindUniqueArgs>(args: SelectSubset<T, OfacAuditLogFindUniqueArgs<ExtArgs>>): Prisma__OfacAuditLogClient<$Result.GetResult<Prisma.$OfacAuditLogPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one OfacAuditLog that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {OfacAuditLogFindUniqueOrThrowArgs} args - Arguments to find a OfacAuditLog
+     * @example
+     * // Get one OfacAuditLog
+     * const ofacAuditLog = await prisma.ofacAuditLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OfacAuditLogFindUniqueOrThrowArgs>(args: SelectSubset<T, OfacAuditLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OfacAuditLogClient<$Result.GetResult<Prisma.$OfacAuditLogPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first OfacAuditLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OfacAuditLogFindFirstArgs} args - Arguments to find a OfacAuditLog
+     * @example
+     * // Get one OfacAuditLog
+     * const ofacAuditLog = await prisma.ofacAuditLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OfacAuditLogFindFirstArgs>(args?: SelectSubset<T, OfacAuditLogFindFirstArgs<ExtArgs>>): Prisma__OfacAuditLogClient<$Result.GetResult<Prisma.$OfacAuditLogPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first OfacAuditLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OfacAuditLogFindFirstOrThrowArgs} args - Arguments to find a OfacAuditLog
+     * @example
+     * // Get one OfacAuditLog
+     * const ofacAuditLog = await prisma.ofacAuditLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OfacAuditLogFindFirstOrThrowArgs>(args?: SelectSubset<T, OfacAuditLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__OfacAuditLogClient<$Result.GetResult<Prisma.$OfacAuditLogPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more OfacAuditLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OfacAuditLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OfacAuditLogs
+     * const ofacAuditLogs = await prisma.ofacAuditLog.findMany()
+     * 
+     * // Get first 10 OfacAuditLogs
+     * const ofacAuditLogs = await prisma.ofacAuditLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const ofacAuditLogWithIdOnly = await prisma.ofacAuditLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OfacAuditLogFindManyArgs>(args?: SelectSubset<T, OfacAuditLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OfacAuditLogPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a OfacAuditLog.
+     * @param {OfacAuditLogCreateArgs} args - Arguments to create a OfacAuditLog.
+     * @example
+     * // Create one OfacAuditLog
+     * const OfacAuditLog = await prisma.ofacAuditLog.create({
+     *   data: {
+     *     // ... data to create a OfacAuditLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends OfacAuditLogCreateArgs>(args: SelectSubset<T, OfacAuditLogCreateArgs<ExtArgs>>): Prisma__OfacAuditLogClient<$Result.GetResult<Prisma.$OfacAuditLogPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many OfacAuditLogs.
+     * @param {OfacAuditLogCreateManyArgs} args - Arguments to create many OfacAuditLogs.
+     * @example
+     * // Create many OfacAuditLogs
+     * const ofacAuditLog = await prisma.ofacAuditLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OfacAuditLogCreateManyArgs>(args?: SelectSubset<T, OfacAuditLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OfacAuditLogs and returns the data saved in the database.
+     * @param {OfacAuditLogCreateManyAndReturnArgs} args - Arguments to create many OfacAuditLogs.
+     * @example
+     * // Create many OfacAuditLogs
+     * const ofacAuditLog = await prisma.ofacAuditLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OfacAuditLogs and only return the `id`
+     * const ofacAuditLogWithIdOnly = await prisma.ofacAuditLog.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OfacAuditLogCreateManyAndReturnArgs>(args?: SelectSubset<T, OfacAuditLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OfacAuditLogPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a OfacAuditLog.
+     * @param {OfacAuditLogDeleteArgs} args - Arguments to delete one OfacAuditLog.
+     * @example
+     * // Delete one OfacAuditLog
+     * const OfacAuditLog = await prisma.ofacAuditLog.delete({
+     *   where: {
+     *     // ... filter to delete one OfacAuditLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OfacAuditLogDeleteArgs>(args: SelectSubset<T, OfacAuditLogDeleteArgs<ExtArgs>>): Prisma__OfacAuditLogClient<$Result.GetResult<Prisma.$OfacAuditLogPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one OfacAuditLog.
+     * @param {OfacAuditLogUpdateArgs} args - Arguments to update one OfacAuditLog.
+     * @example
+     * // Update one OfacAuditLog
+     * const ofacAuditLog = await prisma.ofacAuditLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OfacAuditLogUpdateArgs>(args: SelectSubset<T, OfacAuditLogUpdateArgs<ExtArgs>>): Prisma__OfacAuditLogClient<$Result.GetResult<Prisma.$OfacAuditLogPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more OfacAuditLogs.
+     * @param {OfacAuditLogDeleteManyArgs} args - Arguments to filter OfacAuditLogs to delete.
+     * @example
+     * // Delete a few OfacAuditLogs
+     * const { count } = await prisma.ofacAuditLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OfacAuditLogDeleteManyArgs>(args?: SelectSubset<T, OfacAuditLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OfacAuditLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OfacAuditLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OfacAuditLogs
+     * const ofacAuditLog = await prisma.ofacAuditLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OfacAuditLogUpdateManyArgs>(args: SelectSubset<T, OfacAuditLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one OfacAuditLog.
+     * @param {OfacAuditLogUpsertArgs} args - Arguments to update or create a OfacAuditLog.
+     * @example
+     * // Update or create a OfacAuditLog
+     * const ofacAuditLog = await prisma.ofacAuditLog.upsert({
+     *   create: {
+     *     // ... data to create a OfacAuditLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OfacAuditLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OfacAuditLogUpsertArgs>(args: SelectSubset<T, OfacAuditLogUpsertArgs<ExtArgs>>): Prisma__OfacAuditLogClient<$Result.GetResult<Prisma.$OfacAuditLogPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of OfacAuditLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OfacAuditLogCountArgs} args - Arguments to filter OfacAuditLogs to count.
+     * @example
+     * // Count the number of OfacAuditLogs
+     * const count = await prisma.ofacAuditLog.count({
+     *   where: {
+     *     // ... the filter for the OfacAuditLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends OfacAuditLogCountArgs>(
+      args?: Subset<T, OfacAuditLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OfacAuditLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OfacAuditLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OfacAuditLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OfacAuditLogAggregateArgs>(args: Subset<T, OfacAuditLogAggregateArgs>): Prisma.PrismaPromise<GetOfacAuditLogAggregateType<T>>
+
+    /**
+     * Group by OfacAuditLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OfacAuditLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OfacAuditLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OfacAuditLogGroupByArgs['orderBy'] }
+        : { orderBy?: OfacAuditLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OfacAuditLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOfacAuditLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OfacAuditLog model
+   */
+  readonly fields: OfacAuditLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OfacAuditLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OfacAuditLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OfacAuditLog model
+   */ 
+  interface OfacAuditLogFieldRefs {
+    readonly id: FieldRef<"OfacAuditLog", 'String'>
+    readonly address: FieldRef<"OfacAuditLog", 'String'>
+    readonly isSanctioned: FieldRef<"OfacAuditLog", 'Boolean'>
+    readonly checkedAt: FieldRef<"OfacAuditLog", 'DateTime'>
+    readonly source: FieldRef<"OfacAuditLog", 'String'>
+    readonly createdAt: FieldRef<"OfacAuditLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OfacAuditLog findUnique
+   */
+  export type OfacAuditLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfacAuditLog
+     */
+    select?: OfacAuditLogSelect<ExtArgs> | null
+    /**
+     * Filter, which OfacAuditLog to fetch.
+     */
+    where: OfacAuditLogWhereUniqueInput
+  }
+
+  /**
+   * OfacAuditLog findUniqueOrThrow
+   */
+  export type OfacAuditLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfacAuditLog
+     */
+    select?: OfacAuditLogSelect<ExtArgs> | null
+    /**
+     * Filter, which OfacAuditLog to fetch.
+     */
+    where: OfacAuditLogWhereUniqueInput
+  }
+
+  /**
+   * OfacAuditLog findFirst
+   */
+  export type OfacAuditLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfacAuditLog
+     */
+    select?: OfacAuditLogSelect<ExtArgs> | null
+    /**
+     * Filter, which OfacAuditLog to fetch.
+     */
+    where?: OfacAuditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OfacAuditLogs to fetch.
+     */
+    orderBy?: OfacAuditLogOrderByWithRelationInput | OfacAuditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OfacAuditLogs.
+     */
+    cursor?: OfacAuditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OfacAuditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OfacAuditLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OfacAuditLogs.
+     */
+    distinct?: OfacAuditLogScalarFieldEnum | OfacAuditLogScalarFieldEnum[]
+  }
+
+  /**
+   * OfacAuditLog findFirstOrThrow
+   */
+  export type OfacAuditLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfacAuditLog
+     */
+    select?: OfacAuditLogSelect<ExtArgs> | null
+    /**
+     * Filter, which OfacAuditLog to fetch.
+     */
+    where?: OfacAuditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OfacAuditLogs to fetch.
+     */
+    orderBy?: OfacAuditLogOrderByWithRelationInput | OfacAuditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OfacAuditLogs.
+     */
+    cursor?: OfacAuditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OfacAuditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OfacAuditLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OfacAuditLogs.
+     */
+    distinct?: OfacAuditLogScalarFieldEnum | OfacAuditLogScalarFieldEnum[]
+  }
+
+  /**
+   * OfacAuditLog findMany
+   */
+  export type OfacAuditLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfacAuditLog
+     */
+    select?: OfacAuditLogSelect<ExtArgs> | null
+    /**
+     * Filter, which OfacAuditLogs to fetch.
+     */
+    where?: OfacAuditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OfacAuditLogs to fetch.
+     */
+    orderBy?: OfacAuditLogOrderByWithRelationInput | OfacAuditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OfacAuditLogs.
+     */
+    cursor?: OfacAuditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OfacAuditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OfacAuditLogs.
+     */
+    skip?: number
+    distinct?: OfacAuditLogScalarFieldEnum | OfacAuditLogScalarFieldEnum[]
+  }
+
+  /**
+   * OfacAuditLog create
+   */
+  export type OfacAuditLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfacAuditLog
+     */
+    select?: OfacAuditLogSelect<ExtArgs> | null
+    /**
+     * The data needed to create a OfacAuditLog.
+     */
+    data: XOR<OfacAuditLogCreateInput, OfacAuditLogUncheckedCreateInput>
+  }
+
+  /**
+   * OfacAuditLog createMany
+   */
+  export type OfacAuditLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OfacAuditLogs.
+     */
+    data: OfacAuditLogCreateManyInput | OfacAuditLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OfacAuditLog createManyAndReturn
+   */
+  export type OfacAuditLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfacAuditLog
+     */
+    select?: OfacAuditLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many OfacAuditLogs.
+     */
+    data: OfacAuditLogCreateManyInput | OfacAuditLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OfacAuditLog update
+   */
+  export type OfacAuditLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfacAuditLog
+     */
+    select?: OfacAuditLogSelect<ExtArgs> | null
+    /**
+     * The data needed to update a OfacAuditLog.
+     */
+    data: XOR<OfacAuditLogUpdateInput, OfacAuditLogUncheckedUpdateInput>
+    /**
+     * Choose, which OfacAuditLog to update.
+     */
+    where: OfacAuditLogWhereUniqueInput
+  }
+
+  /**
+   * OfacAuditLog updateMany
+   */
+  export type OfacAuditLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OfacAuditLogs.
+     */
+    data: XOR<OfacAuditLogUpdateManyMutationInput, OfacAuditLogUncheckedUpdateManyInput>
+    /**
+     * Filter which OfacAuditLogs to update
+     */
+    where?: OfacAuditLogWhereInput
+  }
+
+  /**
+   * OfacAuditLog upsert
+   */
+  export type OfacAuditLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfacAuditLog
+     */
+    select?: OfacAuditLogSelect<ExtArgs> | null
+    /**
+     * The filter to search for the OfacAuditLog to update in case it exists.
+     */
+    where: OfacAuditLogWhereUniqueInput
+    /**
+     * In case the OfacAuditLog found by the `where` argument doesn't exist, create a new OfacAuditLog with this data.
+     */
+    create: XOR<OfacAuditLogCreateInput, OfacAuditLogUncheckedCreateInput>
+    /**
+     * In case the OfacAuditLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OfacAuditLogUpdateInput, OfacAuditLogUncheckedUpdateInput>
+  }
+
+  /**
+   * OfacAuditLog delete
+   */
+  export type OfacAuditLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfacAuditLog
+     */
+    select?: OfacAuditLogSelect<ExtArgs> | null
+    /**
+     * Filter which OfacAuditLog to delete.
+     */
+    where: OfacAuditLogWhereUniqueInput
+  }
+
+  /**
+   * OfacAuditLog deleteMany
+   */
+  export type OfacAuditLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OfacAuditLogs to delete
+     */
+    where?: OfacAuditLogWhereInput
+  }
+
+  /**
+   * OfacAuditLog without action
+   */
+  export type OfacAuditLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OfacAuditLog
+     */
+    select?: OfacAuditLogSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AdminAuditLog
+   */
+
+  export type AggregateAdminAuditLog = {
+    _count: AdminAuditLogCountAggregateOutputType | null
+    _avg: AdminAuditLogAvgAggregateOutputType | null
+    _sum: AdminAuditLogSumAggregateOutputType | null
+    _min: AdminAuditLogMinAggregateOutputType | null
+    _max: AdminAuditLogMaxAggregateOutputType | null
+  }
+
+  export type AdminAuditLogAvgAggregateOutputType = {
+    statusCode: number | null
+    executionTimeMs: number | null
+  }
+
+  export type AdminAuditLogSumAggregateOutputType = {
+    statusCode: number | null
+    executionTimeMs: number | null
+  }
+
+  export type AdminAuditLogMinAggregateOutputType = {
+    id: string | null
+    timestamp: Date | null
+    userId: string | null
+    userEmail: string | null
+    method: string | null
+    path: string | null
+    statusCode: number | null
+    executionTimeMs: number | null
+    clientIp: string | null
+    userAgent: string | null
+    requestBody: string | null
+    responseBody: string | null
+    beforeSnapshot: string | null
+    afterSnapshot: string | null
+    error: string | null
+    changesSummary: string | null
+    createdAt: Date | null
+  }
+
+  export type AdminAuditLogMaxAggregateOutputType = {
+    id: string | null
+    timestamp: Date | null
+    userId: string | null
+    userEmail: string | null
+    method: string | null
+    path: string | null
+    statusCode: number | null
+    executionTimeMs: number | null
+    clientIp: string | null
+    userAgent: string | null
+    requestBody: string | null
+    responseBody: string | null
+    beforeSnapshot: string | null
+    afterSnapshot: string | null
+    error: string | null
+    changesSummary: string | null
+    createdAt: Date | null
+  }
+
+  export type AdminAuditLogCountAggregateOutputType = {
+    id: number
+    timestamp: number
+    userId: number
+    userEmail: number
+    method: number
+    path: number
+    statusCode: number
+    executionTimeMs: number
+    clientIp: number
+    userAgent: number
+    requestBody: number
+    responseBody: number
+    beforeSnapshot: number
+    afterSnapshot: number
+    error: number
+    changesSummary: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AdminAuditLogAvgAggregateInputType = {
+    statusCode?: true
+    executionTimeMs?: true
+  }
+
+  export type AdminAuditLogSumAggregateInputType = {
+    statusCode?: true
+    executionTimeMs?: true
+  }
+
+  export type AdminAuditLogMinAggregateInputType = {
+    id?: true
+    timestamp?: true
+    userId?: true
+    userEmail?: true
+    method?: true
+    path?: true
+    statusCode?: true
+    executionTimeMs?: true
+    clientIp?: true
+    userAgent?: true
+    requestBody?: true
+    responseBody?: true
+    beforeSnapshot?: true
+    afterSnapshot?: true
+    error?: true
+    changesSummary?: true
+    createdAt?: true
+  }
+
+  export type AdminAuditLogMaxAggregateInputType = {
+    id?: true
+    timestamp?: true
+    userId?: true
+    userEmail?: true
+    method?: true
+    path?: true
+    statusCode?: true
+    executionTimeMs?: true
+    clientIp?: true
+    userAgent?: true
+    requestBody?: true
+    responseBody?: true
+    beforeSnapshot?: true
+    afterSnapshot?: true
+    error?: true
+    changesSummary?: true
+    createdAt?: true
+  }
+
+  export type AdminAuditLogCountAggregateInputType = {
+    id?: true
+    timestamp?: true
+    userId?: true
+    userEmail?: true
+    method?: true
+    path?: true
+    statusCode?: true
+    executionTimeMs?: true
+    clientIp?: true
+    userAgent?: true
+    requestBody?: true
+    responseBody?: true
+    beforeSnapshot?: true
+    afterSnapshot?: true
+    error?: true
+    changesSummary?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AdminAuditLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdminAuditLog to aggregate.
+     */
+    where?: AdminAuditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminAuditLogs to fetch.
+     */
+    orderBy?: AdminAuditLogOrderByWithRelationInput | AdminAuditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AdminAuditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminAuditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminAuditLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AdminAuditLogs
+    **/
+    _count?: true | AdminAuditLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AdminAuditLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AdminAuditLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AdminAuditLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AdminAuditLogMaxAggregateInputType
+  }
+
+  export type GetAdminAuditLogAggregateType<T extends AdminAuditLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateAdminAuditLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAdminAuditLog[P]>
+      : GetScalarType<T[P], AggregateAdminAuditLog[P]>
+  }
+
+
+
+
+  export type AdminAuditLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AdminAuditLogWhereInput
+    orderBy?: AdminAuditLogOrderByWithAggregationInput | AdminAuditLogOrderByWithAggregationInput[]
+    by: AdminAuditLogScalarFieldEnum[] | AdminAuditLogScalarFieldEnum
+    having?: AdminAuditLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AdminAuditLogCountAggregateInputType | true
+    _avg?: AdminAuditLogAvgAggregateInputType
+    _sum?: AdminAuditLogSumAggregateInputType
+    _min?: AdminAuditLogMinAggregateInputType
+    _max?: AdminAuditLogMaxAggregateInputType
+  }
+
+  export type AdminAuditLogGroupByOutputType = {
+    id: string
+    timestamp: Date
+    userId: string | null
+    userEmail: string | null
+    method: string
+    path: string
+    statusCode: number
+    executionTimeMs: number
+    clientIp: string | null
+    userAgent: string | null
+    requestBody: string | null
+    responseBody: string | null
+    beforeSnapshot: string | null
+    afterSnapshot: string | null
+    error: string | null
+    changesSummary: string | null
+    createdAt: Date
+    _count: AdminAuditLogCountAggregateOutputType | null
+    _avg: AdminAuditLogAvgAggregateOutputType | null
+    _sum: AdminAuditLogSumAggregateOutputType | null
+    _min: AdminAuditLogMinAggregateOutputType | null
+    _max: AdminAuditLogMaxAggregateOutputType | null
+  }
+
+  type GetAdminAuditLogGroupByPayload<T extends AdminAuditLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AdminAuditLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AdminAuditLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AdminAuditLogGroupByOutputType[P]>
+            : GetScalarType<T[P], AdminAuditLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AdminAuditLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    timestamp?: boolean
+    userId?: boolean
+    userEmail?: boolean
+    method?: boolean
+    path?: boolean
+    statusCode?: boolean
+    executionTimeMs?: boolean
+    clientIp?: boolean
+    userAgent?: boolean
+    requestBody?: boolean
+    responseBody?: boolean
+    beforeSnapshot?: boolean
+    afterSnapshot?: boolean
+    error?: boolean
+    changesSummary?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["adminAuditLog"]>
+
+  export type AdminAuditLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    timestamp?: boolean
+    userId?: boolean
+    userEmail?: boolean
+    method?: boolean
+    path?: boolean
+    statusCode?: boolean
+    executionTimeMs?: boolean
+    clientIp?: boolean
+    userAgent?: boolean
+    requestBody?: boolean
+    responseBody?: boolean
+    beforeSnapshot?: boolean
+    afterSnapshot?: boolean
+    error?: boolean
+    changesSummary?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["adminAuditLog"]>
+
+  export type AdminAuditLogSelectScalar = {
+    id?: boolean
+    timestamp?: boolean
+    userId?: boolean
+    userEmail?: boolean
+    method?: boolean
+    path?: boolean
+    statusCode?: boolean
+    executionTimeMs?: boolean
+    clientIp?: boolean
+    userAgent?: boolean
+    requestBody?: boolean
+    responseBody?: boolean
+    beforeSnapshot?: boolean
+    afterSnapshot?: boolean
+    error?: boolean
+    changesSummary?: boolean
+    createdAt?: boolean
+  }
+
+
+  export type $AdminAuditLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AdminAuditLog"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      timestamp: Date
+      userId: string | null
+      userEmail: string | null
+      method: string
+      path: string
+      statusCode: number
+      executionTimeMs: number
+      clientIp: string | null
+      userAgent: string | null
+      requestBody: string | null
+      responseBody: string | null
+      beforeSnapshot: string | null
+      afterSnapshot: string | null
+      error: string | null
+      changesSummary: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["adminAuditLog"]>
+    composites: {}
+  }
+
+  type AdminAuditLogGetPayload<S extends boolean | null | undefined | AdminAuditLogDefaultArgs> = $Result.GetResult<Prisma.$AdminAuditLogPayload, S>
+
+  type AdminAuditLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AdminAuditLogFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: AdminAuditLogCountAggregateInputType | true
+    }
+
+  export interface AdminAuditLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AdminAuditLog'], meta: { name: 'AdminAuditLog' } }
+    /**
+     * Find zero or one AdminAuditLog that matches the filter.
+     * @param {AdminAuditLogFindUniqueArgs} args - Arguments to find a AdminAuditLog
+     * @example
+     * // Get one AdminAuditLog
+     * const adminAuditLog = await prisma.adminAuditLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AdminAuditLogFindUniqueArgs>(args: SelectSubset<T, AdminAuditLogFindUniqueArgs<ExtArgs>>): Prisma__AdminAuditLogClient<$Result.GetResult<Prisma.$AdminAuditLogPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one AdminAuditLog that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {AdminAuditLogFindUniqueOrThrowArgs} args - Arguments to find a AdminAuditLog
+     * @example
+     * // Get one AdminAuditLog
+     * const adminAuditLog = await prisma.adminAuditLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AdminAuditLogFindUniqueOrThrowArgs>(args: SelectSubset<T, AdminAuditLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AdminAuditLogClient<$Result.GetResult<Prisma.$AdminAuditLogPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first AdminAuditLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminAuditLogFindFirstArgs} args - Arguments to find a AdminAuditLog
+     * @example
+     * // Get one AdminAuditLog
+     * const adminAuditLog = await prisma.adminAuditLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AdminAuditLogFindFirstArgs>(args?: SelectSubset<T, AdminAuditLogFindFirstArgs<ExtArgs>>): Prisma__AdminAuditLogClient<$Result.GetResult<Prisma.$AdminAuditLogPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first AdminAuditLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminAuditLogFindFirstOrThrowArgs} args - Arguments to find a AdminAuditLog
+     * @example
+     * // Get one AdminAuditLog
+     * const adminAuditLog = await prisma.adminAuditLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AdminAuditLogFindFirstOrThrowArgs>(args?: SelectSubset<T, AdminAuditLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__AdminAuditLogClient<$Result.GetResult<Prisma.$AdminAuditLogPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more AdminAuditLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminAuditLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AdminAuditLogs
+     * const adminAuditLogs = await prisma.adminAuditLog.findMany()
+     * 
+     * // Get first 10 AdminAuditLogs
+     * const adminAuditLogs = await prisma.adminAuditLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const adminAuditLogWithIdOnly = await prisma.adminAuditLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AdminAuditLogFindManyArgs>(args?: SelectSubset<T, AdminAuditLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminAuditLogPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a AdminAuditLog.
+     * @param {AdminAuditLogCreateArgs} args - Arguments to create a AdminAuditLog.
+     * @example
+     * // Create one AdminAuditLog
+     * const AdminAuditLog = await prisma.adminAuditLog.create({
+     *   data: {
+     *     // ... data to create a AdminAuditLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends AdminAuditLogCreateArgs>(args: SelectSubset<T, AdminAuditLogCreateArgs<ExtArgs>>): Prisma__AdminAuditLogClient<$Result.GetResult<Prisma.$AdminAuditLogPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many AdminAuditLogs.
+     * @param {AdminAuditLogCreateManyArgs} args - Arguments to create many AdminAuditLogs.
+     * @example
+     * // Create many AdminAuditLogs
+     * const adminAuditLog = await prisma.adminAuditLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AdminAuditLogCreateManyArgs>(args?: SelectSubset<T, AdminAuditLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AdminAuditLogs and returns the data saved in the database.
+     * @param {AdminAuditLogCreateManyAndReturnArgs} args - Arguments to create many AdminAuditLogs.
+     * @example
+     * // Create many AdminAuditLogs
+     * const adminAuditLog = await prisma.adminAuditLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AdminAuditLogs and only return the `id`
+     * const adminAuditLogWithIdOnly = await prisma.adminAuditLog.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AdminAuditLogCreateManyAndReturnArgs>(args?: SelectSubset<T, AdminAuditLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AdminAuditLogPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a AdminAuditLog.
+     * @param {AdminAuditLogDeleteArgs} args - Arguments to delete one AdminAuditLog.
+     * @example
+     * // Delete one AdminAuditLog
+     * const AdminAuditLog = await prisma.adminAuditLog.delete({
+     *   where: {
+     *     // ... filter to delete one AdminAuditLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AdminAuditLogDeleteArgs>(args: SelectSubset<T, AdminAuditLogDeleteArgs<ExtArgs>>): Prisma__AdminAuditLogClient<$Result.GetResult<Prisma.$AdminAuditLogPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one AdminAuditLog.
+     * @param {AdminAuditLogUpdateArgs} args - Arguments to update one AdminAuditLog.
+     * @example
+     * // Update one AdminAuditLog
+     * const adminAuditLog = await prisma.adminAuditLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AdminAuditLogUpdateArgs>(args: SelectSubset<T, AdminAuditLogUpdateArgs<ExtArgs>>): Prisma__AdminAuditLogClient<$Result.GetResult<Prisma.$AdminAuditLogPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more AdminAuditLogs.
+     * @param {AdminAuditLogDeleteManyArgs} args - Arguments to filter AdminAuditLogs to delete.
+     * @example
+     * // Delete a few AdminAuditLogs
+     * const { count } = await prisma.adminAuditLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AdminAuditLogDeleteManyArgs>(args?: SelectSubset<T, AdminAuditLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AdminAuditLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminAuditLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AdminAuditLogs
+     * const adminAuditLog = await prisma.adminAuditLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AdminAuditLogUpdateManyArgs>(args: SelectSubset<T, AdminAuditLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one AdminAuditLog.
+     * @param {AdminAuditLogUpsertArgs} args - Arguments to update or create a AdminAuditLog.
+     * @example
+     * // Update or create a AdminAuditLog
+     * const adminAuditLog = await prisma.adminAuditLog.upsert({
+     *   create: {
+     *     // ... data to create a AdminAuditLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AdminAuditLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AdminAuditLogUpsertArgs>(args: SelectSubset<T, AdminAuditLogUpsertArgs<ExtArgs>>): Prisma__AdminAuditLogClient<$Result.GetResult<Prisma.$AdminAuditLogPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of AdminAuditLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminAuditLogCountArgs} args - Arguments to filter AdminAuditLogs to count.
+     * @example
+     * // Count the number of AdminAuditLogs
+     * const count = await prisma.adminAuditLog.count({
+     *   where: {
+     *     // ... the filter for the AdminAuditLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends AdminAuditLogCountArgs>(
+      args?: Subset<T, AdminAuditLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AdminAuditLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AdminAuditLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminAuditLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AdminAuditLogAggregateArgs>(args: Subset<T, AdminAuditLogAggregateArgs>): Prisma.PrismaPromise<GetAdminAuditLogAggregateType<T>>
+
+    /**
+     * Group by AdminAuditLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AdminAuditLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AdminAuditLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AdminAuditLogGroupByArgs['orderBy'] }
+        : { orderBy?: AdminAuditLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AdminAuditLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAdminAuditLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AdminAuditLog model
+   */
+  readonly fields: AdminAuditLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AdminAuditLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AdminAuditLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AdminAuditLog model
+   */ 
+  interface AdminAuditLogFieldRefs {
+    readonly id: FieldRef<"AdminAuditLog", 'String'>
+    readonly timestamp: FieldRef<"AdminAuditLog", 'DateTime'>
+    readonly userId: FieldRef<"AdminAuditLog", 'String'>
+    readonly userEmail: FieldRef<"AdminAuditLog", 'String'>
+    readonly method: FieldRef<"AdminAuditLog", 'String'>
+    readonly path: FieldRef<"AdminAuditLog", 'String'>
+    readonly statusCode: FieldRef<"AdminAuditLog", 'Int'>
+    readonly executionTimeMs: FieldRef<"AdminAuditLog", 'Float'>
+    readonly clientIp: FieldRef<"AdminAuditLog", 'String'>
+    readonly userAgent: FieldRef<"AdminAuditLog", 'String'>
+    readonly requestBody: FieldRef<"AdminAuditLog", 'String'>
+    readonly responseBody: FieldRef<"AdminAuditLog", 'String'>
+    readonly beforeSnapshot: FieldRef<"AdminAuditLog", 'String'>
+    readonly afterSnapshot: FieldRef<"AdminAuditLog", 'String'>
+    readonly error: FieldRef<"AdminAuditLog", 'String'>
+    readonly changesSummary: FieldRef<"AdminAuditLog", 'String'>
+    readonly createdAt: FieldRef<"AdminAuditLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AdminAuditLog findUnique
+   */
+  export type AdminAuditLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminAuditLog
+     */
+    select?: AdminAuditLogSelect<ExtArgs> | null
+    /**
+     * Filter, which AdminAuditLog to fetch.
+     */
+    where: AdminAuditLogWhereUniqueInput
+  }
+
+  /**
+   * AdminAuditLog findUniqueOrThrow
+   */
+  export type AdminAuditLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminAuditLog
+     */
+    select?: AdminAuditLogSelect<ExtArgs> | null
+    /**
+     * Filter, which AdminAuditLog to fetch.
+     */
+    where: AdminAuditLogWhereUniqueInput
+  }
+
+  /**
+   * AdminAuditLog findFirst
+   */
+  export type AdminAuditLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminAuditLog
+     */
+    select?: AdminAuditLogSelect<ExtArgs> | null
+    /**
+     * Filter, which AdminAuditLog to fetch.
+     */
+    where?: AdminAuditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminAuditLogs to fetch.
+     */
+    orderBy?: AdminAuditLogOrderByWithRelationInput | AdminAuditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AdminAuditLogs.
+     */
+    cursor?: AdminAuditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminAuditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminAuditLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdminAuditLogs.
+     */
+    distinct?: AdminAuditLogScalarFieldEnum | AdminAuditLogScalarFieldEnum[]
+  }
+
+  /**
+   * AdminAuditLog findFirstOrThrow
+   */
+  export type AdminAuditLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminAuditLog
+     */
+    select?: AdminAuditLogSelect<ExtArgs> | null
+    /**
+     * Filter, which AdminAuditLog to fetch.
+     */
+    where?: AdminAuditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminAuditLogs to fetch.
+     */
+    orderBy?: AdminAuditLogOrderByWithRelationInput | AdminAuditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AdminAuditLogs.
+     */
+    cursor?: AdminAuditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminAuditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminAuditLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AdminAuditLogs.
+     */
+    distinct?: AdminAuditLogScalarFieldEnum | AdminAuditLogScalarFieldEnum[]
+  }
+
+  /**
+   * AdminAuditLog findMany
+   */
+  export type AdminAuditLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminAuditLog
+     */
+    select?: AdminAuditLogSelect<ExtArgs> | null
+    /**
+     * Filter, which AdminAuditLogs to fetch.
+     */
+    where?: AdminAuditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AdminAuditLogs to fetch.
+     */
+    orderBy?: AdminAuditLogOrderByWithRelationInput | AdminAuditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AdminAuditLogs.
+     */
+    cursor?: AdminAuditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AdminAuditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AdminAuditLogs.
+     */
+    skip?: number
+    distinct?: AdminAuditLogScalarFieldEnum | AdminAuditLogScalarFieldEnum[]
+  }
+
+  /**
+   * AdminAuditLog create
+   */
+  export type AdminAuditLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminAuditLog
+     */
+    select?: AdminAuditLogSelect<ExtArgs> | null
+    /**
+     * The data needed to create a AdminAuditLog.
+     */
+    data: XOR<AdminAuditLogCreateInput, AdminAuditLogUncheckedCreateInput>
+  }
+
+  /**
+   * AdminAuditLog createMany
+   */
+  export type AdminAuditLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AdminAuditLogs.
+     */
+    data: AdminAuditLogCreateManyInput | AdminAuditLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AdminAuditLog createManyAndReturn
+   */
+  export type AdminAuditLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminAuditLog
+     */
+    select?: AdminAuditLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many AdminAuditLogs.
+     */
+    data: AdminAuditLogCreateManyInput | AdminAuditLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AdminAuditLog update
+   */
+  export type AdminAuditLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminAuditLog
+     */
+    select?: AdminAuditLogSelect<ExtArgs> | null
+    /**
+     * The data needed to update a AdminAuditLog.
+     */
+    data: XOR<AdminAuditLogUpdateInput, AdminAuditLogUncheckedUpdateInput>
+    /**
+     * Choose, which AdminAuditLog to update.
+     */
+    where: AdminAuditLogWhereUniqueInput
+  }
+
+  /**
+   * AdminAuditLog updateMany
+   */
+  export type AdminAuditLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AdminAuditLogs.
+     */
+    data: XOR<AdminAuditLogUpdateManyMutationInput, AdminAuditLogUncheckedUpdateManyInput>
+    /**
+     * Filter which AdminAuditLogs to update
+     */
+    where?: AdminAuditLogWhereInput
+  }
+
+  /**
+   * AdminAuditLog upsert
+   */
+  export type AdminAuditLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminAuditLog
+     */
+    select?: AdminAuditLogSelect<ExtArgs> | null
+    /**
+     * The filter to search for the AdminAuditLog to update in case it exists.
+     */
+    where: AdminAuditLogWhereUniqueInput
+    /**
+     * In case the AdminAuditLog found by the `where` argument doesn't exist, create a new AdminAuditLog with this data.
+     */
+    create: XOR<AdminAuditLogCreateInput, AdminAuditLogUncheckedCreateInput>
+    /**
+     * In case the AdminAuditLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AdminAuditLogUpdateInput, AdminAuditLogUncheckedUpdateInput>
+  }
+
+  /**
+   * AdminAuditLog delete
+   */
+  export type AdminAuditLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminAuditLog
+     */
+    select?: AdminAuditLogSelect<ExtArgs> | null
+    /**
+     * Filter which AdminAuditLog to delete.
+     */
+    where: AdminAuditLogWhereUniqueInput
+  }
+
+  /**
+   * AdminAuditLog deleteMany
+   */
+  export type AdminAuditLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AdminAuditLogs to delete
+     */
+    where?: AdminAuditLogWhereInput
+  }
+
+  /**
+   * AdminAuditLog without action
+   */
+  export type AdminAuditLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AdminAuditLog
+     */
+    select?: AdminAuditLogSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -40221,6 +44305,28 @@ export namespace Prisma {
   };
 
   export type LedgerHashScalarFieldEnum = (typeof LedgerHashScalarFieldEnum)[keyof typeof LedgerHashScalarFieldEnum]
+
+
+  export const SyncMetadataScalarFieldEnum: {
+    id: 'id',
+    lastLedgerSequence: 'lastLedgerSequence'
+  };
+
+  export type SyncMetadataScalarFieldEnum = (typeof SyncMetadataScalarFieldEnum)[keyof typeof SyncMetadataScalarFieldEnum]
+
+
+  export const ClawbackHistoryScalarFieldEnum: {
+    id: 'id',
+    streamId: 'streamId',
+    amount: 'amount',
+    reason: 'reason',
+    createdAt: 'createdAt',
+    executedAt: 'executedAt',
+    txHash: 'txHash',
+    status: 'status'
+  };
+
+  export type ClawbackHistoryScalarFieldEnum = (typeof ClawbackHistoryScalarFieldEnum)[keyof typeof ClawbackHistoryScalarFieldEnum]
 
 
   export const NotificationSubscriptionScalarFieldEnum: {
@@ -40575,6 +44681,41 @@ export namespace Prisma {
   };
 
   export type SplitLinkScalarFieldEnum = (typeof SplitLinkScalarFieldEnum)[keyof typeof SplitLinkScalarFieldEnum]
+
+
+  export const OfacAuditLogScalarFieldEnum: {
+    id: 'id',
+    address: 'address',
+    isSanctioned: 'isSanctioned',
+    checkedAt: 'checkedAt',
+    source: 'source',
+    createdAt: 'createdAt'
+  };
+
+  export type OfacAuditLogScalarFieldEnum = (typeof OfacAuditLogScalarFieldEnum)[keyof typeof OfacAuditLogScalarFieldEnum]
+
+
+  export const AdminAuditLogScalarFieldEnum: {
+    id: 'id',
+    timestamp: 'timestamp',
+    userId: 'userId',
+    userEmail: 'userEmail',
+    method: 'method',
+    path: 'path',
+    statusCode: 'statusCode',
+    executionTimeMs: 'executionTimeMs',
+    clientIp: 'clientIp',
+    userAgent: 'userAgent',
+    requestBody: 'requestBody',
+    responseBody: 'responseBody',
+    beforeSnapshot: 'beforeSnapshot',
+    afterSnapshot: 'afterSnapshot',
+    error: 'error',
+    changesSummary: 'changesSummary',
+    createdAt: 'createdAt'
+  };
+
+  export type AdminAuditLogScalarFieldEnum = (typeof AdminAuditLogScalarFieldEnum)[keyof typeof AdminAuditLogScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -41944,6 +46085,112 @@ export namespace Prisma {
     sequence?: IntWithAggregatesFilter<"LedgerHash"> | number
     hash?: StringWithAggregatesFilter<"LedgerHash"> | string
     createdAt?: DateTimeWithAggregatesFilter<"LedgerHash"> | Date | string
+  }
+
+  export type SyncMetadataWhereInput = {
+    AND?: SyncMetadataWhereInput | SyncMetadataWhereInput[]
+    OR?: SyncMetadataWhereInput[]
+    NOT?: SyncMetadataWhereInput | SyncMetadataWhereInput[]
+    id?: StringFilter<"SyncMetadata"> | string
+    lastLedgerSequence?: IntFilter<"SyncMetadata"> | number
+  }
+
+  export type SyncMetadataOrderByWithRelationInput = {
+    id?: SortOrder
+    lastLedgerSequence?: SortOrder
+  }
+
+  export type SyncMetadataWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: SyncMetadataWhereInput | SyncMetadataWhereInput[]
+    OR?: SyncMetadataWhereInput[]
+    NOT?: SyncMetadataWhereInput | SyncMetadataWhereInput[]
+    lastLedgerSequence?: IntFilter<"SyncMetadata"> | number
+  }, "id">
+
+  export type SyncMetadataOrderByWithAggregationInput = {
+    id?: SortOrder
+    lastLedgerSequence?: SortOrder
+    _count?: SyncMetadataCountOrderByAggregateInput
+    _avg?: SyncMetadataAvgOrderByAggregateInput
+    _max?: SyncMetadataMaxOrderByAggregateInput
+    _min?: SyncMetadataMinOrderByAggregateInput
+    _sum?: SyncMetadataSumOrderByAggregateInput
+  }
+
+  export type SyncMetadataScalarWhereWithAggregatesInput = {
+    AND?: SyncMetadataScalarWhereWithAggregatesInput | SyncMetadataScalarWhereWithAggregatesInput[]
+    OR?: SyncMetadataScalarWhereWithAggregatesInput[]
+    NOT?: SyncMetadataScalarWhereWithAggregatesInput | SyncMetadataScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SyncMetadata"> | string
+    lastLedgerSequence?: IntWithAggregatesFilter<"SyncMetadata"> | number
+  }
+
+  export type ClawbackHistoryWhereInput = {
+    AND?: ClawbackHistoryWhereInput | ClawbackHistoryWhereInput[]
+    OR?: ClawbackHistoryWhereInput[]
+    NOT?: ClawbackHistoryWhereInput | ClawbackHistoryWhereInput[]
+    id?: StringFilter<"ClawbackHistory"> | string
+    streamId?: StringFilter<"ClawbackHistory"> | string
+    amount?: StringFilter<"ClawbackHistory"> | string
+    reason?: StringFilter<"ClawbackHistory"> | string
+    createdAt?: DateTimeFilter<"ClawbackHistory"> | Date | string
+    executedAt?: DateTimeFilter<"ClawbackHistory"> | Date | string
+    txHash?: StringNullableFilter<"ClawbackHistory"> | string | null
+    status?: StringFilter<"ClawbackHistory"> | string
+  }
+
+  export type ClawbackHistoryOrderByWithRelationInput = {
+    id?: SortOrder
+    streamId?: SortOrder
+    amount?: SortOrder
+    reason?: SortOrder
+    createdAt?: SortOrder
+    executedAt?: SortOrder
+    txHash?: SortOrderInput | SortOrder
+    status?: SortOrder
+  }
+
+  export type ClawbackHistoryWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ClawbackHistoryWhereInput | ClawbackHistoryWhereInput[]
+    OR?: ClawbackHistoryWhereInput[]
+    NOT?: ClawbackHistoryWhereInput | ClawbackHistoryWhereInput[]
+    streamId?: StringFilter<"ClawbackHistory"> | string
+    amount?: StringFilter<"ClawbackHistory"> | string
+    reason?: StringFilter<"ClawbackHistory"> | string
+    createdAt?: DateTimeFilter<"ClawbackHistory"> | Date | string
+    executedAt?: DateTimeFilter<"ClawbackHistory"> | Date | string
+    txHash?: StringNullableFilter<"ClawbackHistory"> | string | null
+    status?: StringFilter<"ClawbackHistory"> | string
+  }, "id">
+
+  export type ClawbackHistoryOrderByWithAggregationInput = {
+    id?: SortOrder
+    streamId?: SortOrder
+    amount?: SortOrder
+    reason?: SortOrder
+    createdAt?: SortOrder
+    executedAt?: SortOrder
+    txHash?: SortOrderInput | SortOrder
+    status?: SortOrder
+    _count?: ClawbackHistoryCountOrderByAggregateInput
+    _max?: ClawbackHistoryMaxOrderByAggregateInput
+    _min?: ClawbackHistoryMinOrderByAggregateInput
+  }
+
+  export type ClawbackHistoryScalarWhereWithAggregatesInput = {
+    AND?: ClawbackHistoryScalarWhereWithAggregatesInput | ClawbackHistoryScalarWhereWithAggregatesInput[]
+    OR?: ClawbackHistoryScalarWhereWithAggregatesInput[]
+    NOT?: ClawbackHistoryScalarWhereWithAggregatesInput | ClawbackHistoryScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ClawbackHistory"> | string
+    streamId?: StringWithAggregatesFilter<"ClawbackHistory"> | string
+    amount?: StringWithAggregatesFilter<"ClawbackHistory"> | string
+    reason?: StringWithAggregatesFilter<"ClawbackHistory"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"ClawbackHistory"> | Date | string
+    executedAt?: DateTimeWithAggregatesFilter<"ClawbackHistory"> | Date | string
+    txHash?: StringNullableWithAggregatesFilter<"ClawbackHistory"> | string | null
+    status?: StringWithAggregatesFilter<"ClawbackHistory"> | string
   }
 
   export type NotificationSubscriptionWhereInput = {
@@ -43697,6 +47944,177 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"SplitLink"> | Date | string
   }
 
+  export type OfacAuditLogWhereInput = {
+    AND?: OfacAuditLogWhereInput | OfacAuditLogWhereInput[]
+    OR?: OfacAuditLogWhereInput[]
+    NOT?: OfacAuditLogWhereInput | OfacAuditLogWhereInput[]
+    id?: StringFilter<"OfacAuditLog"> | string
+    address?: StringFilter<"OfacAuditLog"> | string
+    isSanctioned?: BoolFilter<"OfacAuditLog"> | boolean
+    checkedAt?: DateTimeFilter<"OfacAuditLog"> | Date | string
+    source?: StringFilter<"OfacAuditLog"> | string
+    createdAt?: DateTimeFilter<"OfacAuditLog"> | Date | string
+  }
+
+  export type OfacAuditLogOrderByWithRelationInput = {
+    id?: SortOrder
+    address?: SortOrder
+    isSanctioned?: SortOrder
+    checkedAt?: SortOrder
+    source?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OfacAuditLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: OfacAuditLogWhereInput | OfacAuditLogWhereInput[]
+    OR?: OfacAuditLogWhereInput[]
+    NOT?: OfacAuditLogWhereInput | OfacAuditLogWhereInput[]
+    address?: StringFilter<"OfacAuditLog"> | string
+    isSanctioned?: BoolFilter<"OfacAuditLog"> | boolean
+    checkedAt?: DateTimeFilter<"OfacAuditLog"> | Date | string
+    source?: StringFilter<"OfacAuditLog"> | string
+    createdAt?: DateTimeFilter<"OfacAuditLog"> | Date | string
+  }, "id">
+
+  export type OfacAuditLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    address?: SortOrder
+    isSanctioned?: SortOrder
+    checkedAt?: SortOrder
+    source?: SortOrder
+    createdAt?: SortOrder
+    _count?: OfacAuditLogCountOrderByAggregateInput
+    _max?: OfacAuditLogMaxOrderByAggregateInput
+    _min?: OfacAuditLogMinOrderByAggregateInput
+  }
+
+  export type OfacAuditLogScalarWhereWithAggregatesInput = {
+    AND?: OfacAuditLogScalarWhereWithAggregatesInput | OfacAuditLogScalarWhereWithAggregatesInput[]
+    OR?: OfacAuditLogScalarWhereWithAggregatesInput[]
+    NOT?: OfacAuditLogScalarWhereWithAggregatesInput | OfacAuditLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OfacAuditLog"> | string
+    address?: StringWithAggregatesFilter<"OfacAuditLog"> | string
+    isSanctioned?: BoolWithAggregatesFilter<"OfacAuditLog"> | boolean
+    checkedAt?: DateTimeWithAggregatesFilter<"OfacAuditLog"> | Date | string
+    source?: StringWithAggregatesFilter<"OfacAuditLog"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"OfacAuditLog"> | Date | string
+  }
+
+  export type AdminAuditLogWhereInput = {
+    AND?: AdminAuditLogWhereInput | AdminAuditLogWhereInput[]
+    OR?: AdminAuditLogWhereInput[]
+    NOT?: AdminAuditLogWhereInput | AdminAuditLogWhereInput[]
+    id?: StringFilter<"AdminAuditLog"> | string
+    timestamp?: DateTimeFilter<"AdminAuditLog"> | Date | string
+    userId?: StringNullableFilter<"AdminAuditLog"> | string | null
+    userEmail?: StringNullableFilter<"AdminAuditLog"> | string | null
+    method?: StringFilter<"AdminAuditLog"> | string
+    path?: StringFilter<"AdminAuditLog"> | string
+    statusCode?: IntFilter<"AdminAuditLog"> | number
+    executionTimeMs?: FloatFilter<"AdminAuditLog"> | number
+    clientIp?: StringNullableFilter<"AdminAuditLog"> | string | null
+    userAgent?: StringNullableFilter<"AdminAuditLog"> | string | null
+    requestBody?: StringNullableFilter<"AdminAuditLog"> | string | null
+    responseBody?: StringNullableFilter<"AdminAuditLog"> | string | null
+    beforeSnapshot?: StringNullableFilter<"AdminAuditLog"> | string | null
+    afterSnapshot?: StringNullableFilter<"AdminAuditLog"> | string | null
+    error?: StringNullableFilter<"AdminAuditLog"> | string | null
+    changesSummary?: StringNullableFilter<"AdminAuditLog"> | string | null
+    createdAt?: DateTimeFilter<"AdminAuditLog"> | Date | string
+  }
+
+  export type AdminAuditLogOrderByWithRelationInput = {
+    id?: SortOrder
+    timestamp?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    userEmail?: SortOrderInput | SortOrder
+    method?: SortOrder
+    path?: SortOrder
+    statusCode?: SortOrder
+    executionTimeMs?: SortOrder
+    clientIp?: SortOrderInput | SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    requestBody?: SortOrderInput | SortOrder
+    responseBody?: SortOrderInput | SortOrder
+    beforeSnapshot?: SortOrderInput | SortOrder
+    afterSnapshot?: SortOrderInput | SortOrder
+    error?: SortOrderInput | SortOrder
+    changesSummary?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AdminAuditLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AdminAuditLogWhereInput | AdminAuditLogWhereInput[]
+    OR?: AdminAuditLogWhereInput[]
+    NOT?: AdminAuditLogWhereInput | AdminAuditLogWhereInput[]
+    timestamp?: DateTimeFilter<"AdminAuditLog"> | Date | string
+    userId?: StringNullableFilter<"AdminAuditLog"> | string | null
+    userEmail?: StringNullableFilter<"AdminAuditLog"> | string | null
+    method?: StringFilter<"AdminAuditLog"> | string
+    path?: StringFilter<"AdminAuditLog"> | string
+    statusCode?: IntFilter<"AdminAuditLog"> | number
+    executionTimeMs?: FloatFilter<"AdminAuditLog"> | number
+    clientIp?: StringNullableFilter<"AdminAuditLog"> | string | null
+    userAgent?: StringNullableFilter<"AdminAuditLog"> | string | null
+    requestBody?: StringNullableFilter<"AdminAuditLog"> | string | null
+    responseBody?: StringNullableFilter<"AdminAuditLog"> | string | null
+    beforeSnapshot?: StringNullableFilter<"AdminAuditLog"> | string | null
+    afterSnapshot?: StringNullableFilter<"AdminAuditLog"> | string | null
+    error?: StringNullableFilter<"AdminAuditLog"> | string | null
+    changesSummary?: StringNullableFilter<"AdminAuditLog"> | string | null
+    createdAt?: DateTimeFilter<"AdminAuditLog"> | Date | string
+  }, "id">
+
+  export type AdminAuditLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    timestamp?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    userEmail?: SortOrderInput | SortOrder
+    method?: SortOrder
+    path?: SortOrder
+    statusCode?: SortOrder
+    executionTimeMs?: SortOrder
+    clientIp?: SortOrderInput | SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    requestBody?: SortOrderInput | SortOrder
+    responseBody?: SortOrderInput | SortOrder
+    beforeSnapshot?: SortOrderInput | SortOrder
+    afterSnapshot?: SortOrderInput | SortOrder
+    error?: SortOrderInput | SortOrder
+    changesSummary?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: AdminAuditLogCountOrderByAggregateInput
+    _avg?: AdminAuditLogAvgOrderByAggregateInput
+    _max?: AdminAuditLogMaxOrderByAggregateInput
+    _min?: AdminAuditLogMinOrderByAggregateInput
+    _sum?: AdminAuditLogSumOrderByAggregateInput
+  }
+
+  export type AdminAuditLogScalarWhereWithAggregatesInput = {
+    AND?: AdminAuditLogScalarWhereWithAggregatesInput | AdminAuditLogScalarWhereWithAggregatesInput[]
+    OR?: AdminAuditLogScalarWhereWithAggregatesInput[]
+    NOT?: AdminAuditLogScalarWhereWithAggregatesInput | AdminAuditLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AdminAuditLog"> | string
+    timestamp?: DateTimeWithAggregatesFilter<"AdminAuditLog"> | Date | string
+    userId?: StringNullableWithAggregatesFilter<"AdminAuditLog"> | string | null
+    userEmail?: StringNullableWithAggregatesFilter<"AdminAuditLog"> | string | null
+    method?: StringWithAggregatesFilter<"AdminAuditLog"> | string
+    path?: StringWithAggregatesFilter<"AdminAuditLog"> | string
+    statusCode?: IntWithAggregatesFilter<"AdminAuditLog"> | number
+    executionTimeMs?: FloatWithAggregatesFilter<"AdminAuditLog"> | number
+    clientIp?: StringNullableWithAggregatesFilter<"AdminAuditLog"> | string | null
+    userAgent?: StringNullableWithAggregatesFilter<"AdminAuditLog"> | string | null
+    requestBody?: StringNullableWithAggregatesFilter<"AdminAuditLog"> | string | null
+    responseBody?: StringNullableWithAggregatesFilter<"AdminAuditLog"> | string | null
+    beforeSnapshot?: StringNullableWithAggregatesFilter<"AdminAuditLog"> | string | null
+    afterSnapshot?: StringNullableWithAggregatesFilter<"AdminAuditLog"> | string | null
+    error?: StringNullableWithAggregatesFilter<"AdminAuditLog"> | string | null
+    changesSummary?: StringNullableWithAggregatesFilter<"AdminAuditLog"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"AdminAuditLog"> | Date | string
+  }
+
   export type StreamCreateInput = {
     id?: string
     streamId?: string | null
@@ -45060,6 +49478,118 @@ export namespace Prisma {
     sequence?: IntFieldUpdateOperationsInput | number
     hash?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SyncMetadataCreateInput = {
+    id: string
+    lastLedgerSequence: number
+  }
+
+  export type SyncMetadataUncheckedCreateInput = {
+    id: string
+    lastLedgerSequence: number
+  }
+
+  export type SyncMetadataUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    lastLedgerSequence?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type SyncMetadataUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    lastLedgerSequence?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type SyncMetadataCreateManyInput = {
+    id: string
+    lastLedgerSequence: number
+  }
+
+  export type SyncMetadataUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    lastLedgerSequence?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type SyncMetadataUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    lastLedgerSequence?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ClawbackHistoryCreateInput = {
+    id?: string
+    streamId: string
+    amount: string
+    reason?: string
+    createdAt?: Date | string
+    executedAt?: Date | string
+    txHash?: string | null
+    status?: string
+  }
+
+  export type ClawbackHistoryUncheckedCreateInput = {
+    id?: string
+    streamId: string
+    amount: string
+    reason?: string
+    createdAt?: Date | string
+    executedAt?: Date | string
+    txHash?: string | null
+    status?: string
+  }
+
+  export type ClawbackHistoryUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    streamId?: StringFieldUpdateOperationsInput | string
+    amount?: StringFieldUpdateOperationsInput | string
+    reason?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    txHash?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type ClawbackHistoryUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    streamId?: StringFieldUpdateOperationsInput | string
+    amount?: StringFieldUpdateOperationsInput | string
+    reason?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    txHash?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type ClawbackHistoryCreateManyInput = {
+    id?: string
+    streamId: string
+    amount: string
+    reason?: string
+    createdAt?: Date | string
+    executedAt?: Date | string
+    txHash?: string | null
+    status?: string
+  }
+
+  export type ClawbackHistoryUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    streamId?: StringFieldUpdateOperationsInput | string
+    amount?: StringFieldUpdateOperationsInput | string
+    reason?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    txHash?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type ClawbackHistoryUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    streamId?: StringFieldUpdateOperationsInput | string
+    amount?: StringFieldUpdateOperationsInput | string
+    reason?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    executedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    txHash?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
   }
 
   export type NotificationSubscriptionCreateInput = {
@@ -47081,6 +51611,209 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type OfacAuditLogCreateInput = {
+    id?: string
+    address: string
+    isSanctioned: boolean
+    checkedAt: Date | string
+    source: string
+    createdAt?: Date | string
+  }
+
+  export type OfacAuditLogUncheckedCreateInput = {
+    id?: string
+    address: string
+    isSanctioned: boolean
+    checkedAt: Date | string
+    source: string
+    createdAt?: Date | string
+  }
+
+  export type OfacAuditLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    address?: StringFieldUpdateOperationsInput | string
+    isSanctioned?: BoolFieldUpdateOperationsInput | boolean
+    checkedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    source?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OfacAuditLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    address?: StringFieldUpdateOperationsInput | string
+    isSanctioned?: BoolFieldUpdateOperationsInput | boolean
+    checkedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    source?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OfacAuditLogCreateManyInput = {
+    id?: string
+    address: string
+    isSanctioned: boolean
+    checkedAt: Date | string
+    source: string
+    createdAt?: Date | string
+  }
+
+  export type OfacAuditLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    address?: StringFieldUpdateOperationsInput | string
+    isSanctioned?: BoolFieldUpdateOperationsInput | boolean
+    checkedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    source?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OfacAuditLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    address?: StringFieldUpdateOperationsInput | string
+    isSanctioned?: BoolFieldUpdateOperationsInput | boolean
+    checkedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    source?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminAuditLogCreateInput = {
+    id?: string
+    timestamp?: Date | string
+    userId?: string | null
+    userEmail?: string | null
+    method: string
+    path: string
+    statusCode: number
+    executionTimeMs: number
+    clientIp?: string | null
+    userAgent?: string | null
+    requestBody?: string | null
+    responseBody?: string | null
+    beforeSnapshot?: string | null
+    afterSnapshot?: string | null
+    error?: string | null
+    changesSummary?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AdminAuditLogUncheckedCreateInput = {
+    id?: string
+    timestamp?: Date | string
+    userId?: string | null
+    userEmail?: string | null
+    method: string
+    path: string
+    statusCode: number
+    executionTimeMs: number
+    clientIp?: string | null
+    userAgent?: string | null
+    requestBody?: string | null
+    responseBody?: string | null
+    beforeSnapshot?: string | null
+    afterSnapshot?: string | null
+    error?: string | null
+    changesSummary?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AdminAuditLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    userEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    method?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    statusCode?: IntFieldUpdateOperationsInput | number
+    executionTimeMs?: FloatFieldUpdateOperationsInput | number
+    clientIp?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    requestBody?: NullableStringFieldUpdateOperationsInput | string | null
+    responseBody?: NullableStringFieldUpdateOperationsInput | string | null
+    beforeSnapshot?: NullableStringFieldUpdateOperationsInput | string | null
+    afterSnapshot?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    changesSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminAuditLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    userEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    method?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    statusCode?: IntFieldUpdateOperationsInput | number
+    executionTimeMs?: FloatFieldUpdateOperationsInput | number
+    clientIp?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    requestBody?: NullableStringFieldUpdateOperationsInput | string | null
+    responseBody?: NullableStringFieldUpdateOperationsInput | string | null
+    beforeSnapshot?: NullableStringFieldUpdateOperationsInput | string | null
+    afterSnapshot?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    changesSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminAuditLogCreateManyInput = {
+    id?: string
+    timestamp?: Date | string
+    userId?: string | null
+    userEmail?: string | null
+    method: string
+    path: string
+    statusCode: number
+    executionTimeMs: number
+    clientIp?: string | null
+    userAgent?: string | null
+    requestBody?: string | null
+    responseBody?: string | null
+    beforeSnapshot?: string | null
+    afterSnapshot?: string | null
+    error?: string | null
+    changesSummary?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AdminAuditLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    userEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    method?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    statusCode?: IntFieldUpdateOperationsInput | number
+    executionTimeMs?: FloatFieldUpdateOperationsInput | number
+    clientIp?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    requestBody?: NullableStringFieldUpdateOperationsInput | string | null
+    responseBody?: NullableStringFieldUpdateOperationsInput | string | null
+    beforeSnapshot?: NullableStringFieldUpdateOperationsInput | string | null
+    afterSnapshot?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    changesSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AdminAuditLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    userEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    method?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    statusCode?: IntFieldUpdateOperationsInput | number
+    executionTimeMs?: FloatFieldUpdateOperationsInput | number
+    clientIp?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    requestBody?: NullableStringFieldUpdateOperationsInput | string | null
+    responseBody?: NullableStringFieldUpdateOperationsInput | string | null
+    beforeSnapshot?: NullableStringFieldUpdateOperationsInput | string | null
+    afterSnapshot?: NullableStringFieldUpdateOperationsInput | string | null
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    changesSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -48144,6 +52877,62 @@ export namespace Prisma {
 
   export type LedgerHashSumOrderByAggregateInput = {
     sequence?: SortOrder
+  }
+
+  export type SyncMetadataCountOrderByAggregateInput = {
+    id?: SortOrder
+    lastLedgerSequence?: SortOrder
+  }
+
+  export type SyncMetadataAvgOrderByAggregateInput = {
+    lastLedgerSequence?: SortOrder
+  }
+
+  export type SyncMetadataMaxOrderByAggregateInput = {
+    id?: SortOrder
+    lastLedgerSequence?: SortOrder
+  }
+
+  export type SyncMetadataMinOrderByAggregateInput = {
+    id?: SortOrder
+    lastLedgerSequence?: SortOrder
+  }
+
+  export type SyncMetadataSumOrderByAggregateInput = {
+    lastLedgerSequence?: SortOrder
+  }
+
+  export type ClawbackHistoryCountOrderByAggregateInput = {
+    id?: SortOrder
+    streamId?: SortOrder
+    amount?: SortOrder
+    reason?: SortOrder
+    createdAt?: SortOrder
+    executedAt?: SortOrder
+    txHash?: SortOrder
+    status?: SortOrder
+  }
+
+  export type ClawbackHistoryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    streamId?: SortOrder
+    amount?: SortOrder
+    reason?: SortOrder
+    createdAt?: SortOrder
+    executedAt?: SortOrder
+    txHash?: SortOrder
+    status?: SortOrder
+  }
+
+  export type ClawbackHistoryMinOrderByAggregateInput = {
+    id?: SortOrder
+    streamId?: SortOrder
+    amount?: SortOrder
+    reason?: SortOrder
+    createdAt?: SortOrder
+    executedAt?: SortOrder
+    txHash?: SortOrder
+    status?: SortOrder
   }
 
   export type EnumNotificationPlatformFilter<$PrismaModel = never> = {
@@ -49267,6 +54056,103 @@ export namespace Prisma {
     clickCount?: SortOrder
   }
 
+  export type OfacAuditLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    address?: SortOrder
+    isSanctioned?: SortOrder
+    checkedAt?: SortOrder
+    source?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OfacAuditLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    address?: SortOrder
+    isSanctioned?: SortOrder
+    checkedAt?: SortOrder
+    source?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type OfacAuditLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    address?: SortOrder
+    isSanctioned?: SortOrder
+    checkedAt?: SortOrder
+    source?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AdminAuditLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    timestamp?: SortOrder
+    userId?: SortOrder
+    userEmail?: SortOrder
+    method?: SortOrder
+    path?: SortOrder
+    statusCode?: SortOrder
+    executionTimeMs?: SortOrder
+    clientIp?: SortOrder
+    userAgent?: SortOrder
+    requestBody?: SortOrder
+    responseBody?: SortOrder
+    beforeSnapshot?: SortOrder
+    afterSnapshot?: SortOrder
+    error?: SortOrder
+    changesSummary?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AdminAuditLogAvgOrderByAggregateInput = {
+    statusCode?: SortOrder
+    executionTimeMs?: SortOrder
+  }
+
+  export type AdminAuditLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    timestamp?: SortOrder
+    userId?: SortOrder
+    userEmail?: SortOrder
+    method?: SortOrder
+    path?: SortOrder
+    statusCode?: SortOrder
+    executionTimeMs?: SortOrder
+    clientIp?: SortOrder
+    userAgent?: SortOrder
+    requestBody?: SortOrder
+    responseBody?: SortOrder
+    beforeSnapshot?: SortOrder
+    afterSnapshot?: SortOrder
+    error?: SortOrder
+    changesSummary?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AdminAuditLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    timestamp?: SortOrder
+    userId?: SortOrder
+    userEmail?: SortOrder
+    method?: SortOrder
+    path?: SortOrder
+    statusCode?: SortOrder
+    executionTimeMs?: SortOrder
+    clientIp?: SortOrder
+    userAgent?: SortOrder
+    requestBody?: SortOrder
+    responseBody?: SortOrder
+    beforeSnapshot?: SortOrder
+    afterSnapshot?: SortOrder
+    error?: SortOrder
+    changesSummary?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AdminAuditLogSumOrderByAggregateInput = {
+    statusCode?: SortOrder
+    executionTimeMs?: SortOrder
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -50023,6 +54909,14 @@ export namespace Prisma {
      */
     export type LedgerHashArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = LedgerHashDefaultArgs<ExtArgs>
     /**
+     * @deprecated Use SyncMetadataDefaultArgs instead
+     */
+    export type SyncMetadataArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = SyncMetadataDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ClawbackHistoryDefaultArgs instead
+     */
+    export type ClawbackHistoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ClawbackHistoryDefaultArgs<ExtArgs>
+    /**
      * @deprecated Use NotificationSubscriptionDefaultArgs instead
      */
     export type NotificationSubscriptionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NotificationSubscriptionDefaultArgs<ExtArgs>
@@ -50110,6 +55004,14 @@ export namespace Prisma {
      * @deprecated Use SplitLinkDefaultArgs instead
      */
     export type SplitLinkArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = SplitLinkDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use OfacAuditLogDefaultArgs instead
+     */
+    export type OfacAuditLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OfacAuditLogDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use AdminAuditLogDefaultArgs instead
+     */
+    export type AdminAuditLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AdminAuditLogDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany
