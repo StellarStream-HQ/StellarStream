@@ -1,7 +1,7 @@
-import { StrKey } from "@stellar/stellar-sdk";
 import { parse } from "csv-parse";
 import { Readable } from "stream";
 import { ValidationError } from "../lib/app-error.js";
+import { isValidStellarRecipientAddress } from "../lib/stellar-address.js";
 
 export interface RawRecipientRow {
   address: string;
@@ -72,8 +72,8 @@ export function processRows(rows: RawRecipientRow[]): ProcessFileResult {
     const amountRaw = (row.amount ?? "").trim();
     const rowNum = i + 1;
 
-    if (!StrKey.isValidEd25519PublicKey(address)) {
-      errors.push({ row: rowNum, address, reason: "Invalid G-address checksum" });
+    if (!isValidStellarRecipientAddress(address)) {
+      errors.push({ row: rowNum, address, reason: "Invalid Stellar address checksum" });
       continue;
     }
 

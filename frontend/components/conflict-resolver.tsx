@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { StrKey } from "@stellar/stellar-sdk";
+import { isValidStellarRecipientAddress } from "@/lib/stellar-address";
 import { CheckCircle2, AlertTriangle, X } from "lucide-react";
 import type { ParseError } from "@/lib/bulk-parser";
 import type { RecipientRow } from "@/components/recipient-grid";
@@ -59,7 +59,7 @@ export function ConflictResolver({ errors, onResolve, onDiscardAll }: Props) {
       const { address, amount, memoType, memo } = row.rawData;
       const reasons: string[] = [];
 
-      if (!StrKey.isValidEd25519PublicKey(address)) {
+      if (!isValidStellarRecipientAddress(address)) {
         reasons.push("Invalid address");
       }
       const num = parseFloat(amount);
