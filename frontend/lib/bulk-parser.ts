@@ -1,5 +1,5 @@
 import Papa from "papaparse";
-import { StrKey } from "@stellar/stellar-sdk";
+import { isValidStellarRecipientAddress } from "@/lib/stellar-address";
 import type { MemoType } from "@/lib/bulk-splitter/types";
 import type { RecipientRow } from "@/components/recipient-grid";
 
@@ -43,7 +43,7 @@ function validateRow(
   const { address, amount } = rawData;
   const reasons: string[] = [];
   
-  if (!StrKey.isValidEd25519PublicKey(address)) {
+  if (!isValidStellarRecipientAddress(address)) {
     reasons.push(`Invalid Stellar address "${address}"`);
   }
   const num = parseFloat(amount);

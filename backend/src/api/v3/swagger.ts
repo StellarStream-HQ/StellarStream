@@ -40,7 +40,7 @@ const options: swaggerJsdoc.Options = {
         CleanRecipient: {
           type: "object",
           properties: {
-            address: { type: "string", example: "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN", description: "Validated Stellar G-address" },
+            address: { type: "string", example: "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN", description: "Validated Stellar recipient address" },
             amountStroops: { type: "string", example: "10050000", description: "Amount in 7-decimal stroops" },
           },
           required: ["address", "amountStroops"],
@@ -50,7 +50,7 @@ const options: swaggerJsdoc.Options = {
           properties: {
             row: { type: "integer", example: 3 },
             address: { type: "string", example: "INVALID_ADDR" },
-            reason: { type: "string", example: "Invalid G-address checksum" },
+            reason: { type: "string", example: "Invalid Stellar address checksum" },
           },
         },
         ProcessFileResult: {
@@ -490,7 +490,7 @@ const options: swaggerJsdoc.Options = {
           responses: {
             "200": {
               description: "Processed. Check `errors` array for invalid rows.",
-              content: { "application/json": { example: { success: true, data: { valid: [{ address: "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN", amountStroops: "10050000" }], errors: [{ row: 2, address: "INVALID_ADDR", reason: "Invalid G-address checksum" }], totalRows: 2 } } } },
+              content: { "application/json": { example: { success: true, data: { valid: [{ address: "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN", amountStroops: "10050000" }], errors: [{ row: 2, address: "INVALID_ADDR", reason: "Invalid Stellar address checksum" }], totalRows: 2 } } } },
             },
             "400": { description: "Malformed CSV/JSON", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },
             "401": { description: "Unauthorized", content: { "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } } } },

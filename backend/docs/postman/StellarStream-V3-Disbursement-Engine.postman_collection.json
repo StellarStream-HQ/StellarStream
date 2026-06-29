@@ -68,7 +68,7 @@
               "raw": "[\n  { \"address\": \"GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN\", \"amount\": \"100.50\" },\n  { \"address\": \"INVALID_ADDRESS\", \"amount\": \"50.00\" },\n  { \"address\": \"GBVVJJWT3JTHKBZISFYIGR7QRKNSENTRY3BNKFNZOMKVLBXGKBCXBXBB\", \"amount\": \"99999999.12345678\" }\n]",
               "options": { "raw": { "language": "json" } }
             },
-            "description": "Demonstrates partial validation. Invalid rows are collected in the `errors` array; valid rows are still returned in `valid`. The third row has 8 decimal places (exceeds the 7-decimal stroop limit) and will also appear in `errors`.\n\n**Expected 200 response:**\n```json\n{\n  \"success\": true,\n  \"data\": {\n    \"valid\": [\n      { \"address\": \"GAAZI4...\", \"amountStroops\": \"1005000000\" }\n    ],\n    \"errors\": [\n      { \"row\": 2, \"address\": \"INVALID_ADDRESS\", \"reason\": \"Invalid G-address checksum\" },\n      { \"row\": 3, \"address\": \"GBVVJJ...\", \"reason\": \"Amount exceeds 7 decimal places\" }\n    ],\n    \"totalRows\": 3\n  }\n}\n```"
+            "description": "Demonstrates partial validation. Invalid rows are collected in the `errors` array; valid rows are still returned in `valid`. The third row has 8 decimal places (exceeds the 7-decimal stroop limit) and will also appear in `errors`.\n\n**Expected 200 response:**\n```json\n{\n  \"success\": true,\n  \"data\": {\n    \"valid\": [\n      { \"address\": \"GAAZI4...\", \"amountStroops\": \"1005000000\" }\n    ],\n    \"errors\": [\n      { \"row\": 2, \"address\": \"INVALID_ADDRESS\", \"reason\": \"Invalid Stellar address checksum\" },\n      { \"row\": 3, \"address\": \"GBVVJJ...\", \"reason\": \"Amount exceeds 7 decimal places\" }\n    ],\n    \"totalRows\": 3\n  }\n}\n```"
           },
           "response": [
             {
@@ -76,7 +76,7 @@
               "status": "OK",
               "code": 200,
               "header": [{ "key": "Content-Type", "value": "application/json" }],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"valid\": [\n      { \"address\": \"GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN\", \"amountStroops\": \"1005000000\" }\n    ],\n    \"errors\": [\n      { \"row\": 2, \"address\": \"INVALID_ADDRESS\", \"reason\": \"Invalid G-address checksum\" },\n      { \"row\": 3, \"address\": \"GBVVJJWT3JTHKBZISFYIGR7QRKNSENTRY3BNKFNZOMKVLBXGKBCXBXBB\", \"reason\": \"Amount exceeds 7 decimal places\" }\n    ],\n    \"totalRows\": 3\n  }\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"valid\": [\n      { \"address\": \"GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN\", \"amountStroops\": \"1005000000\" }\n    ],\n    \"errors\": [\n      { \"row\": 2, \"address\": \"INVALID_ADDRESS\", \"reason\": \"Invalid Stellar address checksum\" },\n      { \"row\": 3, \"address\": \"GBVVJJWT3JTHKBZISFYIGR7QRKNSENTRY3BNKFNZOMKVLBXGKBCXBXBB\", \"reason\": \"Amount exceeds 7 decimal places\" }\n    ],\n    \"totalRows\": 3\n  }\n}"
             }
           ]
         },

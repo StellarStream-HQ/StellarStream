@@ -8,12 +8,27 @@ import {
 } from '../lib/validation'
 import { ASSET_CONFIGS } from '../lib/utils'
 
+const VALID_G_ADDRESS = 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF'
+const VALID_M_ADDRESS = 'MAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACTA4'
+
 describe('Validation Utilities', () => {
   describe('validateStellarAddress', () => {
-    it('should validate a correct Stellar address', () => {
-      const result = validateStellarAddress('GABCDEFGHIJKLMNOPQRSTUVWXYZ123456789')
+    it('should validate a checksum-valid G Stellar address', () => {
+      const result = validateStellarAddress(VALID_G_ADDRESS)
       expect(result.isValid).toBe(true)
       expect(result.errorMessage).toBeUndefined()
+    })
+
+    it('should validate a checksum-valid M Stellar address', () => {
+      const result = validateStellarAddress(VALID_M_ADDRESS)
+      expect(result.isValid).toBe(true)
+      expect(result.errorMessage).toBeUndefined()
+    })
+
+    it('should reject a truncated M Stellar address', () => {
+      const result = validateStellarAddress(VALID_M_ADDRESS.slice(0, 56))
+      expect(result.isValid).toBe(false)
+      expect(result.errorMessage).toBe('Invalid Stellar address format')
     })
 
     it('should reject empty address', () => {
@@ -28,8 +43,26 @@ describe('Validation Utilities', () => {
       expect(result.errorMessage).toBe('Invalid Stellar address format')
     })
 
+    it('should reject address with unsupported prefix', () => {
+      const result = validateStellarAddress(`C${VALID_G_ADDRESS.slice(1)}`)
+      expect(result.isValid).toBe(false)
+      expect(result.errorMessage).toBe('Invalid Stellar address format')
+    })
+
     it('should reject address that is too short', () => {
       const result = validateStellarAddress('GABC')
+      expect(result.isValid).toBe(false)
+      expect(result.errorMessage).toBe('Invalid Stellar address format')
+    })
+
+    it('should reject address with invalid base32 characters', () => {
+      const result = validateStellarAddress(`G${'0'.repeat(55)}`)
+      expect(result.isValid).toBe(false)
+      expect(result.errorMessage).toBe('Invalid Stellar address format')
+    })
+
+    it('should reject address with invalid checksum', () => {
+      const result = validateStellarAddress(`${VALID_G_ADDRESS.slice(0, -1)}G`)
       expect(result.isValid).toBe(false)
       expect(result.errorMessage).toBe('Invalid Stellar address format')
     })
@@ -128,7 +161,18 @@ describe('Validation Utilities', () => {
   describe('validateRecipient', () => {
     it('should validate a complete valid recipient', () => {
       const recipient = {
-        address: 'GABCDEFGHIJKLMNOPQRSTUVWXYZ123456789',
+        address: VALID_G_ADDRESS,
+        amount: 10.50,
+        asset: 'USDC',
+        memo: 'Payment'
+      }
+      const result = validateRecipient(recipient)
+      expect(result.isValid).toBe(true)
+    })
+
+    it('should validate a complete recipient with a muxed Stellar address', () => {
+      const recipient = {
+        address: VALID_M_ADDRESS,
         amount: 10.50,
         asset: 'USDC',
         memo: 'Payment'
@@ -151,7 +195,7 @@ describe('Validation Utilities', () => {
 
     it('should reject recipient with invalid amount', () => {
       const recipient = {
-        address: 'GABCDEFGHIJKLMNOPQRSTUVWXYZ123456789',
+        address: VALID_G_ADDRESS,
         amount: -5,
         asset: 'USDC',
         memo: 'Payment'
