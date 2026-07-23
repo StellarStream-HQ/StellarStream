@@ -674,12 +674,43 @@ exports.Prisma.AdminAuditLogScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.AnomalyScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  severity: 'severity',
+  description: 'description',
+  confidence: 'confidence',
+  metadata: 'metadata',
+  detectedAt: 'detectedAt',
+  streamId: 'streamId',
+  disbursementId: 'disbursementId',
+  senderAddress: 'senderAddress',
+  receiverAddress: 'receiverAddress'
+};
+
+exports.Prisma.AlertScalarFieldEnum = {
+  id: 'id',
+  anomalyId: 'anomalyId',
+  status: 'status',
+  acknowledgedAt: 'acknowledgedAt',
+  resolvedAt: 'resolvedAt',
+  resolvedBy: 'resolvedBy',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
 };
 
 exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
 };
 
@@ -725,6 +756,28 @@ exports.DisbursementStatus = exports.$Enums.DisbursementStatus = {
   CANCELLED: 'CANCELLED'
 };
 
+exports.AnomalyType = exports.$Enums.AnomalyType = {
+  UNUSUAL_AMOUNT: 'UNUSUAL_AMOUNT',
+  SUSPICIOUS_PATTERN: 'SUSPICIOUS_PATTERN',
+  VELOCITY: 'VELOCITY',
+  GEOGRAPHIC: 'GEOGRAPHIC',
+  ACCOUNT_TAKEOVER: 'ACCOUNT_TAKEOVER'
+};
+
+exports.AnomalySeverity = exports.$Enums.AnomalySeverity = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  CRITICAL: 'CRITICAL'
+};
+
+exports.AlertStatus = exports.$Enums.AlertStatus = {
+  OPEN: 'OPEN',
+  ACKNOWLEDGED: 'ACKNOWLEDGED',
+  RESOLVED: 'RESOLVED',
+  DISMISSED: 'DISMISSED'
+};
+
 exports.Prisma.ModelName = {
   PaymentCategory: 'PaymentCategory',
   PaymentCategoryRule: 'PaymentCategoryRule',
@@ -768,7 +821,9 @@ exports.Prisma.ModelName = {
   StreamTemplate: 'StreamTemplate',
   SplitLink: 'SplitLink',
   OfacAuditLog: 'OfacAuditLog',
-  AdminAuditLog: 'AdminAuditLog'
+  AdminAuditLog: 'AdminAuditLog',
+  Anomaly: 'Anomaly',
+  Alert: 'Alert'
 };
 
 /**

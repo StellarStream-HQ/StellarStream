@@ -821,3 +821,65 @@ model AdminAuditLog {
   @@index([path, timestamp(sort: Desc)])
   @@map("admin_audit_log")
 }
+
+enum AnomalyType {
+  UNUSUAL_AMOUNT
+  SUSPICIOUS_PATTERN
+  VELOCITY
+  GEOGRAPHIC
+  ACCOUNT_TAKEOVER
+}
+
+enum AnomalySeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Anomaly {
+  id               String          @id @default(cuid())
+  type             AnomalyType
+  severity         AnomalySeverity
+  description      String
+  confidence       Float
+  metadata         Json?
+  detectedAt       DateTime        @default(now())
+  streamId         String?
+  disbursementId   String?
+  senderAddress    String?
+  receiverAddress  String?
+  alerts           Alert[]
+
+  @@index([type])
+  @@index([severity])
+  @@index([detectedAt])
+  @@index([streamId])
+  @@index([disbursementId])
+  @@index([senderAddress])
+  @@index([receiverAddress])
+}
+
+enum AlertStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+  DISMISSED
+}
+
+model Alert {
+  id               String          @id @default(cuid())
+  anomalyId        String
+  anomaly          Anomaly         @relation(fields: [anomalyId], references: [id], onDelete: Cascade)
+  status           AlertStatus     @default(OPEN)
+  acknowledgedAt   DateTime?
+  resolvedAt       DateTime?
+  resolvedBy       String?
+  notes            String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([status])
+  @@index([anomalyId])
+  @@index([createdAt])
+}

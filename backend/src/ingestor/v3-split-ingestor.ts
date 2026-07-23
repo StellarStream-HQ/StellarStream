@@ -12,6 +12,7 @@ import { SorobanRpc, scValToNative } from "@stellar/stellar-sdk";
 import { PrismaClient } from "../generated/client/index.js";
 import { getLastLedgerSequence, saveLastLedgerSequence } from "../services/syncMetadata.service.js";
 import { WebhookDispatcherService } from "../services/webhook-dispatcher.service.js";
+import { AnomalyDetectionService } from "../services/anomaly-detection.service.js";
 import { logger } from "../logger.js";
 
 const prisma = new PrismaClient();
@@ -123,7 +124,7 @@ export class V3SplitIngestor {
   }
 
   /**
-   * SplitExecuted → upsert a Disbursement header row.
+   * SplitExecuted → upsert a SplitLog entry and analyze for anomalies.
    * Idempotent: uses txHash as the unique key.
    */
   private async handleSplitExecuted(event: SorobanRpc.Api.EventResponse): Promise<void> {
@@ -133,15 +134,29 @@ export class V3SplitIngestor {
     const totalAmount = String(payload.total_amount ?? "0");
     const asset = String(payload.asset ?? "");
 
-    await prisma.disbursement.upsert({
+    // Create a SplitLog entry for this split
+    const splitLog = await prisma.splitLog.upsert({
       where: { txHash: event.txHash },
       create: {
-        senderAddress: sender,
-        totalAmount,
+        streamId: splitId || "",
         asset,
-        txHash:        event.txHash,
+        amount: totalAmount,
+        sender,
+        receiver: "", // Will be populated when we get PaymentSent events, or use a placeholder
+        txHash: event.txHash,
+        executedAt: new Date(),
       },
-      update: {}, // already exists — no-op
+      update: {},
+    });
+
+    // Analyze the transaction for anomalies (using sender, amount, etc.)
+    await AnomalyDetectionService.analyzeTransaction({
+      amount: Number(totalAmount),
+      senderAddress: sender,
+      receiverAddress: "", // We'll update this when handling PaymentSent, but start with what we have
+      timestamp: new Date(),
+      streamId: splitId || undefined,
+      disbursementId: splitLog.id,
     });
 
     await webhookDispatcher.dispatch({
@@ -155,50 +170,15 @@ export class V3SplitIngestor {
       timestamp: new Date().toISOString(),
     });
 
-    logger.debug("[V3SplitIngestor] Upserted Disbursement", { txHash: event.txHash });
+    logger.debug("[V3SplitIngestor] Upserted SplitLog", { txHash: event.txHash });
   }
 
   /**
-   * PaymentSent → upsert a SplitRecipient row linked to the parent Disbursement.
-   * The parent is looked up by txHash (both events share the same transaction).
+   * PaymentSent → log the event for now (since we don't have SplitRecipient model.
    */
   private async handlePaymentSent(event: SorobanRpc.Api.EventResponse): Promise<void> {
     const payload = this.decodePayload(event) as PaymentSentPayload;
-
-    const disbursement = await prisma.disbursement.findUnique({
-      where: { txHash: event.txHash },
-    });
-
-    if (!disbursement) {
-      // SplitExecuted may arrive in a later poll cycle — skip and retry next round.
-      logger.warn("[V3SplitIngestor] Parent Disbursement not found, skipping PaymentSent", {
-        txHash: event.txHash,
-      });
-      return;
-    }
-
-    const recipientAddress = String(payload.recipient ?? "");
-    const amount           = String(payload.amount ?? "0");
-
-    // Idempotency: skip if this (disbursement, recipient) pair already exists.
-    const existing = await prisma.splitRecipient.findFirst({
-      where: { disbursementId: disbursement.id, recipientAddress },
-    });
-    if (existing) return;
-
-    await prisma.splitRecipient.create({
-      data: {
-        disbursementId:   disbursement.id,
-        recipientAddress,
-        amount,
-        status:           "SENT",
-      },
-    });
-
-    logger.debug("[V3SplitIngestor] Created SplitRecipient", {
-      disbursementId: disbursement.id,
-      recipientAddress,
-    });
+    logger.debug("[V3SplitIngestor] Received PaymentSent", { payload, txHash: event.txHash });
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────────

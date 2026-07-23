@@ -228,6 +228,16 @@ export type OfacAuditLog = $Result.DefaultSelection<Prisma.$OfacAuditLogPayload>
  * 
  */
 export type AdminAuditLog = $Result.DefaultSelection<Prisma.$AdminAuditLogPayload>
+/**
+ * Model Anomaly
+ * 
+ */
+export type Anomaly = $Result.DefaultSelection<Prisma.$AnomalyPayload>
+/**
+ * Model Alert
+ * 
+ */
+export type Alert = $Result.DefaultSelection<Prisma.$AlertPayload>
 
 /**
  * Enums
@@ -271,6 +281,37 @@ export const DisbursementStatus: {
 
 export type DisbursementStatus = (typeof DisbursementStatus)[keyof typeof DisbursementStatus]
 
+
+export const AnomalyType: {
+  UNUSUAL_AMOUNT: 'UNUSUAL_AMOUNT',
+  SUSPICIOUS_PATTERN: 'SUSPICIOUS_PATTERN',
+  VELOCITY: 'VELOCITY',
+  GEOGRAPHIC: 'GEOGRAPHIC',
+  ACCOUNT_TAKEOVER: 'ACCOUNT_TAKEOVER'
+};
+
+export type AnomalyType = (typeof AnomalyType)[keyof typeof AnomalyType]
+
+
+export const AnomalySeverity: {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  CRITICAL: 'CRITICAL'
+};
+
+export type AnomalySeverity = (typeof AnomalySeverity)[keyof typeof AnomalySeverity]
+
+
+export const AlertStatus: {
+  OPEN: 'OPEN',
+  ACKNOWLEDGED: 'ACKNOWLEDGED',
+  RESOLVED: 'RESOLVED',
+  DISMISSED: 'DISMISSED'
+};
+
+export type AlertStatus = (typeof AlertStatus)[keyof typeof AlertStatus]
+
 }
 
 export type StreamStatus = $Enums.StreamStatus
@@ -288,6 +329,18 @@ export const NotificationPlatform: typeof $Enums.NotificationPlatform
 export type DisbursementStatus = $Enums.DisbursementStatus
 
 export const DisbursementStatus: typeof $Enums.DisbursementStatus
+
+export type AnomalyType = $Enums.AnomalyType
+
+export const AnomalyType: typeof $Enums.AnomalyType
+
+export type AnomalySeverity = $Enums.AnomalySeverity
+
+export const AnomalySeverity: typeof $Enums.AnomalySeverity
+
+export type AlertStatus = $Enums.AlertStatus
+
+export const AlertStatus: typeof $Enums.AlertStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -841,6 +894,26 @@ export class PrismaClient<
     * ```
     */
   get adminAuditLog(): Prisma.AdminAuditLogDelegate<ExtArgs>;
+
+  /**
+   * `prisma.anomaly`: Exposes CRUD operations for the **Anomaly** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Anomalies
+    * const anomalies = await prisma.anomaly.findMany()
+    * ```
+    */
+  get anomaly(): Prisma.AnomalyDelegate<ExtArgs>;
+
+  /**
+   * `prisma.alert`: Exposes CRUD operations for the **Alert** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Alerts
+    * const alerts = await prisma.alert.findMany()
+    * ```
+    */
+  get alert(): Prisma.AlertDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1324,7 +1397,9 @@ export namespace Prisma {
     StreamTemplate: 'StreamTemplate',
     SplitLink: 'SplitLink',
     OfacAuditLog: 'OfacAuditLog',
-    AdminAuditLog: 'AdminAuditLog'
+    AdminAuditLog: 'AdminAuditLog',
+    Anomaly: 'Anomaly',
+    Alert: 'Alert'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1340,7 +1415,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "paymentCategory" | "paymentCategoryRule" | "stream" | "contractEvent" | "tokenPrice" | "webhook" | "webhookDelivery" | "syncState" | "eventLog" | "streamSnapshot" | "streamArchive" | "bridgeLog" | "proposal" | "event" | "organizationMember" | "apiKey" | "ledgerHash" | "syncMetadata" | "clawbackHistory" | "notificationSubscription" | "invoiceLink" | "affiliate" | "globalStats" | "globalStats_V3" | "tvlSnapshot" | "asset" | "autopilotSchedule" | "assetConfig" | "archivedDisbursement" | "disbursement" | "assetMapping" | "priceHistory" | "protocolInefficiencyReport" | "splitLog" | "monitoredTransaction" | "disbursementDraft" | "disbursementDraftVersion" | "multisigProposal" | "cachedAsset" | "streamTemplate" | "splitLink" | "ofacAuditLog" | "adminAuditLog"
+      modelProps: "paymentCategory" | "paymentCategoryRule" | "stream" | "contractEvent" | "tokenPrice" | "webhook" | "webhookDelivery" | "syncState" | "eventLog" | "streamSnapshot" | "streamArchive" | "bridgeLog" | "proposal" | "event" | "organizationMember" | "apiKey" | "ledgerHash" | "syncMetadata" | "clawbackHistory" | "notificationSubscription" | "invoiceLink" | "affiliate" | "globalStats" | "globalStats_V3" | "tvlSnapshot" | "asset" | "autopilotSchedule" | "assetConfig" | "archivedDisbursement" | "disbursement" | "assetMapping" | "priceHistory" | "protocolInefficiencyReport" | "splitLog" | "monitoredTransaction" | "disbursementDraft" | "disbursementDraftVersion" | "multisigProposal" | "cachedAsset" | "streamTemplate" | "splitLink" | "ofacAuditLog" | "adminAuditLog" | "anomaly" | "alert"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4354,6 +4429,146 @@ export namespace Prisma {
           }
         }
       }
+      Anomaly: {
+        payload: Prisma.$AnomalyPayload<ExtArgs>
+        fields: Prisma.AnomalyFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AnomalyFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnomalyPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AnomalyFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnomalyPayload>
+          }
+          findFirst: {
+            args: Prisma.AnomalyFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnomalyPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AnomalyFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnomalyPayload>
+          }
+          findMany: {
+            args: Prisma.AnomalyFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnomalyPayload>[]
+          }
+          create: {
+            args: Prisma.AnomalyCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnomalyPayload>
+          }
+          createMany: {
+            args: Prisma.AnomalyCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AnomalyCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnomalyPayload>[]
+          }
+          delete: {
+            args: Prisma.AnomalyDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnomalyPayload>
+          }
+          update: {
+            args: Prisma.AnomalyUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnomalyPayload>
+          }
+          deleteMany: {
+            args: Prisma.AnomalyDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AnomalyUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.AnomalyUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AnomalyPayload>
+          }
+          aggregate: {
+            args: Prisma.AnomalyAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAnomaly>
+          }
+          groupBy: {
+            args: Prisma.AnomalyGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AnomalyGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AnomalyCountArgs<ExtArgs>
+            result: $Utils.Optional<AnomalyCountAggregateOutputType> | number
+          }
+        }
+      }
+      Alert: {
+        payload: Prisma.$AlertPayload<ExtArgs>
+        fields: Prisma.AlertFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AlertFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlertPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AlertFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlertPayload>
+          }
+          findFirst: {
+            args: Prisma.AlertFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlertPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AlertFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlertPayload>
+          }
+          findMany: {
+            args: Prisma.AlertFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlertPayload>[]
+          }
+          create: {
+            args: Prisma.AlertCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlertPayload>
+          }
+          createMany: {
+            args: Prisma.AlertCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AlertCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlertPayload>[]
+          }
+          delete: {
+            args: Prisma.AlertDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlertPayload>
+          }
+          update: {
+            args: Prisma.AlertUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlertPayload>
+          }
+          deleteMany: {
+            args: Prisma.AlertDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AlertUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.AlertUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AlertPayload>
+          }
+          aggregate: {
+            args: Prisma.AlertAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAlert>
+          }
+          groupBy: {
+            args: Prisma.AlertGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AlertGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AlertCountArgs<ExtArgs>
+            result: $Utils.Optional<AlertCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -4587,6 +4802,37 @@ export namespace Prisma {
    */
   export type DisbursementDraftCountOutputTypeCountVersionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DisbursementDraftVersionWhereInput
+  }
+
+
+  /**
+   * Count Type AnomalyCountOutputType
+   */
+
+  export type AnomalyCountOutputType = {
+    alerts: number
+  }
+
+  export type AnomalyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    alerts?: boolean | AnomalyCountOutputTypeCountAlertsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AnomalyCountOutputType without action
+   */
+  export type AnomalyCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AnomalyCountOutputType
+     */
+    select?: AnomalyCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AnomalyCountOutputType without action
+   */
+  export type AnomalyCountOutputTypeCountAlertsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AlertWhereInput
   }
 
 
@@ -46474,6 +46720,2037 @@ export namespace Prisma {
 
 
   /**
+   * Model Anomaly
+   */
+
+  export type AggregateAnomaly = {
+    _count: AnomalyCountAggregateOutputType | null
+    _avg: AnomalyAvgAggregateOutputType | null
+    _sum: AnomalySumAggregateOutputType | null
+    _min: AnomalyMinAggregateOutputType | null
+    _max: AnomalyMaxAggregateOutputType | null
+  }
+
+  export type AnomalyAvgAggregateOutputType = {
+    confidence: number | null
+  }
+
+  export type AnomalySumAggregateOutputType = {
+    confidence: number | null
+  }
+
+  export type AnomalyMinAggregateOutputType = {
+    id: string | null
+    type: $Enums.AnomalyType | null
+    severity: $Enums.AnomalySeverity | null
+    description: string | null
+    confidence: number | null
+    detectedAt: Date | null
+    streamId: string | null
+    disbursementId: string | null
+    senderAddress: string | null
+    receiverAddress: string | null
+  }
+
+  export type AnomalyMaxAggregateOutputType = {
+    id: string | null
+    type: $Enums.AnomalyType | null
+    severity: $Enums.AnomalySeverity | null
+    description: string | null
+    confidence: number | null
+    detectedAt: Date | null
+    streamId: string | null
+    disbursementId: string | null
+    senderAddress: string | null
+    receiverAddress: string | null
+  }
+
+  export type AnomalyCountAggregateOutputType = {
+    id: number
+    type: number
+    severity: number
+    description: number
+    confidence: number
+    metadata: number
+    detectedAt: number
+    streamId: number
+    disbursementId: number
+    senderAddress: number
+    receiverAddress: number
+    _all: number
+  }
+
+
+  export type AnomalyAvgAggregateInputType = {
+    confidence?: true
+  }
+
+  export type AnomalySumAggregateInputType = {
+    confidence?: true
+  }
+
+  export type AnomalyMinAggregateInputType = {
+    id?: true
+    type?: true
+    severity?: true
+    description?: true
+    confidence?: true
+    detectedAt?: true
+    streamId?: true
+    disbursementId?: true
+    senderAddress?: true
+    receiverAddress?: true
+  }
+
+  export type AnomalyMaxAggregateInputType = {
+    id?: true
+    type?: true
+    severity?: true
+    description?: true
+    confidence?: true
+    detectedAt?: true
+    streamId?: true
+    disbursementId?: true
+    senderAddress?: true
+    receiverAddress?: true
+  }
+
+  export type AnomalyCountAggregateInputType = {
+    id?: true
+    type?: true
+    severity?: true
+    description?: true
+    confidence?: true
+    metadata?: true
+    detectedAt?: true
+    streamId?: true
+    disbursementId?: true
+    senderAddress?: true
+    receiverAddress?: true
+    _all?: true
+  }
+
+  export type AnomalyAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Anomaly to aggregate.
+     */
+    where?: AnomalyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Anomalies to fetch.
+     */
+    orderBy?: AnomalyOrderByWithRelationInput | AnomalyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AnomalyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Anomalies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Anomalies.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Anomalies
+    **/
+    _count?: true | AnomalyCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AnomalyAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AnomalySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AnomalyMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AnomalyMaxAggregateInputType
+  }
+
+  export type GetAnomalyAggregateType<T extends AnomalyAggregateArgs> = {
+        [P in keyof T & keyof AggregateAnomaly]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAnomaly[P]>
+      : GetScalarType<T[P], AggregateAnomaly[P]>
+  }
+
+
+
+
+  export type AnomalyGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AnomalyWhereInput
+    orderBy?: AnomalyOrderByWithAggregationInput | AnomalyOrderByWithAggregationInput[]
+    by: AnomalyScalarFieldEnum[] | AnomalyScalarFieldEnum
+    having?: AnomalyScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AnomalyCountAggregateInputType | true
+    _avg?: AnomalyAvgAggregateInputType
+    _sum?: AnomalySumAggregateInputType
+    _min?: AnomalyMinAggregateInputType
+    _max?: AnomalyMaxAggregateInputType
+  }
+
+  export type AnomalyGroupByOutputType = {
+    id: string
+    type: $Enums.AnomalyType
+    severity: $Enums.AnomalySeverity
+    description: string
+    confidence: number
+    metadata: JsonValue | null
+    detectedAt: Date
+    streamId: string | null
+    disbursementId: string | null
+    senderAddress: string | null
+    receiverAddress: string | null
+    _count: AnomalyCountAggregateOutputType | null
+    _avg: AnomalyAvgAggregateOutputType | null
+    _sum: AnomalySumAggregateOutputType | null
+    _min: AnomalyMinAggregateOutputType | null
+    _max: AnomalyMaxAggregateOutputType | null
+  }
+
+  type GetAnomalyGroupByPayload<T extends AnomalyGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AnomalyGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AnomalyGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AnomalyGroupByOutputType[P]>
+            : GetScalarType<T[P], AnomalyGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AnomalySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    type?: boolean
+    severity?: boolean
+    description?: boolean
+    confidence?: boolean
+    metadata?: boolean
+    detectedAt?: boolean
+    streamId?: boolean
+    disbursementId?: boolean
+    senderAddress?: boolean
+    receiverAddress?: boolean
+    alerts?: boolean | Anomaly$alertsArgs<ExtArgs>
+    _count?: boolean | AnomalyCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["anomaly"]>
+
+  export type AnomalySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    type?: boolean
+    severity?: boolean
+    description?: boolean
+    confidence?: boolean
+    metadata?: boolean
+    detectedAt?: boolean
+    streamId?: boolean
+    disbursementId?: boolean
+    senderAddress?: boolean
+    receiverAddress?: boolean
+  }, ExtArgs["result"]["anomaly"]>
+
+  export type AnomalySelectScalar = {
+    id?: boolean
+    type?: boolean
+    severity?: boolean
+    description?: boolean
+    confidence?: boolean
+    metadata?: boolean
+    detectedAt?: boolean
+    streamId?: boolean
+    disbursementId?: boolean
+    senderAddress?: boolean
+    receiverAddress?: boolean
+  }
+
+  export type AnomalyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    alerts?: boolean | Anomaly$alertsArgs<ExtArgs>
+    _count?: boolean | AnomalyCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AnomalyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $AnomalyPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Anomaly"
+    objects: {
+      alerts: Prisma.$AlertPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      type: $Enums.AnomalyType
+      severity: $Enums.AnomalySeverity
+      description: string
+      confidence: number
+      metadata: Prisma.JsonValue | null
+      detectedAt: Date
+      streamId: string | null
+      disbursementId: string | null
+      senderAddress: string | null
+      receiverAddress: string | null
+    }, ExtArgs["result"]["anomaly"]>
+    composites: {}
+  }
+
+  type AnomalyGetPayload<S extends boolean | null | undefined | AnomalyDefaultArgs> = $Result.GetResult<Prisma.$AnomalyPayload, S>
+
+  type AnomalyCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AnomalyFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: AnomalyCountAggregateInputType | true
+    }
+
+  export interface AnomalyDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Anomaly'], meta: { name: 'Anomaly' } }
+    /**
+     * Find zero or one Anomaly that matches the filter.
+     * @param {AnomalyFindUniqueArgs} args - Arguments to find a Anomaly
+     * @example
+     * // Get one Anomaly
+     * const anomaly = await prisma.anomaly.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AnomalyFindUniqueArgs>(args: SelectSubset<T, AnomalyFindUniqueArgs<ExtArgs>>): Prisma__AnomalyClient<$Result.GetResult<Prisma.$AnomalyPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one Anomaly that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {AnomalyFindUniqueOrThrowArgs} args - Arguments to find a Anomaly
+     * @example
+     * // Get one Anomaly
+     * const anomaly = await prisma.anomaly.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AnomalyFindUniqueOrThrowArgs>(args: SelectSubset<T, AnomalyFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AnomalyClient<$Result.GetResult<Prisma.$AnomalyPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first Anomaly that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnomalyFindFirstArgs} args - Arguments to find a Anomaly
+     * @example
+     * // Get one Anomaly
+     * const anomaly = await prisma.anomaly.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AnomalyFindFirstArgs>(args?: SelectSubset<T, AnomalyFindFirstArgs<ExtArgs>>): Prisma__AnomalyClient<$Result.GetResult<Prisma.$AnomalyPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first Anomaly that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnomalyFindFirstOrThrowArgs} args - Arguments to find a Anomaly
+     * @example
+     * // Get one Anomaly
+     * const anomaly = await prisma.anomaly.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AnomalyFindFirstOrThrowArgs>(args?: SelectSubset<T, AnomalyFindFirstOrThrowArgs<ExtArgs>>): Prisma__AnomalyClient<$Result.GetResult<Prisma.$AnomalyPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more Anomalies that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnomalyFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Anomalies
+     * const anomalies = await prisma.anomaly.findMany()
+     * 
+     * // Get first 10 Anomalies
+     * const anomalies = await prisma.anomaly.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const anomalyWithIdOnly = await prisma.anomaly.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AnomalyFindManyArgs>(args?: SelectSubset<T, AnomalyFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnomalyPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a Anomaly.
+     * @param {AnomalyCreateArgs} args - Arguments to create a Anomaly.
+     * @example
+     * // Create one Anomaly
+     * const Anomaly = await prisma.anomaly.create({
+     *   data: {
+     *     // ... data to create a Anomaly
+     *   }
+     * })
+     * 
+     */
+    create<T extends AnomalyCreateArgs>(args: SelectSubset<T, AnomalyCreateArgs<ExtArgs>>): Prisma__AnomalyClient<$Result.GetResult<Prisma.$AnomalyPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many Anomalies.
+     * @param {AnomalyCreateManyArgs} args - Arguments to create many Anomalies.
+     * @example
+     * // Create many Anomalies
+     * const anomaly = await prisma.anomaly.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AnomalyCreateManyArgs>(args?: SelectSubset<T, AnomalyCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Anomalies and returns the data saved in the database.
+     * @param {AnomalyCreateManyAndReturnArgs} args - Arguments to create many Anomalies.
+     * @example
+     * // Create many Anomalies
+     * const anomaly = await prisma.anomaly.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Anomalies and only return the `id`
+     * const anomalyWithIdOnly = await prisma.anomaly.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AnomalyCreateManyAndReturnArgs>(args?: SelectSubset<T, AnomalyCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AnomalyPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a Anomaly.
+     * @param {AnomalyDeleteArgs} args - Arguments to delete one Anomaly.
+     * @example
+     * // Delete one Anomaly
+     * const Anomaly = await prisma.anomaly.delete({
+     *   where: {
+     *     // ... filter to delete one Anomaly
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AnomalyDeleteArgs>(args: SelectSubset<T, AnomalyDeleteArgs<ExtArgs>>): Prisma__AnomalyClient<$Result.GetResult<Prisma.$AnomalyPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one Anomaly.
+     * @param {AnomalyUpdateArgs} args - Arguments to update one Anomaly.
+     * @example
+     * // Update one Anomaly
+     * const anomaly = await prisma.anomaly.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AnomalyUpdateArgs>(args: SelectSubset<T, AnomalyUpdateArgs<ExtArgs>>): Prisma__AnomalyClient<$Result.GetResult<Prisma.$AnomalyPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more Anomalies.
+     * @param {AnomalyDeleteManyArgs} args - Arguments to filter Anomalies to delete.
+     * @example
+     * // Delete a few Anomalies
+     * const { count } = await prisma.anomaly.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AnomalyDeleteManyArgs>(args?: SelectSubset<T, AnomalyDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Anomalies.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnomalyUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Anomalies
+     * const anomaly = await prisma.anomaly.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AnomalyUpdateManyArgs>(args: SelectSubset<T, AnomalyUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Anomaly.
+     * @param {AnomalyUpsertArgs} args - Arguments to update or create a Anomaly.
+     * @example
+     * // Update or create a Anomaly
+     * const anomaly = await prisma.anomaly.upsert({
+     *   create: {
+     *     // ... data to create a Anomaly
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Anomaly we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AnomalyUpsertArgs>(args: SelectSubset<T, AnomalyUpsertArgs<ExtArgs>>): Prisma__AnomalyClient<$Result.GetResult<Prisma.$AnomalyPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of Anomalies.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnomalyCountArgs} args - Arguments to filter Anomalies to count.
+     * @example
+     * // Count the number of Anomalies
+     * const count = await prisma.anomaly.count({
+     *   where: {
+     *     // ... the filter for the Anomalies we want to count
+     *   }
+     * })
+    **/
+    count<T extends AnomalyCountArgs>(
+      args?: Subset<T, AnomalyCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AnomalyCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Anomaly.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnomalyAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AnomalyAggregateArgs>(args: Subset<T, AnomalyAggregateArgs>): Prisma.PrismaPromise<GetAnomalyAggregateType<T>>
+
+    /**
+     * Group by Anomaly.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AnomalyGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AnomalyGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AnomalyGroupByArgs['orderBy'] }
+        : { orderBy?: AnomalyGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AnomalyGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAnomalyGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Anomaly model
+   */
+  readonly fields: AnomalyFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Anomaly.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AnomalyClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    alerts<T extends Anomaly$alertsArgs<ExtArgs> = {}>(args?: Subset<T, Anomaly$alertsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertPayload<ExtArgs>, T, "findMany"> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Anomaly model
+   */ 
+  interface AnomalyFieldRefs {
+    readonly id: FieldRef<"Anomaly", 'String'>
+    readonly type: FieldRef<"Anomaly", 'AnomalyType'>
+    readonly severity: FieldRef<"Anomaly", 'AnomalySeverity'>
+    readonly description: FieldRef<"Anomaly", 'String'>
+    readonly confidence: FieldRef<"Anomaly", 'Float'>
+    readonly metadata: FieldRef<"Anomaly", 'Json'>
+    readonly detectedAt: FieldRef<"Anomaly", 'DateTime'>
+    readonly streamId: FieldRef<"Anomaly", 'String'>
+    readonly disbursementId: FieldRef<"Anomaly", 'String'>
+    readonly senderAddress: FieldRef<"Anomaly", 'String'>
+    readonly receiverAddress: FieldRef<"Anomaly", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Anomaly findUnique
+   */
+  export type AnomalyFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Anomaly
+     */
+    select?: AnomalySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnomalyInclude<ExtArgs> | null
+    /**
+     * Filter, which Anomaly to fetch.
+     */
+    where: AnomalyWhereUniqueInput
+  }
+
+  /**
+   * Anomaly findUniqueOrThrow
+   */
+  export type AnomalyFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Anomaly
+     */
+    select?: AnomalySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnomalyInclude<ExtArgs> | null
+    /**
+     * Filter, which Anomaly to fetch.
+     */
+    where: AnomalyWhereUniqueInput
+  }
+
+  /**
+   * Anomaly findFirst
+   */
+  export type AnomalyFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Anomaly
+     */
+    select?: AnomalySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnomalyInclude<ExtArgs> | null
+    /**
+     * Filter, which Anomaly to fetch.
+     */
+    where?: AnomalyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Anomalies to fetch.
+     */
+    orderBy?: AnomalyOrderByWithRelationInput | AnomalyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Anomalies.
+     */
+    cursor?: AnomalyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Anomalies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Anomalies.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Anomalies.
+     */
+    distinct?: AnomalyScalarFieldEnum | AnomalyScalarFieldEnum[]
+  }
+
+  /**
+   * Anomaly findFirstOrThrow
+   */
+  export type AnomalyFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Anomaly
+     */
+    select?: AnomalySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnomalyInclude<ExtArgs> | null
+    /**
+     * Filter, which Anomaly to fetch.
+     */
+    where?: AnomalyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Anomalies to fetch.
+     */
+    orderBy?: AnomalyOrderByWithRelationInput | AnomalyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Anomalies.
+     */
+    cursor?: AnomalyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Anomalies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Anomalies.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Anomalies.
+     */
+    distinct?: AnomalyScalarFieldEnum | AnomalyScalarFieldEnum[]
+  }
+
+  /**
+   * Anomaly findMany
+   */
+  export type AnomalyFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Anomaly
+     */
+    select?: AnomalySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnomalyInclude<ExtArgs> | null
+    /**
+     * Filter, which Anomalies to fetch.
+     */
+    where?: AnomalyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Anomalies to fetch.
+     */
+    orderBy?: AnomalyOrderByWithRelationInput | AnomalyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Anomalies.
+     */
+    cursor?: AnomalyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Anomalies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Anomalies.
+     */
+    skip?: number
+    distinct?: AnomalyScalarFieldEnum | AnomalyScalarFieldEnum[]
+  }
+
+  /**
+   * Anomaly create
+   */
+  export type AnomalyCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Anomaly
+     */
+    select?: AnomalySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnomalyInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Anomaly.
+     */
+    data: XOR<AnomalyCreateInput, AnomalyUncheckedCreateInput>
+  }
+
+  /**
+   * Anomaly createMany
+   */
+  export type AnomalyCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Anomalies.
+     */
+    data: AnomalyCreateManyInput | AnomalyCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Anomaly createManyAndReturn
+   */
+  export type AnomalyCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Anomaly
+     */
+    select?: AnomalySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many Anomalies.
+     */
+    data: AnomalyCreateManyInput | AnomalyCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Anomaly update
+   */
+  export type AnomalyUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Anomaly
+     */
+    select?: AnomalySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnomalyInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Anomaly.
+     */
+    data: XOR<AnomalyUpdateInput, AnomalyUncheckedUpdateInput>
+    /**
+     * Choose, which Anomaly to update.
+     */
+    where: AnomalyWhereUniqueInput
+  }
+
+  /**
+   * Anomaly updateMany
+   */
+  export type AnomalyUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Anomalies.
+     */
+    data: XOR<AnomalyUpdateManyMutationInput, AnomalyUncheckedUpdateManyInput>
+    /**
+     * Filter which Anomalies to update
+     */
+    where?: AnomalyWhereInput
+  }
+
+  /**
+   * Anomaly upsert
+   */
+  export type AnomalyUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Anomaly
+     */
+    select?: AnomalySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnomalyInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Anomaly to update in case it exists.
+     */
+    where: AnomalyWhereUniqueInput
+    /**
+     * In case the Anomaly found by the `where` argument doesn't exist, create a new Anomaly with this data.
+     */
+    create: XOR<AnomalyCreateInput, AnomalyUncheckedCreateInput>
+    /**
+     * In case the Anomaly was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AnomalyUpdateInput, AnomalyUncheckedUpdateInput>
+  }
+
+  /**
+   * Anomaly delete
+   */
+  export type AnomalyDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Anomaly
+     */
+    select?: AnomalySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnomalyInclude<ExtArgs> | null
+    /**
+     * Filter which Anomaly to delete.
+     */
+    where: AnomalyWhereUniqueInput
+  }
+
+  /**
+   * Anomaly deleteMany
+   */
+  export type AnomalyDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Anomalies to delete
+     */
+    where?: AnomalyWhereInput
+  }
+
+  /**
+   * Anomaly.alerts
+   */
+  export type Anomaly$alertsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alert
+     */
+    select?: AlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AlertInclude<ExtArgs> | null
+    where?: AlertWhereInput
+    orderBy?: AlertOrderByWithRelationInput | AlertOrderByWithRelationInput[]
+    cursor?: AlertWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AlertScalarFieldEnum | AlertScalarFieldEnum[]
+  }
+
+  /**
+   * Anomaly without action
+   */
+  export type AnomalyDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Anomaly
+     */
+    select?: AnomalySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AnomalyInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Alert
+   */
+
+  export type AggregateAlert = {
+    _count: AlertCountAggregateOutputType | null
+    _min: AlertMinAggregateOutputType | null
+    _max: AlertMaxAggregateOutputType | null
+  }
+
+  export type AlertMinAggregateOutputType = {
+    id: string | null
+    anomalyId: string | null
+    status: $Enums.AlertStatus | null
+    acknowledgedAt: Date | null
+    resolvedAt: Date | null
+    resolvedBy: string | null
+    notes: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AlertMaxAggregateOutputType = {
+    id: string | null
+    anomalyId: string | null
+    status: $Enums.AlertStatus | null
+    acknowledgedAt: Date | null
+    resolvedAt: Date | null
+    resolvedBy: string | null
+    notes: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AlertCountAggregateOutputType = {
+    id: number
+    anomalyId: number
+    status: number
+    acknowledgedAt: number
+    resolvedAt: number
+    resolvedBy: number
+    notes: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AlertMinAggregateInputType = {
+    id?: true
+    anomalyId?: true
+    status?: true
+    acknowledgedAt?: true
+    resolvedAt?: true
+    resolvedBy?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AlertMaxAggregateInputType = {
+    id?: true
+    anomalyId?: true
+    status?: true
+    acknowledgedAt?: true
+    resolvedAt?: true
+    resolvedBy?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AlertCountAggregateInputType = {
+    id?: true
+    anomalyId?: true
+    status?: true
+    acknowledgedAt?: true
+    resolvedAt?: true
+    resolvedBy?: true
+    notes?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AlertAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Alert to aggregate.
+     */
+    where?: AlertWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Alerts to fetch.
+     */
+    orderBy?: AlertOrderByWithRelationInput | AlertOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AlertWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Alerts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Alerts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Alerts
+    **/
+    _count?: true | AlertCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AlertMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AlertMaxAggregateInputType
+  }
+
+  export type GetAlertAggregateType<T extends AlertAggregateArgs> = {
+        [P in keyof T & keyof AggregateAlert]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAlert[P]>
+      : GetScalarType<T[P], AggregateAlert[P]>
+  }
+
+
+
+
+  export type AlertGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AlertWhereInput
+    orderBy?: AlertOrderByWithAggregationInput | AlertOrderByWithAggregationInput[]
+    by: AlertScalarFieldEnum[] | AlertScalarFieldEnum
+    having?: AlertScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AlertCountAggregateInputType | true
+    _min?: AlertMinAggregateInputType
+    _max?: AlertMaxAggregateInputType
+  }
+
+  export type AlertGroupByOutputType = {
+    id: string
+    anomalyId: string
+    status: $Enums.AlertStatus
+    acknowledgedAt: Date | null
+    resolvedAt: Date | null
+    resolvedBy: string | null
+    notes: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: AlertCountAggregateOutputType | null
+    _min: AlertMinAggregateOutputType | null
+    _max: AlertMaxAggregateOutputType | null
+  }
+
+  type GetAlertGroupByPayload<T extends AlertGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AlertGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AlertGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AlertGroupByOutputType[P]>
+            : GetScalarType<T[P], AlertGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AlertSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    anomalyId?: boolean
+    status?: boolean
+    acknowledgedAt?: boolean
+    resolvedAt?: boolean
+    resolvedBy?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    anomaly?: boolean | AnomalyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["alert"]>
+
+  export type AlertSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    anomalyId?: boolean
+    status?: boolean
+    acknowledgedAt?: boolean
+    resolvedAt?: boolean
+    resolvedBy?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    anomaly?: boolean | AnomalyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["alert"]>
+
+  export type AlertSelectScalar = {
+    id?: boolean
+    anomalyId?: boolean
+    status?: boolean
+    acknowledgedAt?: boolean
+    resolvedAt?: boolean
+    resolvedBy?: boolean
+    notes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AlertInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    anomaly?: boolean | AnomalyDefaultArgs<ExtArgs>
+  }
+  export type AlertIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    anomaly?: boolean | AnomalyDefaultArgs<ExtArgs>
+  }
+
+  export type $AlertPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Alert"
+    objects: {
+      anomaly: Prisma.$AnomalyPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      anomalyId: string
+      status: $Enums.AlertStatus
+      acknowledgedAt: Date | null
+      resolvedAt: Date | null
+      resolvedBy: string | null
+      notes: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["alert"]>
+    composites: {}
+  }
+
+  type AlertGetPayload<S extends boolean | null | undefined | AlertDefaultArgs> = $Result.GetResult<Prisma.$AlertPayload, S>
+
+  type AlertCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AlertFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: AlertCountAggregateInputType | true
+    }
+
+  export interface AlertDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Alert'], meta: { name: 'Alert' } }
+    /**
+     * Find zero or one Alert that matches the filter.
+     * @param {AlertFindUniqueArgs} args - Arguments to find a Alert
+     * @example
+     * // Get one Alert
+     * const alert = await prisma.alert.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AlertFindUniqueArgs>(args: SelectSubset<T, AlertFindUniqueArgs<ExtArgs>>): Prisma__AlertClient<$Result.GetResult<Prisma.$AlertPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one Alert that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {AlertFindUniqueOrThrowArgs} args - Arguments to find a Alert
+     * @example
+     * // Get one Alert
+     * const alert = await prisma.alert.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AlertFindUniqueOrThrowArgs>(args: SelectSubset<T, AlertFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AlertClient<$Result.GetResult<Prisma.$AlertPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first Alert that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertFindFirstArgs} args - Arguments to find a Alert
+     * @example
+     * // Get one Alert
+     * const alert = await prisma.alert.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AlertFindFirstArgs>(args?: SelectSubset<T, AlertFindFirstArgs<ExtArgs>>): Prisma__AlertClient<$Result.GetResult<Prisma.$AlertPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first Alert that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertFindFirstOrThrowArgs} args - Arguments to find a Alert
+     * @example
+     * // Get one Alert
+     * const alert = await prisma.alert.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AlertFindFirstOrThrowArgs>(args?: SelectSubset<T, AlertFindFirstOrThrowArgs<ExtArgs>>): Prisma__AlertClient<$Result.GetResult<Prisma.$AlertPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more Alerts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Alerts
+     * const alerts = await prisma.alert.findMany()
+     * 
+     * // Get first 10 Alerts
+     * const alerts = await prisma.alert.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const alertWithIdOnly = await prisma.alert.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AlertFindManyArgs>(args?: SelectSubset<T, AlertFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a Alert.
+     * @param {AlertCreateArgs} args - Arguments to create a Alert.
+     * @example
+     * // Create one Alert
+     * const Alert = await prisma.alert.create({
+     *   data: {
+     *     // ... data to create a Alert
+     *   }
+     * })
+     * 
+     */
+    create<T extends AlertCreateArgs>(args: SelectSubset<T, AlertCreateArgs<ExtArgs>>): Prisma__AlertClient<$Result.GetResult<Prisma.$AlertPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many Alerts.
+     * @param {AlertCreateManyArgs} args - Arguments to create many Alerts.
+     * @example
+     * // Create many Alerts
+     * const alert = await prisma.alert.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AlertCreateManyArgs>(args?: SelectSubset<T, AlertCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Alerts and returns the data saved in the database.
+     * @param {AlertCreateManyAndReturnArgs} args - Arguments to create many Alerts.
+     * @example
+     * // Create many Alerts
+     * const alert = await prisma.alert.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Alerts and only return the `id`
+     * const alertWithIdOnly = await prisma.alert.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AlertCreateManyAndReturnArgs>(args?: SelectSubset<T, AlertCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a Alert.
+     * @param {AlertDeleteArgs} args - Arguments to delete one Alert.
+     * @example
+     * // Delete one Alert
+     * const Alert = await prisma.alert.delete({
+     *   where: {
+     *     // ... filter to delete one Alert
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AlertDeleteArgs>(args: SelectSubset<T, AlertDeleteArgs<ExtArgs>>): Prisma__AlertClient<$Result.GetResult<Prisma.$AlertPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one Alert.
+     * @param {AlertUpdateArgs} args - Arguments to update one Alert.
+     * @example
+     * // Update one Alert
+     * const alert = await prisma.alert.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AlertUpdateArgs>(args: SelectSubset<T, AlertUpdateArgs<ExtArgs>>): Prisma__AlertClient<$Result.GetResult<Prisma.$AlertPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more Alerts.
+     * @param {AlertDeleteManyArgs} args - Arguments to filter Alerts to delete.
+     * @example
+     * // Delete a few Alerts
+     * const { count } = await prisma.alert.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AlertDeleteManyArgs>(args?: SelectSubset<T, AlertDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Alerts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Alerts
+     * const alert = await prisma.alert.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AlertUpdateManyArgs>(args: SelectSubset<T, AlertUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Alert.
+     * @param {AlertUpsertArgs} args - Arguments to update or create a Alert.
+     * @example
+     * // Update or create a Alert
+     * const alert = await prisma.alert.upsert({
+     *   create: {
+     *     // ... data to create a Alert
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Alert we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AlertUpsertArgs>(args: SelectSubset<T, AlertUpsertArgs<ExtArgs>>): Prisma__AlertClient<$Result.GetResult<Prisma.$AlertPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of Alerts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertCountArgs} args - Arguments to filter Alerts to count.
+     * @example
+     * // Count the number of Alerts
+     * const count = await prisma.alert.count({
+     *   where: {
+     *     // ... the filter for the Alerts we want to count
+     *   }
+     * })
+    **/
+    count<T extends AlertCountArgs>(
+      args?: Subset<T, AlertCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AlertCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Alert.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AlertAggregateArgs>(args: Subset<T, AlertAggregateArgs>): Prisma.PrismaPromise<GetAlertAggregateType<T>>
+
+    /**
+     * Group by Alert.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AlertGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AlertGroupByArgs['orderBy'] }
+        : { orderBy?: AlertGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AlertGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAlertGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Alert model
+   */
+  readonly fields: AlertFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Alert.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AlertClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    anomaly<T extends AnomalyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AnomalyDefaultArgs<ExtArgs>>): Prisma__AnomalyClient<$Result.GetResult<Prisma.$AnomalyPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Alert model
+   */ 
+  interface AlertFieldRefs {
+    readonly id: FieldRef<"Alert", 'String'>
+    readonly anomalyId: FieldRef<"Alert", 'String'>
+    readonly status: FieldRef<"Alert", 'AlertStatus'>
+    readonly acknowledgedAt: FieldRef<"Alert", 'DateTime'>
+    readonly resolvedAt: FieldRef<"Alert", 'DateTime'>
+    readonly resolvedBy: FieldRef<"Alert", 'String'>
+    readonly notes: FieldRef<"Alert", 'String'>
+    readonly createdAt: FieldRef<"Alert", 'DateTime'>
+    readonly updatedAt: FieldRef<"Alert", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Alert findUnique
+   */
+  export type AlertFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alert
+     */
+    select?: AlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AlertInclude<ExtArgs> | null
+    /**
+     * Filter, which Alert to fetch.
+     */
+    where: AlertWhereUniqueInput
+  }
+
+  /**
+   * Alert findUniqueOrThrow
+   */
+  export type AlertFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alert
+     */
+    select?: AlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AlertInclude<ExtArgs> | null
+    /**
+     * Filter, which Alert to fetch.
+     */
+    where: AlertWhereUniqueInput
+  }
+
+  /**
+   * Alert findFirst
+   */
+  export type AlertFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alert
+     */
+    select?: AlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AlertInclude<ExtArgs> | null
+    /**
+     * Filter, which Alert to fetch.
+     */
+    where?: AlertWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Alerts to fetch.
+     */
+    orderBy?: AlertOrderByWithRelationInput | AlertOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Alerts.
+     */
+    cursor?: AlertWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Alerts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Alerts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Alerts.
+     */
+    distinct?: AlertScalarFieldEnum | AlertScalarFieldEnum[]
+  }
+
+  /**
+   * Alert findFirstOrThrow
+   */
+  export type AlertFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alert
+     */
+    select?: AlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AlertInclude<ExtArgs> | null
+    /**
+     * Filter, which Alert to fetch.
+     */
+    where?: AlertWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Alerts to fetch.
+     */
+    orderBy?: AlertOrderByWithRelationInput | AlertOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Alerts.
+     */
+    cursor?: AlertWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Alerts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Alerts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Alerts.
+     */
+    distinct?: AlertScalarFieldEnum | AlertScalarFieldEnum[]
+  }
+
+  /**
+   * Alert findMany
+   */
+  export type AlertFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alert
+     */
+    select?: AlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AlertInclude<ExtArgs> | null
+    /**
+     * Filter, which Alerts to fetch.
+     */
+    where?: AlertWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Alerts to fetch.
+     */
+    orderBy?: AlertOrderByWithRelationInput | AlertOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Alerts.
+     */
+    cursor?: AlertWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Alerts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Alerts.
+     */
+    skip?: number
+    distinct?: AlertScalarFieldEnum | AlertScalarFieldEnum[]
+  }
+
+  /**
+   * Alert create
+   */
+  export type AlertCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alert
+     */
+    select?: AlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AlertInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Alert.
+     */
+    data: XOR<AlertCreateInput, AlertUncheckedCreateInput>
+  }
+
+  /**
+   * Alert createMany
+   */
+  export type AlertCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Alerts.
+     */
+    data: AlertCreateManyInput | AlertCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Alert createManyAndReturn
+   */
+  export type AlertCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alert
+     */
+    select?: AlertSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many Alerts.
+     */
+    data: AlertCreateManyInput | AlertCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AlertIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Alert update
+   */
+  export type AlertUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alert
+     */
+    select?: AlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AlertInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Alert.
+     */
+    data: XOR<AlertUpdateInput, AlertUncheckedUpdateInput>
+    /**
+     * Choose, which Alert to update.
+     */
+    where: AlertWhereUniqueInput
+  }
+
+  /**
+   * Alert updateMany
+   */
+  export type AlertUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Alerts.
+     */
+    data: XOR<AlertUpdateManyMutationInput, AlertUncheckedUpdateManyInput>
+    /**
+     * Filter which Alerts to update
+     */
+    where?: AlertWhereInput
+  }
+
+  /**
+   * Alert upsert
+   */
+  export type AlertUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alert
+     */
+    select?: AlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AlertInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Alert to update in case it exists.
+     */
+    where: AlertWhereUniqueInput
+    /**
+     * In case the Alert found by the `where` argument doesn't exist, create a new Alert with this data.
+     */
+    create: XOR<AlertCreateInput, AlertUncheckedCreateInput>
+    /**
+     * In case the Alert was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AlertUpdateInput, AlertUncheckedUpdateInput>
+  }
+
+  /**
+   * Alert delete
+   */
+  export type AlertDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alert
+     */
+    select?: AlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AlertInclude<ExtArgs> | null
+    /**
+     * Filter which Alert to delete.
+     */
+    where: AlertWhereUniqueInput
+  }
+
+  /**
+   * Alert deleteMany
+   */
+  export type AlertDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Alerts to delete
+     */
+    where?: AlertWhereInput
+  }
+
+  /**
+   * Alert without action
+   */
+  export type AlertDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alert
+     */
+    select?: AlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AlertInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -47168,6 +49445,38 @@ export namespace Prisma {
   export type AdminAuditLogScalarFieldEnum = (typeof AdminAuditLogScalarFieldEnum)[keyof typeof AdminAuditLogScalarFieldEnum]
 
 
+  export const AnomalyScalarFieldEnum: {
+    id: 'id',
+    type: 'type',
+    severity: 'severity',
+    description: 'description',
+    confidence: 'confidence',
+    metadata: 'metadata',
+    detectedAt: 'detectedAt',
+    streamId: 'streamId',
+    disbursementId: 'disbursementId',
+    senderAddress: 'senderAddress',
+    receiverAddress: 'receiverAddress'
+  };
+
+  export type AnomalyScalarFieldEnum = (typeof AnomalyScalarFieldEnum)[keyof typeof AnomalyScalarFieldEnum]
+
+
+  export const AlertScalarFieldEnum: {
+    id: 'id',
+    anomalyId: 'anomalyId',
+    status: 'status',
+    acknowledgedAt: 'acknowledgedAt',
+    resolvedAt: 'resolvedAt',
+    resolvedBy: 'resolvedBy',
+    notes: 'notes',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AlertScalarFieldEnum = (typeof AlertScalarFieldEnum)[keyof typeof AlertScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -47181,6 +49490,14 @@ export namespace Prisma {
   };
 
   export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
   export const QueryMode: {
@@ -47350,6 +49667,48 @@ export namespace Prisma {
    * Reference to a field of type 'DisbursementStatus[]'
    */
   export type ListEnumDisbursementStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DisbursementStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AnomalyType'
+   */
+  export type EnumAnomalyTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AnomalyType'>
+    
+
+
+  /**
+   * Reference to a field of type 'AnomalyType[]'
+   */
+  export type ListEnumAnomalyTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AnomalyType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AnomalySeverity'
+   */
+  export type EnumAnomalySeverityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AnomalySeverity'>
+    
+
+
+  /**
+   * Reference to a field of type 'AnomalySeverity[]'
+   */
+  export type ListEnumAnomalySeverityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AnomalySeverity[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'AlertStatus'
+   */
+  export type EnumAlertStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AlertStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'AlertStatus[]'
+   */
+  export type ListEnumAlertStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AlertStatus[]'>
     
   /**
    * Deep Input Types
@@ -50728,6 +53087,168 @@ export namespace Prisma {
     error?: StringNullableWithAggregatesFilter<"AdminAuditLog"> | string | null
     changesSummary?: StringNullableWithAggregatesFilter<"AdminAuditLog"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"AdminAuditLog"> | Date | string
+  }
+
+  export type AnomalyWhereInput = {
+    AND?: AnomalyWhereInput | AnomalyWhereInput[]
+    OR?: AnomalyWhereInput[]
+    NOT?: AnomalyWhereInput | AnomalyWhereInput[]
+    id?: StringFilter<"Anomaly"> | string
+    type?: EnumAnomalyTypeFilter<"Anomaly"> | $Enums.AnomalyType
+    severity?: EnumAnomalySeverityFilter<"Anomaly"> | $Enums.AnomalySeverity
+    description?: StringFilter<"Anomaly"> | string
+    confidence?: FloatFilter<"Anomaly"> | number
+    metadata?: JsonNullableFilter<"Anomaly">
+    detectedAt?: DateTimeFilter<"Anomaly"> | Date | string
+    streamId?: StringNullableFilter<"Anomaly"> | string | null
+    disbursementId?: StringNullableFilter<"Anomaly"> | string | null
+    senderAddress?: StringNullableFilter<"Anomaly"> | string | null
+    receiverAddress?: StringNullableFilter<"Anomaly"> | string | null
+    alerts?: AlertListRelationFilter
+  }
+
+  export type AnomalyOrderByWithRelationInput = {
+    id?: SortOrder
+    type?: SortOrder
+    severity?: SortOrder
+    description?: SortOrder
+    confidence?: SortOrder
+    metadata?: SortOrderInput | SortOrder
+    detectedAt?: SortOrder
+    streamId?: SortOrderInput | SortOrder
+    disbursementId?: SortOrderInput | SortOrder
+    senderAddress?: SortOrderInput | SortOrder
+    receiverAddress?: SortOrderInput | SortOrder
+    alerts?: AlertOrderByRelationAggregateInput
+  }
+
+  export type AnomalyWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AnomalyWhereInput | AnomalyWhereInput[]
+    OR?: AnomalyWhereInput[]
+    NOT?: AnomalyWhereInput | AnomalyWhereInput[]
+    type?: EnumAnomalyTypeFilter<"Anomaly"> | $Enums.AnomalyType
+    severity?: EnumAnomalySeverityFilter<"Anomaly"> | $Enums.AnomalySeverity
+    description?: StringFilter<"Anomaly"> | string
+    confidence?: FloatFilter<"Anomaly"> | number
+    metadata?: JsonNullableFilter<"Anomaly">
+    detectedAt?: DateTimeFilter<"Anomaly"> | Date | string
+    streamId?: StringNullableFilter<"Anomaly"> | string | null
+    disbursementId?: StringNullableFilter<"Anomaly"> | string | null
+    senderAddress?: StringNullableFilter<"Anomaly"> | string | null
+    receiverAddress?: StringNullableFilter<"Anomaly"> | string | null
+    alerts?: AlertListRelationFilter
+  }, "id">
+
+  export type AnomalyOrderByWithAggregationInput = {
+    id?: SortOrder
+    type?: SortOrder
+    severity?: SortOrder
+    description?: SortOrder
+    confidence?: SortOrder
+    metadata?: SortOrderInput | SortOrder
+    detectedAt?: SortOrder
+    streamId?: SortOrderInput | SortOrder
+    disbursementId?: SortOrderInput | SortOrder
+    senderAddress?: SortOrderInput | SortOrder
+    receiverAddress?: SortOrderInput | SortOrder
+    _count?: AnomalyCountOrderByAggregateInput
+    _avg?: AnomalyAvgOrderByAggregateInput
+    _max?: AnomalyMaxOrderByAggregateInput
+    _min?: AnomalyMinOrderByAggregateInput
+    _sum?: AnomalySumOrderByAggregateInput
+  }
+
+  export type AnomalyScalarWhereWithAggregatesInput = {
+    AND?: AnomalyScalarWhereWithAggregatesInput | AnomalyScalarWhereWithAggregatesInput[]
+    OR?: AnomalyScalarWhereWithAggregatesInput[]
+    NOT?: AnomalyScalarWhereWithAggregatesInput | AnomalyScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Anomaly"> | string
+    type?: EnumAnomalyTypeWithAggregatesFilter<"Anomaly"> | $Enums.AnomalyType
+    severity?: EnumAnomalySeverityWithAggregatesFilter<"Anomaly"> | $Enums.AnomalySeverity
+    description?: StringWithAggregatesFilter<"Anomaly"> | string
+    confidence?: FloatWithAggregatesFilter<"Anomaly"> | number
+    metadata?: JsonNullableWithAggregatesFilter<"Anomaly">
+    detectedAt?: DateTimeWithAggregatesFilter<"Anomaly"> | Date | string
+    streamId?: StringNullableWithAggregatesFilter<"Anomaly"> | string | null
+    disbursementId?: StringNullableWithAggregatesFilter<"Anomaly"> | string | null
+    senderAddress?: StringNullableWithAggregatesFilter<"Anomaly"> | string | null
+    receiverAddress?: StringNullableWithAggregatesFilter<"Anomaly"> | string | null
+  }
+
+  export type AlertWhereInput = {
+    AND?: AlertWhereInput | AlertWhereInput[]
+    OR?: AlertWhereInput[]
+    NOT?: AlertWhereInput | AlertWhereInput[]
+    id?: StringFilter<"Alert"> | string
+    anomalyId?: StringFilter<"Alert"> | string
+    status?: EnumAlertStatusFilter<"Alert"> | $Enums.AlertStatus
+    acknowledgedAt?: DateTimeNullableFilter<"Alert"> | Date | string | null
+    resolvedAt?: DateTimeNullableFilter<"Alert"> | Date | string | null
+    resolvedBy?: StringNullableFilter<"Alert"> | string | null
+    notes?: StringNullableFilter<"Alert"> | string | null
+    createdAt?: DateTimeFilter<"Alert"> | Date | string
+    updatedAt?: DateTimeFilter<"Alert"> | Date | string
+    anomaly?: XOR<AnomalyRelationFilter, AnomalyWhereInput>
+  }
+
+  export type AlertOrderByWithRelationInput = {
+    id?: SortOrder
+    anomalyId?: SortOrder
+    status?: SortOrder
+    acknowledgedAt?: SortOrderInput | SortOrder
+    resolvedAt?: SortOrderInput | SortOrder
+    resolvedBy?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    anomaly?: AnomalyOrderByWithRelationInput
+  }
+
+  export type AlertWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AlertWhereInput | AlertWhereInput[]
+    OR?: AlertWhereInput[]
+    NOT?: AlertWhereInput | AlertWhereInput[]
+    anomalyId?: StringFilter<"Alert"> | string
+    status?: EnumAlertStatusFilter<"Alert"> | $Enums.AlertStatus
+    acknowledgedAt?: DateTimeNullableFilter<"Alert"> | Date | string | null
+    resolvedAt?: DateTimeNullableFilter<"Alert"> | Date | string | null
+    resolvedBy?: StringNullableFilter<"Alert"> | string | null
+    notes?: StringNullableFilter<"Alert"> | string | null
+    createdAt?: DateTimeFilter<"Alert"> | Date | string
+    updatedAt?: DateTimeFilter<"Alert"> | Date | string
+    anomaly?: XOR<AnomalyRelationFilter, AnomalyWhereInput>
+  }, "id">
+
+  export type AlertOrderByWithAggregationInput = {
+    id?: SortOrder
+    anomalyId?: SortOrder
+    status?: SortOrder
+    acknowledgedAt?: SortOrderInput | SortOrder
+    resolvedAt?: SortOrderInput | SortOrder
+    resolvedBy?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AlertCountOrderByAggregateInput
+    _max?: AlertMaxOrderByAggregateInput
+    _min?: AlertMinOrderByAggregateInput
+  }
+
+  export type AlertScalarWhereWithAggregatesInput = {
+    AND?: AlertScalarWhereWithAggregatesInput | AlertScalarWhereWithAggregatesInput[]
+    OR?: AlertScalarWhereWithAggregatesInput[]
+    NOT?: AlertScalarWhereWithAggregatesInput | AlertScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Alert"> | string
+    anomalyId?: StringWithAggregatesFilter<"Alert"> | string
+    status?: EnumAlertStatusWithAggregatesFilter<"Alert"> | $Enums.AlertStatus
+    acknowledgedAt?: DateTimeNullableWithAggregatesFilter<"Alert"> | Date | string | null
+    resolvedAt?: DateTimeNullableWithAggregatesFilter<"Alert"> | Date | string | null
+    resolvedBy?: StringNullableWithAggregatesFilter<"Alert"> | string | null
+    notes?: StringNullableWithAggregatesFilter<"Alert"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Alert"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Alert"> | Date | string
   }
 
   export type PaymentCategoryCreateInput = {
@@ -54606,6 +57127,191 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AnomalyCreateInput = {
+    id?: string
+    type: $Enums.AnomalyType
+    severity: $Enums.AnomalySeverity
+    description: string
+    confidence: number
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    detectedAt?: Date | string
+    streamId?: string | null
+    disbursementId?: string | null
+    senderAddress?: string | null
+    receiverAddress?: string | null
+    alerts?: AlertCreateNestedManyWithoutAnomalyInput
+  }
+
+  export type AnomalyUncheckedCreateInput = {
+    id?: string
+    type: $Enums.AnomalyType
+    severity: $Enums.AnomalySeverity
+    description: string
+    confidence: number
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    detectedAt?: Date | string
+    streamId?: string | null
+    disbursementId?: string | null
+    senderAddress?: string | null
+    receiverAddress?: string | null
+    alerts?: AlertUncheckedCreateNestedManyWithoutAnomalyInput
+  }
+
+  export type AnomalyUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumAnomalyTypeFieldUpdateOperationsInput | $Enums.AnomalyType
+    severity?: EnumAnomalySeverityFieldUpdateOperationsInput | $Enums.AnomalySeverity
+    description?: StringFieldUpdateOperationsInput | string
+    confidence?: FloatFieldUpdateOperationsInput | number
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    streamId?: NullableStringFieldUpdateOperationsInput | string | null
+    disbursementId?: NullableStringFieldUpdateOperationsInput | string | null
+    senderAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    alerts?: AlertUpdateManyWithoutAnomalyNestedInput
+  }
+
+  export type AnomalyUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumAnomalyTypeFieldUpdateOperationsInput | $Enums.AnomalyType
+    severity?: EnumAnomalySeverityFieldUpdateOperationsInput | $Enums.AnomalySeverity
+    description?: StringFieldUpdateOperationsInput | string
+    confidence?: FloatFieldUpdateOperationsInput | number
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    streamId?: NullableStringFieldUpdateOperationsInput | string | null
+    disbursementId?: NullableStringFieldUpdateOperationsInput | string | null
+    senderAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    alerts?: AlertUncheckedUpdateManyWithoutAnomalyNestedInput
+  }
+
+  export type AnomalyCreateManyInput = {
+    id?: string
+    type: $Enums.AnomalyType
+    severity: $Enums.AnomalySeverity
+    description: string
+    confidence: number
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    detectedAt?: Date | string
+    streamId?: string | null
+    disbursementId?: string | null
+    senderAddress?: string | null
+    receiverAddress?: string | null
+  }
+
+  export type AnomalyUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumAnomalyTypeFieldUpdateOperationsInput | $Enums.AnomalyType
+    severity?: EnumAnomalySeverityFieldUpdateOperationsInput | $Enums.AnomalySeverity
+    description?: StringFieldUpdateOperationsInput | string
+    confidence?: FloatFieldUpdateOperationsInput | number
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    streamId?: NullableStringFieldUpdateOperationsInput | string | null
+    disbursementId?: NullableStringFieldUpdateOperationsInput | string | null
+    senderAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverAddress?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AnomalyUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumAnomalyTypeFieldUpdateOperationsInput | $Enums.AnomalyType
+    severity?: EnumAnomalySeverityFieldUpdateOperationsInput | $Enums.AnomalySeverity
+    description?: StringFieldUpdateOperationsInput | string
+    confidence?: FloatFieldUpdateOperationsInput | number
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    streamId?: NullableStringFieldUpdateOperationsInput | string | null
+    disbursementId?: NullableStringFieldUpdateOperationsInput | string | null
+    senderAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverAddress?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AlertCreateInput = {
+    id?: string
+    status?: $Enums.AlertStatus
+    acknowledgedAt?: Date | string | null
+    resolvedAt?: Date | string | null
+    resolvedBy?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    anomaly: AnomalyCreateNestedOneWithoutAlertsInput
+  }
+
+  export type AlertUncheckedCreateInput = {
+    id?: string
+    anomalyId: string
+    status?: $Enums.AlertStatus
+    acknowledgedAt?: Date | string | null
+    resolvedAt?: Date | string | null
+    resolvedBy?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AlertUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumAlertStatusFieldUpdateOperationsInput | $Enums.AlertStatus
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    anomaly?: AnomalyUpdateOneRequiredWithoutAlertsNestedInput
+  }
+
+  export type AlertUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    anomalyId?: StringFieldUpdateOperationsInput | string
+    status?: EnumAlertStatusFieldUpdateOperationsInput | $Enums.AlertStatus
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlertCreateManyInput = {
+    id?: string
+    anomalyId: string
+    status?: $Enums.AlertStatus
+    acknowledgedAt?: Date | string | null
+    resolvedAt?: Date | string | null
+    resolvedBy?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AlertUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumAlertStatusFieldUpdateOperationsInput | $Enums.AlertStatus
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlertUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    anomalyId?: StringFieldUpdateOperationsInput | string
+    status?: EnumAlertStatusFieldUpdateOperationsInput | $Enums.AlertStatus
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -57070,6 +59776,203 @@ export namespace Prisma {
     executionTimeMs?: SortOrder
   }
 
+  export type EnumAnomalyTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.AnomalyType | EnumAnomalyTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.AnomalyType[] | ListEnumAnomalyTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AnomalyType[] | ListEnumAnomalyTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumAnomalyTypeFilter<$PrismaModel> | $Enums.AnomalyType
+  }
+
+  export type EnumAnomalySeverityFilter<$PrismaModel = never> = {
+    equals?: $Enums.AnomalySeverity | EnumAnomalySeverityFieldRefInput<$PrismaModel>
+    in?: $Enums.AnomalySeverity[] | ListEnumAnomalySeverityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AnomalySeverity[] | ListEnumAnomalySeverityFieldRefInput<$PrismaModel>
+    not?: NestedEnumAnomalySeverityFilter<$PrismaModel> | $Enums.AnomalySeverity
+  }
+  export type JsonNullableFilter<$PrismaModel = never> = 
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type AlertListRelationFilter = {
+    every?: AlertWhereInput
+    some?: AlertWhereInput
+    none?: AlertWhereInput
+  }
+
+  export type AlertOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AnomalyCountOrderByAggregateInput = {
+    id?: SortOrder
+    type?: SortOrder
+    severity?: SortOrder
+    description?: SortOrder
+    confidence?: SortOrder
+    metadata?: SortOrder
+    detectedAt?: SortOrder
+    streamId?: SortOrder
+    disbursementId?: SortOrder
+    senderAddress?: SortOrder
+    receiverAddress?: SortOrder
+  }
+
+  export type AnomalyAvgOrderByAggregateInput = {
+    confidence?: SortOrder
+  }
+
+  export type AnomalyMaxOrderByAggregateInput = {
+    id?: SortOrder
+    type?: SortOrder
+    severity?: SortOrder
+    description?: SortOrder
+    confidence?: SortOrder
+    detectedAt?: SortOrder
+    streamId?: SortOrder
+    disbursementId?: SortOrder
+    senderAddress?: SortOrder
+    receiverAddress?: SortOrder
+  }
+
+  export type AnomalyMinOrderByAggregateInput = {
+    id?: SortOrder
+    type?: SortOrder
+    severity?: SortOrder
+    description?: SortOrder
+    confidence?: SortOrder
+    detectedAt?: SortOrder
+    streamId?: SortOrder
+    disbursementId?: SortOrder
+    senderAddress?: SortOrder
+    receiverAddress?: SortOrder
+  }
+
+  export type AnomalySumOrderByAggregateInput = {
+    confidence?: SortOrder
+  }
+
+  export type EnumAnomalyTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AnomalyType | EnumAnomalyTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.AnomalyType[] | ListEnumAnomalyTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AnomalyType[] | ListEnumAnomalyTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumAnomalyTypeWithAggregatesFilter<$PrismaModel> | $Enums.AnomalyType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAnomalyTypeFilter<$PrismaModel>
+    _max?: NestedEnumAnomalyTypeFilter<$PrismaModel>
+  }
+
+  export type EnumAnomalySeverityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AnomalySeverity | EnumAnomalySeverityFieldRefInput<$PrismaModel>
+    in?: $Enums.AnomalySeverity[] | ListEnumAnomalySeverityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AnomalySeverity[] | ListEnumAnomalySeverityFieldRefInput<$PrismaModel>
+    not?: NestedEnumAnomalySeverityWithAggregatesFilter<$PrismaModel> | $Enums.AnomalySeverity
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAnomalySeverityFilter<$PrismaModel>
+    _max?: NestedEnumAnomalySeverityFilter<$PrismaModel>
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> = 
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type EnumAlertStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AlertStatus | EnumAlertStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AlertStatus[] | ListEnumAlertStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AlertStatus[] | ListEnumAlertStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAlertStatusFilter<$PrismaModel> | $Enums.AlertStatus
+  }
+
+  export type AnomalyRelationFilter = {
+    is?: AnomalyWhereInput
+    isNot?: AnomalyWhereInput
+  }
+
+  export type AlertCountOrderByAggregateInput = {
+    id?: SortOrder
+    anomalyId?: SortOrder
+    status?: SortOrder
+    acknowledgedAt?: SortOrder
+    resolvedAt?: SortOrder
+    resolvedBy?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AlertMaxOrderByAggregateInput = {
+    id?: SortOrder
+    anomalyId?: SortOrder
+    status?: SortOrder
+    acknowledgedAt?: SortOrder
+    resolvedAt?: SortOrder
+    resolvedBy?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AlertMinOrderByAggregateInput = {
+    id?: SortOrder
+    anomalyId?: SortOrder
+    status?: SortOrder
+    acknowledgedAt?: SortOrder
+    resolvedAt?: SortOrder
+    resolvedBy?: SortOrder
+    notes?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumAlertStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AlertStatus | EnumAlertStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AlertStatus[] | ListEnumAlertStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AlertStatus[] | ListEnumAlertStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAlertStatusWithAggregatesFilter<$PrismaModel> | $Enums.AlertStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAlertStatusFilter<$PrismaModel>
+    _max?: NestedEnumAlertStatusFilter<$PrismaModel>
+  }
+
   export type PaymentCategoryRuleCreateNestedManyWithoutCategoryInput = {
     create?: XOR<PaymentCategoryRuleCreateWithoutCategoryInput, PaymentCategoryRuleUncheckedCreateWithoutCategoryInput> | PaymentCategoryRuleCreateWithoutCategoryInput[] | PaymentCategoryRuleUncheckedCreateWithoutCategoryInput[]
     connectOrCreate?: PaymentCategoryRuleCreateOrConnectWithoutCategoryInput | PaymentCategoryRuleCreateOrConnectWithoutCategoryInput[]
@@ -57389,6 +60292,74 @@ export namespace Prisma {
     upsert?: DisbursementDraftUpsertWithoutVersionsInput
     connect?: DisbursementDraftWhereUniqueInput
     update?: XOR<XOR<DisbursementDraftUpdateToOneWithWhereWithoutVersionsInput, DisbursementDraftUpdateWithoutVersionsInput>, DisbursementDraftUncheckedUpdateWithoutVersionsInput>
+  }
+
+  export type AlertCreateNestedManyWithoutAnomalyInput = {
+    create?: XOR<AlertCreateWithoutAnomalyInput, AlertUncheckedCreateWithoutAnomalyInput> | AlertCreateWithoutAnomalyInput[] | AlertUncheckedCreateWithoutAnomalyInput[]
+    connectOrCreate?: AlertCreateOrConnectWithoutAnomalyInput | AlertCreateOrConnectWithoutAnomalyInput[]
+    createMany?: AlertCreateManyAnomalyInputEnvelope
+    connect?: AlertWhereUniqueInput | AlertWhereUniqueInput[]
+  }
+
+  export type AlertUncheckedCreateNestedManyWithoutAnomalyInput = {
+    create?: XOR<AlertCreateWithoutAnomalyInput, AlertUncheckedCreateWithoutAnomalyInput> | AlertCreateWithoutAnomalyInput[] | AlertUncheckedCreateWithoutAnomalyInput[]
+    connectOrCreate?: AlertCreateOrConnectWithoutAnomalyInput | AlertCreateOrConnectWithoutAnomalyInput[]
+    createMany?: AlertCreateManyAnomalyInputEnvelope
+    connect?: AlertWhereUniqueInput | AlertWhereUniqueInput[]
+  }
+
+  export type EnumAnomalyTypeFieldUpdateOperationsInput = {
+    set?: $Enums.AnomalyType
+  }
+
+  export type EnumAnomalySeverityFieldUpdateOperationsInput = {
+    set?: $Enums.AnomalySeverity
+  }
+
+  export type AlertUpdateManyWithoutAnomalyNestedInput = {
+    create?: XOR<AlertCreateWithoutAnomalyInput, AlertUncheckedCreateWithoutAnomalyInput> | AlertCreateWithoutAnomalyInput[] | AlertUncheckedCreateWithoutAnomalyInput[]
+    connectOrCreate?: AlertCreateOrConnectWithoutAnomalyInput | AlertCreateOrConnectWithoutAnomalyInput[]
+    upsert?: AlertUpsertWithWhereUniqueWithoutAnomalyInput | AlertUpsertWithWhereUniqueWithoutAnomalyInput[]
+    createMany?: AlertCreateManyAnomalyInputEnvelope
+    set?: AlertWhereUniqueInput | AlertWhereUniqueInput[]
+    disconnect?: AlertWhereUniqueInput | AlertWhereUniqueInput[]
+    delete?: AlertWhereUniqueInput | AlertWhereUniqueInput[]
+    connect?: AlertWhereUniqueInput | AlertWhereUniqueInput[]
+    update?: AlertUpdateWithWhereUniqueWithoutAnomalyInput | AlertUpdateWithWhereUniqueWithoutAnomalyInput[]
+    updateMany?: AlertUpdateManyWithWhereWithoutAnomalyInput | AlertUpdateManyWithWhereWithoutAnomalyInput[]
+    deleteMany?: AlertScalarWhereInput | AlertScalarWhereInput[]
+  }
+
+  export type AlertUncheckedUpdateManyWithoutAnomalyNestedInput = {
+    create?: XOR<AlertCreateWithoutAnomalyInput, AlertUncheckedCreateWithoutAnomalyInput> | AlertCreateWithoutAnomalyInput[] | AlertUncheckedCreateWithoutAnomalyInput[]
+    connectOrCreate?: AlertCreateOrConnectWithoutAnomalyInput | AlertCreateOrConnectWithoutAnomalyInput[]
+    upsert?: AlertUpsertWithWhereUniqueWithoutAnomalyInput | AlertUpsertWithWhereUniqueWithoutAnomalyInput[]
+    createMany?: AlertCreateManyAnomalyInputEnvelope
+    set?: AlertWhereUniqueInput | AlertWhereUniqueInput[]
+    disconnect?: AlertWhereUniqueInput | AlertWhereUniqueInput[]
+    delete?: AlertWhereUniqueInput | AlertWhereUniqueInput[]
+    connect?: AlertWhereUniqueInput | AlertWhereUniqueInput[]
+    update?: AlertUpdateWithWhereUniqueWithoutAnomalyInput | AlertUpdateWithWhereUniqueWithoutAnomalyInput[]
+    updateMany?: AlertUpdateManyWithWhereWithoutAnomalyInput | AlertUpdateManyWithWhereWithoutAnomalyInput[]
+    deleteMany?: AlertScalarWhereInput | AlertScalarWhereInput[]
+  }
+
+  export type AnomalyCreateNestedOneWithoutAlertsInput = {
+    create?: XOR<AnomalyCreateWithoutAlertsInput, AnomalyUncheckedCreateWithoutAlertsInput>
+    connectOrCreate?: AnomalyCreateOrConnectWithoutAlertsInput
+    connect?: AnomalyWhereUniqueInput
+  }
+
+  export type EnumAlertStatusFieldUpdateOperationsInput = {
+    set?: $Enums.AlertStatus
+  }
+
+  export type AnomalyUpdateOneRequiredWithoutAlertsNestedInput = {
+    create?: XOR<AnomalyCreateWithoutAlertsInput, AnomalyUncheckedCreateWithoutAlertsInput>
+    connectOrCreate?: AnomalyCreateOrConnectWithoutAlertsInput
+    upsert?: AnomalyUpsertWithoutAlertsInput
+    connect?: AnomalyWhereUniqueInput
+    update?: XOR<XOR<AnomalyUpdateToOneWithWhereWithoutAlertsInput, AnomalyUpdateWithoutAlertsInput>, AnomalyUncheckedUpdateWithoutAlertsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -57766,6 +60737,79 @@ export namespace Prisma {
     _sum?: NestedFloatNullableFilter<$PrismaModel>
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAnomalyTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.AnomalyType | EnumAnomalyTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.AnomalyType[] | ListEnumAnomalyTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AnomalyType[] | ListEnumAnomalyTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumAnomalyTypeFilter<$PrismaModel> | $Enums.AnomalyType
+  }
+
+  export type NestedEnumAnomalySeverityFilter<$PrismaModel = never> = {
+    equals?: $Enums.AnomalySeverity | EnumAnomalySeverityFieldRefInput<$PrismaModel>
+    in?: $Enums.AnomalySeverity[] | ListEnumAnomalySeverityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AnomalySeverity[] | ListEnumAnomalySeverityFieldRefInput<$PrismaModel>
+    not?: NestedEnumAnomalySeverityFilter<$PrismaModel> | $Enums.AnomalySeverity
+  }
+
+  export type NestedEnumAnomalyTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AnomalyType | EnumAnomalyTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.AnomalyType[] | ListEnumAnomalyTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AnomalyType[] | ListEnumAnomalyTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumAnomalyTypeWithAggregatesFilter<$PrismaModel> | $Enums.AnomalyType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAnomalyTypeFilter<$PrismaModel>
+    _max?: NestedEnumAnomalyTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAnomalySeverityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AnomalySeverity | EnumAnomalySeverityFieldRefInput<$PrismaModel>
+    in?: $Enums.AnomalySeverity[] | ListEnumAnomalySeverityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AnomalySeverity[] | ListEnumAnomalySeverityFieldRefInput<$PrismaModel>
+    not?: NestedEnumAnomalySeverityWithAggregatesFilter<$PrismaModel> | $Enums.AnomalySeverity
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAnomalySeverityFilter<$PrismaModel>
+    _max?: NestedEnumAnomalySeverityFilter<$PrismaModel>
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> = 
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedEnumAlertStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AlertStatus | EnumAlertStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AlertStatus[] | ListEnumAlertStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AlertStatus[] | ListEnumAlertStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAlertStatusFilter<$PrismaModel> | $Enums.AlertStatus
+  }
+
+  export type NestedEnumAlertStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AlertStatus | EnumAlertStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AlertStatus[] | ListEnumAlertStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AlertStatus[] | ListEnumAlertStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAlertStatusWithAggregatesFilter<$PrismaModel> | $Enums.AlertStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAlertStatusFilter<$PrismaModel>
+    _max?: NestedEnumAlertStatusFilter<$PrismaModel>
   }
 
   export type PaymentCategoryRuleCreateWithoutCategoryInput = {
@@ -58347,6 +61391,141 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AlertCreateWithoutAnomalyInput = {
+    id?: string
+    status?: $Enums.AlertStatus
+    acknowledgedAt?: Date | string | null
+    resolvedAt?: Date | string | null
+    resolvedBy?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AlertUncheckedCreateWithoutAnomalyInput = {
+    id?: string
+    status?: $Enums.AlertStatus
+    acknowledgedAt?: Date | string | null
+    resolvedAt?: Date | string | null
+    resolvedBy?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AlertCreateOrConnectWithoutAnomalyInput = {
+    where: AlertWhereUniqueInput
+    create: XOR<AlertCreateWithoutAnomalyInput, AlertUncheckedCreateWithoutAnomalyInput>
+  }
+
+  export type AlertCreateManyAnomalyInputEnvelope = {
+    data: AlertCreateManyAnomalyInput | AlertCreateManyAnomalyInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AlertUpsertWithWhereUniqueWithoutAnomalyInput = {
+    where: AlertWhereUniqueInput
+    update: XOR<AlertUpdateWithoutAnomalyInput, AlertUncheckedUpdateWithoutAnomalyInput>
+    create: XOR<AlertCreateWithoutAnomalyInput, AlertUncheckedCreateWithoutAnomalyInput>
+  }
+
+  export type AlertUpdateWithWhereUniqueWithoutAnomalyInput = {
+    where: AlertWhereUniqueInput
+    data: XOR<AlertUpdateWithoutAnomalyInput, AlertUncheckedUpdateWithoutAnomalyInput>
+  }
+
+  export type AlertUpdateManyWithWhereWithoutAnomalyInput = {
+    where: AlertScalarWhereInput
+    data: XOR<AlertUpdateManyMutationInput, AlertUncheckedUpdateManyWithoutAnomalyInput>
+  }
+
+  export type AlertScalarWhereInput = {
+    AND?: AlertScalarWhereInput | AlertScalarWhereInput[]
+    OR?: AlertScalarWhereInput[]
+    NOT?: AlertScalarWhereInput | AlertScalarWhereInput[]
+    id?: StringFilter<"Alert"> | string
+    anomalyId?: StringFilter<"Alert"> | string
+    status?: EnumAlertStatusFilter<"Alert"> | $Enums.AlertStatus
+    acknowledgedAt?: DateTimeNullableFilter<"Alert"> | Date | string | null
+    resolvedAt?: DateTimeNullableFilter<"Alert"> | Date | string | null
+    resolvedBy?: StringNullableFilter<"Alert"> | string | null
+    notes?: StringNullableFilter<"Alert"> | string | null
+    createdAt?: DateTimeFilter<"Alert"> | Date | string
+    updatedAt?: DateTimeFilter<"Alert"> | Date | string
+  }
+
+  export type AnomalyCreateWithoutAlertsInput = {
+    id?: string
+    type: $Enums.AnomalyType
+    severity: $Enums.AnomalySeverity
+    description: string
+    confidence: number
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    detectedAt?: Date | string
+    streamId?: string | null
+    disbursementId?: string | null
+    senderAddress?: string | null
+    receiverAddress?: string | null
+  }
+
+  export type AnomalyUncheckedCreateWithoutAlertsInput = {
+    id?: string
+    type: $Enums.AnomalyType
+    severity: $Enums.AnomalySeverity
+    description: string
+    confidence: number
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    detectedAt?: Date | string
+    streamId?: string | null
+    disbursementId?: string | null
+    senderAddress?: string | null
+    receiverAddress?: string | null
+  }
+
+  export type AnomalyCreateOrConnectWithoutAlertsInput = {
+    where: AnomalyWhereUniqueInput
+    create: XOR<AnomalyCreateWithoutAlertsInput, AnomalyUncheckedCreateWithoutAlertsInput>
+  }
+
+  export type AnomalyUpsertWithoutAlertsInput = {
+    update: XOR<AnomalyUpdateWithoutAlertsInput, AnomalyUncheckedUpdateWithoutAlertsInput>
+    create: XOR<AnomalyCreateWithoutAlertsInput, AnomalyUncheckedCreateWithoutAlertsInput>
+    where?: AnomalyWhereInput
+  }
+
+  export type AnomalyUpdateToOneWithWhereWithoutAlertsInput = {
+    where?: AnomalyWhereInput
+    data: XOR<AnomalyUpdateWithoutAlertsInput, AnomalyUncheckedUpdateWithoutAlertsInput>
+  }
+
+  export type AnomalyUpdateWithoutAlertsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumAnomalyTypeFieldUpdateOperationsInput | $Enums.AnomalyType
+    severity?: EnumAnomalySeverityFieldUpdateOperationsInput | $Enums.AnomalySeverity
+    description?: StringFieldUpdateOperationsInput | string
+    confidence?: FloatFieldUpdateOperationsInput | number
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    streamId?: NullableStringFieldUpdateOperationsInput | string | null
+    disbursementId?: NullableStringFieldUpdateOperationsInput | string | null
+    senderAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverAddress?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AnomalyUncheckedUpdateWithoutAlertsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumAnomalyTypeFieldUpdateOperationsInput | $Enums.AnomalyType
+    severity?: EnumAnomalySeverityFieldUpdateOperationsInput | $Enums.AnomalySeverity
+    description?: StringFieldUpdateOperationsInput | string
+    confidence?: FloatFieldUpdateOperationsInput | number
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    detectedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    streamId?: NullableStringFieldUpdateOperationsInput | string | null
+    disbursementId?: NullableStringFieldUpdateOperationsInput | string | null
+    senderAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    receiverAddress?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type PaymentCategoryRuleCreateManyCategoryInput = {
     id?: string
     field: string
@@ -58591,6 +61770,50 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AlertCreateManyAnomalyInput = {
+    id?: string
+    status?: $Enums.AlertStatus
+    acknowledgedAt?: Date | string | null
+    resolvedAt?: Date | string | null
+    resolvedBy?: string | null
+    notes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AlertUpdateWithoutAnomalyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumAlertStatusFieldUpdateOperationsInput | $Enums.AlertStatus
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlertUncheckedUpdateWithoutAnomalyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumAlertStatusFieldUpdateOperationsInput | $Enums.AlertStatus
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlertUncheckedUpdateManyWithoutAnomalyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumAlertStatusFieldUpdateOperationsInput | $Enums.AlertStatus
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
 
 
   /**
@@ -58604,6 +61827,10 @@ export namespace Prisma {
      * @deprecated Use DisbursementDraftCountOutputTypeDefaultArgs instead
      */
     export type DisbursementDraftCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = DisbursementDraftCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use AnomalyCountOutputTypeDefaultArgs instead
+     */
+    export type AnomalyCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AnomalyCountOutputTypeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use PaymentCategoryDefaultArgs instead
      */
@@ -58776,6 +62003,14 @@ export namespace Prisma {
      * @deprecated Use AdminAuditLogDefaultArgs instead
      */
     export type AdminAuditLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AdminAuditLogDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use AnomalyDefaultArgs instead
+     */
+    export type AnomalyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AnomalyDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use AlertDefaultArgs instead
+     */
+    export type AlertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AlertDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany
