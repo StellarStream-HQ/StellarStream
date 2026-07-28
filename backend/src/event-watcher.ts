@@ -65,7 +65,7 @@ async function startHealthServer(): Promise<void> {
   app.use(express.json());
 
   // Health check endpoint
-  app.get("/health", async (req, res) => {
+  app.get("/health", async (_req: Request, res: Response) => {
     try {
       const health = await eventWatcher.getHealthStatus();
       const httpStatus = health.status === "healthy" ? 200 : 503;
@@ -86,7 +86,7 @@ async function startHealthServer(): Promise<void> {
   });
 
   // Metrics endpoint for monitoring
-  app.get("/metrics", async (req, res) => {
+  app.get("/metrics", async (_req: Request, res: Response) => {
     try {
       const health = await eventWatcher.getHealthStatus();
       

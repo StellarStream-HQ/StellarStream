@@ -54,19 +54,19 @@ router.post('/split-links', async (req: Request<{}, {}, CreateSplitLinkRequest>,
     // Check if URL already shortened
     const payloadHash = generatePayloadHash(fullUrl);
     const existing = await prisma.splitLink.findUnique({
-      where: { payload_hash: payloadHash },
+      where: { payloadHash: payloadHash },
     });
 
     if (existing) {
       const response: SplitLinkResponse = {
         id: existing.id,
         slug: existing.slug,
-        fullUrl: existing.full_url,
+        fullUrl: existing.fullUrl,
         shortUrl: `${process.env.FRONTEND_URL || 'https://stellarstream.app'}/s/${existing.slug}`,
-        creatorAddress: existing.creator_address,
-        clickCount: existing.click_count,
-        createdAt: existing.created_at.toISOString(),
-        expiresAt: existing.expires_at?.toISOString(),
+        creatorAddress: existing.creatorAddress,
+        clickCount: existing.clickCount,
+        createdAt: existing.createdAt.toISOString(),
+        expiresAt: existing.expiresAt?.toISOString(),
       };
       return res.status(200).json(response);
     }
@@ -98,22 +98,22 @@ router.post('/split-links', async (req: Request<{}, {}, CreateSplitLinkRequest>,
     const link = await prisma.splitLink.create({
       data: {
         slug,
-        full_url: fullUrl,
-        payload_hash: payloadHash,
-        creator_address: creatorAddress,
-        expires_at: expiresAt ? new Date(expiresAt) : null,
+        fullUrl: fullUrl,
+        payloadHash: payloadHash,
+        creatorAddress: creatorAddress,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
       },
     });
 
     const response: SplitLinkResponse = {
       id: link.id,
       slug: link.slug,
-      fullUrl: link.full_url,
+      fullUrl: link.fullUrl,
       shortUrl: `${process.env.FRONTEND_URL || 'https://stellarstream.app'}/s/${link.slug}`,
-      creatorAddress: link.creator_address,
-      clickCount: link.click_count,
-      createdAt: link.created_at.toISOString(),
-      expiresAt: link.expires_at?.toISOString(),
+      creatorAddress: link.creatorAddress,
+      clickCount: link.clickCount,
+      createdAt: link.createdAt.toISOString(),
+      expiresAt: link.expiresAt?.toISOString(),
     };
 
     return res.status(201).json(response);
@@ -137,7 +137,7 @@ router.get('/s/:slug', async (req: Request<{ slug: string }>, res: Response) => 
     }
 
     // Check expiration
-    if (link.expires_at && link.expires_at < new Date()) {
+    if (link.expiresAt && link.expiresAt < new Date()) {
       return res.status(410).json({ error: 'Link has expired' });
     }
 
@@ -145,13 +145,13 @@ router.get('/s/:slug', async (req: Request<{ slug: string }>, res: Response) => 
     await prisma.splitLink.update({
       where: { id: link.id },
       data: {
-        click_count: link.click_count + 1,
-        last_clicked_at: new Date(),
+        clickCount: link.clickCount + 1,
+        lastClickedAt: new Date(),
       },
     });
 
     // Redirect to full URL
-    return res.redirect(302, link.full_url);
+    return res.redirect(302, link.fullUrl);
   } catch (error) {
     logger.error('Error redirecting split link:', error);
     return res.status(500).json({ error: 'Internal server error' });
@@ -170,10 +170,10 @@ router.get('/split-links/:slug', async (req: Request<{ slug: string }>, res: Res
     }
 
     // If password-protected, require a valid unlock token in the Authorization header
-    if (link.password_hash) {
+    if (link.passwordHash) {
       const token = req.headers.authorization?.replace('Bearer ', '');
       const expectedToken = createHash('sha256')
-        .update(`${link.id}:${link.password_hash}:${process.env.JWT_SECRET ?? 'secret'}`)
+        .update(`${link.id}:${link.passwordHash}:${process.env.JWT_SECRET ?? 'secret'}`)
         .digest('hex');
 
       if (token !== expectedToken) {
@@ -184,12 +184,12 @@ router.get('/split-links/:slug', async (req: Request<{ slug: string }>, res: Res
     const response: SplitLinkResponse = {
       id: link.id,
       slug: link.slug,
-      fullUrl: link.full_url,
+      fullUrl: link.fullUrl,
       shortUrl: `${process.env.FRONTEND_URL || 'https://stellarstream.app'}/s/${link.slug}`,
-      creatorAddress: link.creator_address,
-      clickCount: link.click_count,
-      createdAt: link.created_at.toISOString(),
-      expiresAt: link.expires_at?.toISOString(),
+      creatorAddress: link.creatorAddress,
+      clickCount: link.clickCount,
+      createdAt: link.createdAt.toISOString(),
+      expiresAt: link.expiresAt?.toISOString(),
     };
 
     return res.status(200).json(response);
@@ -215,19 +215,19 @@ router.post('/split-links/:slug/unlock', async (req: Request<{ slug: string }>, 
       return res.status(404).json({ error: 'Link not found' });
     }
 
-    if (!link.password_hash) {
+    if (!link.passwordHash) {
       return res.status(400).json({ error: 'This link is not password-protected' });
     }
 
     const submittedHash = createHash('sha256').update(password).digest('hex');
 
-    if (submittedHash !== link.password_hash) {
+    if (submittedHash !== link.passwordHash) {
       return res.status(403).json({ error: 'Incorrect password' });
     }
 
     // Derive a deterministic access token from the link id + stored hash + server secret
     const accessToken = createHash('sha256')
-      .update(`${link.id}:${link.password_hash}:${process.env.JWT_SECRET ?? 'secret'}`)
+      .update(`${link.id}:${link.passwordHash}:${process.env.JWT_SECRET ?? 'secret'}`)
       .digest('hex');
 
     return res.status(200).json({ accessToken });

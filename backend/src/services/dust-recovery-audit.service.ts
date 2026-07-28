@@ -113,8 +113,8 @@ export class DustRecoveryAuditService {
     });
 
     return dustEvents
-      .map((evt) => this.parseDbEvent(evt))
-      .filter((r): r is DustEventRecord => r !== null);
+      .map((evt: any) => this.parseDbEvent(evt))
+      .filter((r: any): r is DustEventRecord => r !== null);
   }
 
   /**

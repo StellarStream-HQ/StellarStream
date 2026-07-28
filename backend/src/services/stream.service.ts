@@ -1,5 +1,5 @@
-import { prisma } from "../lib/db";
-import { StreamStatus } from "../generated/client";
+import { prisma } from '../lib/db.js';
+import { StreamStatus } from "../generated/client/index.js";
 import { SorobanRpc, scValToNative } from "@stellar/stellar-sdk";
 import { createHash } from "crypto";
 

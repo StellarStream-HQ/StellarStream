@@ -1,7 +1,7 @@
 import Redis from "ioredis";
 import { logger } from "../logger.js";
 
-const redis = new Redis(process.env.REDIS_URL || "redis://localhost:6379");
+const redis = new (Redis as any)(process.env.REDIS_URL || "redis://localhost:6379");
 
 export class CacheService {
   private static readonly CACHE_KEYS = {

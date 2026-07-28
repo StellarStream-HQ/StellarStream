@@ -4,9 +4,9 @@
  */
 
 import { Router, Request, Response } from "express";
-import { SnapshotService } from "../services/snapshot.service";
-import { runMaintenanceNow } from "../services/snapshot.scheduler";
-import { logger } from "../logger";
+// import { SnapshotService } from "../services/snapshot.service";
+// import { runMaintenanceNow } from "../services/snapshot.scheduler";
+import { logger } from "../logger.js";
 
 const router = Router();
 const snapshotService = new SnapshotService();

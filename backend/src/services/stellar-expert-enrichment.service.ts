@@ -83,7 +83,7 @@ export class StellarExpertEnrichmentWorker {
   async fetchTomlFromHomeDomain(homeDomain: string): Promise<string | null> {
     try {
       const url = `https://${homeDomain}/.well-known/stellar.toml`;
-      const response = await fetch(url, { timeout: 5000 });
+      const response = await fetch(url, { timeout: 5000 } as any);
 
       if (!response.ok) return null;
 
@@ -128,7 +128,7 @@ export class StellarExpertEnrichmentWorker {
           tomlUrl,
           orgVerified: isVerified,
           orgHomeDomain: homeDomain,
-          isVerified: isVerified || expertAsset?.verified ?? false,
+          isVerified: (isVerified || expertAsset?.verified) ?? false,
           lastFetchedAt: new Date(),
         },
         create: {
@@ -138,7 +138,7 @@ export class StellarExpertEnrichmentWorker {
           tomlUrl,
           orgVerified: isVerified,
           orgHomeDomain: homeDomain,
-          isVerified: isVerified || expertAsset?.verified ?? false,
+          isVerified: (isVerified || expertAsset?.verified) ?? false,
           symbol: code,
           decimals: 7,
           lastFetchedAt: new Date(),

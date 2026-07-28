@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { simulate, SimulationRpcError, SimulationNetworkError } from './simulation-service';
-import { applyBuffer } from './fee-calculator';
+import { simulate, SimulationRpcError, SimulationNetworkError } from './simulation-service.js';
+import { applyBuffer } from './fee-calculator.js';
 
 // ---- Response types ----
 

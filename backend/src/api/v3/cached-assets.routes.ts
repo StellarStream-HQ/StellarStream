@@ -39,25 +39,25 @@ async function syncCachedAssets(): Promise<number> {
       const tokenAddress = `${asset.code}:${asset.issuer}`;
 
       await prisma.cachedAsset.upsert({
-        where: { token_address: tokenAddress },
+        where: { tokenAddress: tokenAddress },
         update: {
           name: asset.name,
           description: asset.description,
-          image_url: asset.image,
-          is_verified: asset.verified || false,
+          imageUrl: asset.image,
+          isVerified: asset.verified || false,
           decimals: asset.decimals || 7,
-          last_synced_at: new Date(),
+          lastSyncedAt: new Date(),
         },
         create: {
-          token_address: tokenAddress,
+          tokenAddress: tokenAddress,
           code: asset.code,
           issuer: asset.issuer,
           name: asset.name,
           description: asset.description,
-          image_url: asset.image,
-          is_verified: asset.verified || false,
+          imageUrl: asset.image,
+          isVerified: asset.verified || false,
           decimals: asset.decimals || 7,
-          last_synced_at: new Date(),
+          lastSyncedAt: new Date(),
         },
       });
 
@@ -77,12 +77,12 @@ router.get('/assets/cached', async (req: Request, res: Response) => {
   try {
     const { verified, limit = '100', offset = '0' } = req.query;
 
-    const where = verified === 'true' ? { is_verified: true } : {};
+    const where = verified === 'true' ? { isVerified: true } : {};
     const assets = await prisma.cachedAsset.findMany({
       where,
       take: Math.min(parseInt(limit as string) || 100, 1000),
       skip: parseInt(offset as string) || 0,
-      orderBy: { last_synced_at: 'desc' },
+      orderBy: { lastSyncedAt: 'desc' },
     });
 
     return res.status(200).json(assets);
@@ -98,7 +98,7 @@ router.get('/assets/cached/:tokenAddress', async (req: Request<{ tokenAddress: s
     const { tokenAddress } = req.params;
 
     const asset = await prisma.cachedAsset.findUnique({
-      where: { token_address: tokenAddress },
+      where: { tokenAddress: tokenAddress },
     });
 
     if (!asset) {

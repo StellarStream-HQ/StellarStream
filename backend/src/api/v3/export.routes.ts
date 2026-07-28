@@ -68,11 +68,12 @@ router.get(
 
     const auditData = {
       txHash:        disbursement.txHash,
-      senderAddress: disbursement.senderAddress,
-      asset:         disbursement.asset,
-      totalAmount:   disbursement.totalAmount,
+      sender:        disbursement.sender,
+      receiver:      disbursement.receiver,
+      amount:        disbursement.amount,
+      tokenAddress:  disbursement.tokenAddress,
       createdAt:     disbursement.createdAt,
-      recipients:    disbursement.recipients.map((r) => ({
+      recipients:    disbursement.recipients.map((r: any) => ({
         recipientAddress: r.recipientAddress,
         amount:           r.amount,
         status:           r.status,

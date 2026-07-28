@@ -22,7 +22,11 @@ export class AssetMetadataService {
   async fetchStellarToml(homeDomain: string): Promise<StellarToml | null> {
     try {
       const url = `https://${homeDomain}/.well-known/stellar.toml`;
-      const response = await fetch(url, { timeout: 5000 });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
+      const response = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         logger.warn("Failed to fetch stellar.toml", { homeDomain, status: response.status });

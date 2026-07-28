@@ -52,7 +52,7 @@ export class EventSourceService {
           eventId,
           streamId: event.streamId,
           eventType: event.eventType,
-          payload: event.payload,
+          payload: event.payload as any,
           timestamp,
           hash,
           previousHash,

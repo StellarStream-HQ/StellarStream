@@ -1,4 +1,4 @@
-import errorDictionary from "./error-dictionary.json";
+import errorDictionary from "./error-dictionary.json" assert { type: "json" };
 
 export type SupportedLanguage = "en" | "ar" | "fr" | "es";
 

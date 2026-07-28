@@ -218,7 +218,7 @@ export class FeeBumpRelayerService {
             txHash: bumpResult.newTxHash,
             txXdr: bumpResult.newTxXdr,
             currentFeeSt: bumpResult.newFeeStroops,
-            bumpCount: { increment: 1 },
+            bumpCount: { increment: 1 } as any,
             lastBumpAt: new Date(),
             status: "SUBMITTED",
           },

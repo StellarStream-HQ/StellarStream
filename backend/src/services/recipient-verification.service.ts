@@ -39,7 +39,7 @@ export class RecipientVerificationService {
         },
       });
 
-      return recipients.map((recipient) => ({
+      return recipients.map((recipient: any) => ({
         disbursementId: recipient.disbursementId,
         recipientAddress: recipient.recipientAddress,
         amount: recipient.amount,

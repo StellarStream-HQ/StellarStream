@@ -2,14 +2,14 @@ import { prisma } from "../lib/db.js";
 import { logger } from "../logger.js";
 import axios from "axios";
 
-interface LedgerEvent {
+/* interface LedgerEvent {
   id: string;
   paging_token: string;
   type: string;
   created_at: string;
   transaction_hash: string;
   ledger_close_time: string;
-}
+} */
 
 export class HistoricalSyncService {
   private horizonUrl: string;

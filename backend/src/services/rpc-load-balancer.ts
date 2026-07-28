@@ -1,4 +1,4 @@
-import { logger } from '../logger';
+import { logger } from '../logger.js';
 
 interface RpcProvider {
   url: string;
@@ -165,13 +165,13 @@ export class RpcLoadBalancer {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as any;
 
-    if (data.error) {
-      throw new Error(`RPC Error: ${data.error.message}`);
+    if ((data as any).error) {
+      throw new Error(`RPC Error: ${(data as any).error.message}`);
     }
 
-    return data.result as T;
+    return (data as any).result as T;
   }
 
   getStatus(): Record<string, CircuitBreakerState> {

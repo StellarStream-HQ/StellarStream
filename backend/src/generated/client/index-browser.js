@@ -288,13 +288,73 @@ exports.Prisma.EventScalarFieldEnum = {
   previousHash: 'previousHash'
 };
 
+exports.Prisma.OrganizationScalarFieldEnum = {
+  id: 'id',
+  gAddress: 'gAddress',
+  name: 'name',
+  description: 'description',
+  logoUrl: 'logoUrl',
+  customDomain: 'customDomain',
+  contactEmail: 'contactEmail',
+  createdBy: 'createdBy',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.OrganizationMemberScalarFieldEnum = {
   id: 'id',
+  organizationId: 'organizationId',
   orgAddress: 'orgAddress',
   memberAddress: 'memberAddress',
   role: 'role',
   addedBy: 'addedBy',
   isActive: 'isActive',
+  lastActivityAt: 'lastActivityAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.InvitationScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  inviteeEmail: 'inviteeEmail',
+  role: 'role',
+  tokenHash: 'tokenHash',
+  status: 'status',
+  expiresAt: 'expiresAt',
+  acceptedBy: 'acceptedBy',
+  acceptedAt: 'acceptedAt',
+  revokedBy: 'revokedBy',
+  revokedAt: 'revokedAt',
+  invitedBy: 'invitedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrganizationPolicyScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  dailySpendLimitUsd: 'dailySpendLimitUsd',
+  allowedAssets: 'allowedAssets',
+  requiresMultisig: 'requiresMultisig',
+  multisigThreshold: 'multisigThreshold',
+  updatedBy: 'updatedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BillingRecordScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  billingPeriod: 'billingPeriod',
+  streamsCreated: 'streamsCreated',
+  disbursementsProcessed: 'disbursementsProcessed',
+  apiRequests: 'apiRequests',
+  volumeUsd: 'volumeUsd',
+  chargeUsd: 'chargeUsd',
+  plan: 'plan',
+  status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -548,6 +608,7 @@ exports.Prisma.MultisigProposalScalarFieldEnum = {
   id: 'id',
   proposalId: 'proposalId',
   organizationId: 'organizationId',
+  description: 'description',
   transactionXdr: 'transactionXdr',
   signatures: 'signatures',
   requiredSigners: 'requiredSigners',
@@ -557,6 +618,22 @@ exports.Prisma.MultisigProposalScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   expiresAt: 'expiresAt'
+};
+
+exports.Prisma.AuditLogScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  actionType: 'actionType',
+  actor: 'actor',
+  resourceId: 'resourceId',
+  resourceType: 'resourceType',
+  changes: 'changes',
+  entryHash: 'entryHash',
+  parentHash: 'parentHash',
+  verified: 'verified',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.CachedAssetScalarFieldEnum = {
@@ -593,6 +670,11 @@ exports.Prisma.SortOrder = {
 };
 
 exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
 };
 
@@ -651,7 +733,11 @@ exports.Prisma.ModelName = {
   BridgeLog: 'BridgeLog',
   Proposal: 'Proposal',
   Event: 'Event',
+  Organization: 'Organization',
   OrganizationMember: 'OrganizationMember',
+  Invitation: 'Invitation',
+  OrganizationPolicy: 'OrganizationPolicy',
+  BillingRecord: 'BillingRecord',
   ApiKey: 'ApiKey',
   LedgerHash: 'LedgerHash',
   NotificationSubscription: 'NotificationSubscription',
@@ -673,6 +759,7 @@ exports.Prisma.ModelName = {
   DisbursementDraft: 'DisbursementDraft',
   DisbursementDraftVersion: 'DisbursementDraftVersion',
   MultisigProposal: 'MultisigProposal',
+  AuditLog: 'AuditLog',
   CachedAsset: 'CachedAsset',
   SplitLink: 'SplitLink'
 };

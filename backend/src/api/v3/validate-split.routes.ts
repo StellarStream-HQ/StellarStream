@@ -24,7 +24,7 @@ interface RecipientValidation {
  * 
  * Returns detailed error object specifying which row indices are invalid.
  */
-router.post("/validate-split", async (req, res) => {
+router.post("/validate-split", async (req: Request, res: Response): Promise<void> => {
   try {
     const { recipients, asset } = req.body;
 
@@ -68,10 +68,12 @@ router.post("/validate-split", async (req, res) => {
         if (asset !== "native") {
           const [code, issuer] = asset.split(":");
           hasTrustline = account.balances.some(
-            (b) =>
-              b.asset_type !== "native" &&
-              b.asset_code === code &&
-              b.asset_issuer === issuer
+            (b) => {
+              if (b.asset_type === "native") return false;
+              if (b.asset_type === "liquidity_pool_shares") return false;
+              const creditBalance = b as any;
+              return creditBalance.asset_code === code && creditBalance.asset_issuer === issuer;
+            }
           );
         }
 
@@ -100,7 +102,7 @@ router.post("/validate-split", async (req, res) => {
 
     const isValid = invalidIndices.length === 0;
 
-    res.json({
+    return res.json({
       valid: isValid,
       totalRecipients: recipients.length,
       validCount: recipients.length - invalidIndices.length,

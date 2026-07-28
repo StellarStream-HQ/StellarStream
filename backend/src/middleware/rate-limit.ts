@@ -6,14 +6,14 @@ import Redis from 'ioredis';
  * Creates a Redis client if REDIS_URL is configured, otherwise returns null.
  * The rate limiters fall back to in-memory store when Redis is unavailable.
  */
-function createRedisClient(): Redis | null {
+function createRedisClient(): any {
   const redisUrl = process.env.REDIS_URL;
   if (!redisUrl) {
     console.warn('[rate-limit] REDIS_URL not set — falling back to in-memory store');
     return null;
   }
 
-  const client = new Redis(redisUrl, { lazyConnect: true, enableOfflineQueue: false });
+  const client = new (Redis as any)(redisUrl, { lazyConnect: true, enableOfflineQueue: false });
 
   client.on('error', (err: Error) => {
     console.error('[rate-limit] Redis error:', err.message);

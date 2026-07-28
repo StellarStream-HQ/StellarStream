@@ -1,4 +1,4 @@
-import pm2 from "pm2";
+// import pm2 from "pm2";
 import { logger } from "../logger.js";
 
 /**
@@ -17,7 +17,7 @@ export class PM2HealthMonitor {
    * Start monitoring PM2 processes
    */
   start(): void {
-    pm2.connect((err) => {
+    pm2.connect((err: any) => {
       if (err) {
         logger.error("Failed to connect to PM2:", err);
         return;
@@ -46,13 +46,13 @@ export class PM2HealthMonitor {
    * Check health of all processes
    */
   private checkProcessHealth(): void {
-    pm2.list((err, processes) => {
+    pm2.list((err: any, processes: any) => {
       if (err) {
         logger.error("Failed to list PM2 processes:", err);
         return;
       }
 
-      processes.forEach((proc) => {
+      processes.forEach((proc: any) => {
         const memoryUsage = proc.monit?.memory || 0;
         const cpuUsage = proc.monit?.cpu || 0;
 
@@ -79,7 +79,7 @@ export class PM2HealthMonitor {
    * Restart a process gracefully
    */
   private restartProcess(processName: string): void {
-    pm2.restart(processName, (err) => {
+    pm2.restart(processName, (err: any) => {
       if (err) {
         logger.error(`Failed to restart ${processName}:`, err);
       } else {

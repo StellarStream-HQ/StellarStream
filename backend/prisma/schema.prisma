@@ -13,30 +13,30 @@ datasource db {
 
 // Mirrors the Stream state from the Soroban smart contract
 model Stream {
-  id           String       @id @default(cuid())
-  streamId     String?      @unique // Contract-level Stream ID
-  txHash       String       @unique
-  version      Int          @default(1)
-  sender       String
-  receiver     String
-  contractId   String?      @map("contract_id")
-  tokenAddress String?
-  amount       String       // Store as string to handle large numbers safely
-  duration     Int?
-  status       StreamStatus @default(ACTIVE)
-  withdrawn    String?      @default("0")
-  legacy       Boolean      @default(false) // true = originated from V1 contract
-  migrated     Boolean      @default(false) // true = V1 stream superseded by V2
-  isPrivate    Boolean      @default(false)
-  yieldEnabled Boolean      @default(false) @map("yield_enabled")
-  vaultContractId String?
-  vaultShareBalance String?
-  vaultRatioScale String?
-  accruedInterest String    @default("0")
+  id                 String       @id @default(cuid())
+  streamId           String?      @unique // Contract-level Stream ID
+  txHash             String       @unique
+  version            Int          @default(1)
+  sender             String
+  receiver           String
+  contractId         String?      @map("contract_id")
+  tokenAddress       String?
+  amount             String // Store as string to handle large numbers safely
+  duration           Int?
+  status             StreamStatus @default(ACTIVE)
+  withdrawn          String?      @default("0")
+  legacy             Boolean      @default(false) // true = originated from V1 contract
+  migrated           Boolean      @default(false) // true = V1 stream superseded by V2
+  isPrivate          Boolean      @default(false)
+  yieldEnabled       Boolean      @default(false) @map("yield_enabled")
+  vaultContractId    String?
+  vaultShareBalance  String?
+  vaultRatioScale    String?
+  accruedInterest    String       @default("0")
   lastYieldAccrualAt DateTime?
-  isDust       Boolean      @default(false) // true = below MIN_VALUE_USD threshold
-  affiliateId  String?      // Affiliate who referred this stream (0.5% commission)
-  createdAt    DateTime     @default(now())
+  isDust             Boolean      @default(false) // true = below MIN_VALUE_USD threshold
+  affiliateId        String? // Affiliate who referred this stream (0.5% commission)
+  createdAt          DateTime     @default(now())
 
   @@index([sender])
   @@index([receiver])
@@ -84,7 +84,7 @@ model Webhook {
   url         String   @unique
   description String?
   eventType   String   @default("*") // "*" = all events, or specific: create_stream, withdraw, cancel
-  secretKey   String   // HMAC secret for signing payloads
+  secretKey   String // HMAC secret for signing payloads
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -95,17 +95,17 @@ model Webhook {
 
 // Webhook delivery attempts for retry logic
 model WebhookDelivery {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   webhookId   String
   eventType   String
   payload     Json
-  status      String   @default("pending") // pending, success, failed
-  attempts    Int      @default(0)
-  maxRetries  Int      @default(5)
+  status      String    @default("pending") // pending, success, failed
+  attempts    Int       @default(0)
+  maxRetries  Int       @default(5)
   nextRetryAt DateTime?
   lastError   String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@index([webhookId, status])
   @@index([nextRetryAt])
@@ -121,7 +121,7 @@ model SyncState {
 // Audit log for all protocol events
 model EventLog {
   id             String   @id @default(cuid())
-  eventType      String   // create, withdraw, cancel
+  eventType      String // create, withdraw, cancel
   streamId       String
   txHash         String
   eventIndex     Int      @default(0) // Position of event within the transaction
@@ -130,7 +130,7 @@ model EventLog {
   sender         String?
   receiver       String?
   amount         BigInt?
-  metadata       String?  // JSON string
+  metadata       String? // JSON string
   parentHash     String?  @map("parent_hash") // SHA-256 hash of the previous log entry
   entryHash      String?  @map("entry_hash") // SHA-256(canonical(this_entry) + parentHash)
   createdAt      DateTime @default(now())
@@ -152,12 +152,12 @@ model StreamSnapshot {
   amountPerSecond BigInt
   totalAmount     BigInt
   status          StreamStatus
-  snapshotMonth   String   // YYYY-MM
-  createdAt       DateTime @default(now())
+  snapshotMonth   String // YYYY-MM
+  createdAt       DateTime     @default(now())
 
+  @@unique([streamId, snapshotMonth])
   @@index([streamId])
   @@index([snapshotMonth])
-  @@unique([streamId, snapshotMonth])
 }
 
 // Archived event logs (older than 3 months)
@@ -181,7 +181,7 @@ model StreamArchive {
 
 // Generic bridge activity log for cross-chain operations
 model BridgeLog {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   bridge      String
   eventType   String
   sourceChain String
@@ -191,11 +191,11 @@ model BridgeLog {
   amount      String
   sender      String?
   recipient   String
-  txHash      String   @unique
+  txHash      String    @unique
   status      String
-  payload     String?  // Raw bridge payload (JSON)
+  payload     String? // Raw bridge payload (JSON)
   landedAt    DateTime?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
 
   @@index([eventType])
   @@index([targetChain])
@@ -224,13 +224,13 @@ model Proposal {
 model Event {
   id           String   @id @default(cuid())
   eventId      String   @unique // Global unique event identifier
-  streamId     String   // Reference to the stream this event relates to
-  eventType    String   // CREATE, WITHDRAW, CANCEL, PAUSE, RESUME
-  payload      Json     // Complete event data as JSON
+  streamId     String // Reference to the stream this event relates to
+  eventType    String // CREATE, WITHDRAW, CANCEL, PAUSE, RESUME
+  payload      Json // Complete event data as JSON
   timestamp    DateTime @default(now())
-  hash         String   // SHA-256 hash of this event
-  previousHash String?  // Hash of the previous event in the chain
-  
+  hash         String // SHA-256 hash of this event
+  previousHash String? // Hash of the previous event in the chain
+
   @@index([streamId])
   @@index([eventType])
   @@index([timestamp])
@@ -246,42 +246,136 @@ enum StreamStatus {
 
 // RBAC roles for shared G-address organisations
 enum OrgRole {
-  DRAFTER   // Can create and edit draft splits
-  APPROVER  // Can approve or reject pending splits
-  EXECUTOR  // Can submit approved splits to the ledger
+  DRAFTER // Can create and edit draft splits
+  APPROVER // Can approve or reject pending splits
+  EXECUTOR // Can submit approved splits to the ledger
+}
+
+// Organization model - represents a team/business entity
+model Organization {
+  id           String   @id @default(cuid())
+  gAddress     String   @unique // Stellar group account (G-address)
+  name         String
+  description  String?
+  logoUrl      String?  @map("logo_url")
+  customDomain String?  @map("custom_domain")
+  contactEmail String?  @map("contact_email")
+  createdBy    String // Creator's Stellar address
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  members           OrganizationMember[]
+  invitations       Invitation[]
+  policies          OrganizationPolicy[]
+  billingRecords    BillingRecord[]
+  multisigProposals MultisigProposal[]
+  auditLogs         AuditLog[]
+
+  @@index([gAddress])
+  @@index([createdBy])
+  @@index([isActive])
 }
 
 // Maps a Stellar address to a role within a shared G-address organisation
 model OrganizationMember {
-  id            String   @id @default(cuid())
-  /// The shared G-address that represents the organisation
-  orgAddress    String
-  /// The individual member's Stellar G-address
-  memberAddress String
-  role          OrgRole
-  /// Who granted this membership
-  addedBy       String
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  @@unique([orgAddress, memberAddress])
-  @@index([orgAddress])
+  /// The shared G-address that represents the organisation
+  orgAddress     String
+  /// The individual member's Stellar G-address
+  memberAddress  String
+  role           OrgRole
+  /// Who granted this membership
+  addedBy        String
+  isActive       Boolean   @default(true) @map("is_active")
+  lastActivityAt DateTime? @map("last_activity_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@unique([organizationId, memberAddress])
+  @@index([organizationId])
   @@index([memberAddress])
   @@index([role])
 }
 
+// Invitation model - token-based invitations for new members
+model Invitation {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  inviteeEmail String    @map("invitee_email")
+  role         OrgRole
+  tokenHash    String    @unique @map("token_hash") // SHA-256 hash of token (never store plaintext)
+  status       String    @default("PENDING") // PENDING, ACCEPTED, EXPIRED, REVOKED
+  expiresAt    DateTime  @map("expires_at")
+  acceptedBy   String?   @map("accepted_by")
+  acceptedAt   DateTime? @map("accepted_at")
+  revokedBy    String?   @map("revoked_by")
+  revokedAt    DateTime? @map("revoked_at")
+  invitedBy    String    @map("invited_by")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+// Organization Policy model - spending limits and asset controls
+model OrganizationPolicy {
+  id             String       @id @default(cuid())
+  organizationId String       @unique @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  dailySpendLimitUsd Decimal? @map("daily_spend_limit_usd") // NULL = unlimited
+  allowedAssets      String?  @map("allowed_assets") // JSON array of asset addresses; NULL = all allowed
+  requiresMultisig   Boolean  @default(false) @map("requires_multisig")
+  multisigThreshold  Int?     @map("multisig_threshold")
+  updatedBy          String?  @map("updated_by")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+}
+
+// Billing Record model - usage tracking and quotas
+model BillingRecord {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  billingPeriod          String   @map("billing_period") // YYYY-MM format
+  streamsCreated         Int      @default(0) @map("streams_created")
+  disbursementsProcessed Int      @default(0) @map("disbursements_processed")
+  apiRequests            Int      @default(0) @map("api_requests")
+  volumeUsd              Decimal  @default(0) @map("volume_usd")
+  chargeUsd              Decimal  @default(0) @map("charge_usd")
+  plan                   String   @default("FREE") // FREE, PRO, ENTERPRISE
+  status                 String   @default("ACTIVE") // ACTIVE, PAST_DUE, SUSPENDED
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+
+  @@unique([organizationId, billingPeriod])
+  @@index([organizationId])
+  @@index([billingPeriod])
+}
+
 // API keys for 3rd-party partner dApps with elevated rate limits
 model ApiKey {
-  id          String    @id @default(cuid())
-  keyHash     String    @unique  // SHA-256 hash of the raw key (never store plaintext)
-  name        String             // Human-readable label, e.g. "Acme dApp"
-  owner       String             // Stellar address or contact identifier
-  rateLimit   Int       @default(1000) // requests per minute
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  lastUsedAt  DateTime?
+  id         String    @id @default(cuid())
+  keyHash    String    @unique // SHA-256 hash of the raw key (never store plaintext)
+  name       String // Human-readable label, e.g. "Acme dApp"
+  owner      String // Stellar address or contact identifier
+  rateLimit  Int       @default(1000) // requests per minute
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  lastUsedAt DateTime?
 
   @@index([keyHash])
   @@index([owner])
@@ -296,14 +390,14 @@ model LedgerHash {
 
 // Notification subscriptions — maps a Stellar address to a Discord/Telegram endpoint
 model NotificationSubscription {
-  id             String   @id @default(cuid())
-  stellarAddress String               // Receiver address to watch
+  id             String               @id @default(cuid())
+  stellarAddress String // Receiver address to watch
   platform       NotificationPlatform // discord | telegram
-  webhookUrl     String?              // Discord: full webhook URL
-  chatId         String?              // Telegram: chat/user ID
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  webhookUrl     String? // Discord: full webhook URL
+  chatId         String? // Telegram: chat/user ID
+  isActive       Boolean              @default(true)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
 
   @@unique([stellarAddress, platform])
   @@index([stellarAddress])
@@ -317,20 +411,20 @@ enum NotificationPlatform {
 
 // Invoice links for Nebula-Pay payment link generator
 model InvoiceLink {
-  id            String   @id @default(cuid())
-  slug          String   @unique // Short UUID for shareable URL
-  sender        String
-  receiver      String
-  amount        String   // Total amount to stream
-  tokenAddress  String
-  duration      Int      // Duration in seconds
-  description   String?  // Optional invoice description
-  pdfUrl        String?  // Optional PDF invoice URL
-  xdrParams     String   // Encoded XDR parameters for contract call
-  status        String   @default("DRAFT") // DRAFT, SIGNED, COMPLETED, EXPIRED
-  expiresAt     DateTime? // Optional expiration time
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String    @id @default(cuid())
+  slug         String    @unique // Short UUID for shareable URL
+  sender       String
+  receiver     String
+  amount       String // Total amount to stream
+  tokenAddress String
+  duration     Int // Duration in seconds
+  description  String? // Optional invoice description
+  pdfUrl       String? // Optional PDF invoice URL
+  xdrParams    String // Encoded XDR parameters for contract call
+  status       String    @default("DRAFT") // DRAFT, SIGNED, COMPLETED, EXPIRED
+  expiresAt    DateTime? // Optional expiration time
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@index([slug])
   @@index([sender])
@@ -340,25 +434,25 @@ model InvoiceLink {
 
 // Affiliate earnings tracker for 0.5% commission on stream creation
 model Affiliate {
-  id             String   @id @default(cuid())
-  stellarAddress String   @unique
-  pendingClaim   String   @default("0") // Total unclaimed earnings in stroops
-  totalEarned    String   @default("0") // Lifetime earnings
+  id             String    @id @default(cuid())
+  stellarAddress String    @unique
+  pendingClaim   String    @default("0") // Total unclaimed earnings in stroops
+  totalEarned    String    @default("0") // Lifetime earnings
   claimedAt      DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@index([stellarAddress])
 }
 
 // Global protocol statistics for landing page
 model GlobalStats {
-  id              String   @id @default("global")
-  tvlUsd          String   @default("0") // Total Value Locked in USD
-  volume24hUsd    String   @default("0") // 24h volume in USD
-  activeStreams   Int      @default(0)
-  totalStreams    Int      @default(0)
-  updatedAt       DateTime @updatedAt
+  id            String   @id @default("global")
+  tvlUsd        String   @default("0") // Total Value Locked in USD
+  volume24hUsd  String   @default("0") // 24h volume in USD
+  activeStreams Int      @default(0)
+  totalStreams  Int      @default(0)
+  updatedAt     DateTime @updatedAt
 }
 
 // V3 Splitter protocol statistics (#649)
@@ -366,8 +460,8 @@ model GlobalStats_V3 {
   id              String   @id @default("v3_global")
   totalVolumeUsd  String   @default("0") // Cumulative USD volume through V3 splitter
   dailyVolumeUsd  String   @default("0") // Last 24h volume
-  totalSplits     Int      @default(0)   // Total disbursements
-  totalRecipients Int      @default(0)   // Total unique recipients
+  totalSplits     Int      @default(0) // Total disbursements
+  totalRecipients Int      @default(0) // Total unique recipients
   updatedAt       DateTime @updatedAt
 
   @@map("GlobalStats_V3")
@@ -376,7 +470,7 @@ model GlobalStats_V3 {
 // Daily TVL snapshots for growth charts
 model TvlSnapshot {
   id        String   @id @default(cuid())
-  tvlUsd    String   // Total Value Locked in USD on this day
+  tvlUsd    String // Total Value Locked in USD on this day
   date      DateTime @unique // Midnight UTC
   createdAt DateTime @default(now())
 
@@ -385,21 +479,21 @@ model TvlSnapshot {
 
 // Asset metadata from stellar.toml
 model Asset {
-  id              String   @id @default(cuid())
-  tokenAddress    String   @unique
-  homeDomain      String?
-  name            String?
-  symbol          String?
-  imageUrl        String?
-  decimals        Int      @default(7)
-  isVerified      Boolean  @default(false)
-  stellarExpertVerified Boolean @default(false) @map("stellar_expert_verified")
-  tomlUrl         String?
-  orgVerified     Boolean  @default(false) @map("org_verified")
-  orgHomeDomain   String?  @map("org_home_domain")
-  lastFetchedAt   DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                    String    @id @default(cuid())
+  tokenAddress          String    @unique
+  homeDomain            String?
+  name                  String?
+  symbol                String?
+  imageUrl              String?
+  decimals              Int       @default(7)
+  isVerified            Boolean   @default(false)
+  stellarExpertVerified Boolean   @default(false) @map("stellar_expert_verified")
+  tomlUrl               String?
+  orgVerified           Boolean   @default(false) @map("org_verified")
+  orgHomeDomain         String?   @map("org_home_domain")
+  lastFetchedAt         DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   @@index([tokenAddress])
   @@index([stellarExpertVerified])
@@ -410,10 +504,10 @@ model Asset {
 model AutopilotSchedule {
   id              String    @id @default(cuid())
   name            String
-  frequency       String    // cron expression, e.g. "0 9 * * 1" (every Monday 9am)
+  frequency       String // cron expression, e.g. "0 9 * * 1" (every Monday 9am)
   splitConfigId   String    @map("split_config_id")
   operatorAddress String    @map("operator_address")
-  minGasTankXlm  Float     @default(1.0) @map("min_gas_tank_xlm")
+  minGasTankXlm   Float     @default(1.0) @map("min_gas_tank_xlm")
   isActive        Boolean   @default(true) @map("is_active")
   lastRun         DateTime? @map("last_run")
   lastTxHash      String?   @map("last_tx_hash")
@@ -429,7 +523,7 @@ model AutopilotSchedule {
 // Whitelisted assets visible in the StellarStream UI
 model AssetConfig {
   id           String   @id @default(cuid())
-  assetId      String   @unique  // Stellar asset identifier (e.g. "USDC:GABC...")
+  assetId      String   @unique // Stellar asset identifier (e.g. "USDC:GABC...")
   symbol       String
   name         String
   decimals     Int      @default(7)
@@ -467,17 +561,17 @@ model ArchivedDisbursement {
 
 // Active disbursements table (keeps primary table lean)
 model Disbursement {
-  id             String       @id @default(cuid())
-  streamId       String
-  txHash         String       @unique
-  sender         String
-  receiver       String
-  amount         BigInt
-  tokenAddress   String
-  status         DisbursementStatus @default(PENDING)
-  createdAt      DateTime     @default(now())
-  completedAt    DateTime?
-  ledger         Int
+  id           String             @id @default(cuid())
+  streamId     String
+  txHash       String             @unique
+  sender       String
+  receiver     String
+  amount       BigInt
+  tokenAddress String
+  status       DisbursementStatus @default(PENDING)
+  createdAt    DateTime           @default(now())
+  completedAt  DateTime?
+  ledger       Int
 
   @@index([streamId])
   @@index([sender])
@@ -493,6 +587,7 @@ enum DisbursementStatus {
   FAILED
   CANCELLED
 }
+
 // ── V3 Fund-Split Tables ──────────────────────────────────────────────────────
 
 enum PayoutStatus {
@@ -503,17 +598,17 @@ enum PayoutStatus {
 
 // Unified registry mapping Stellar Asset IDs to their source-chain equivalents
 model AssetMapping {
-  id              String   @id @default(cuid())
-  stellarAssetId  String   @unique // "SYMBOL:ISSUER" or contract address
-  symbol          String
-  sourceChain     String   // "stellar" | "ethereum" | "polygon" | etc.
-  sourceContract  String?  // Origin-chain contract address (null for native Stellar)
-  label           String   // Human-readable e.g. "USDC (Circle/Stellar)"
-  bridgeProtocol  String?  // "wormhole" | "squid" | null for native
-  decimals        Int      @default(7)
-  isNative        Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default(cuid())
+  stellarAssetId String   @unique // "SYMBOL:ISSUER" or contract address
+  symbol         String
+  sourceChain    String // "stellar" | "ethereum" | "polygon" | etc.
+  sourceContract String? // Origin-chain contract address (null for native Stellar)
+  label          String // Human-readable e.g. "USDC (Circle/Stellar)"
+  bridgeProtocol String? // "wormhole" | "squid" | null for native
+  decimals       Int      @default(7)
+  isNative       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@index([symbol])
   @@index([sourceChain])
@@ -521,12 +616,12 @@ model AssetMapping {
 
 // Time-series price history for tax and reporting purposes
 model PriceHistory {
-  id           String   @id @default(cuid())
-  asset        String   // Asset identifier e.g. "native" or "USDC:ISSUER"
-  symbol       String   // Human-readable symbol e.g. "XLM", "USDC"
-  priceUsd     Float    // USD price at the time of recording
-  source       String   // "coingecko" | "dex"
-  recordedAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  asset      String // Asset identifier e.g. "native" or "USDC:ISSUER"
+  symbol     String // Human-readable symbol e.g. "XLM", "USDC"
+  priceUsd   Float // USD price at the time of recording
+  source     String // "coingecko" | "dex"
+  recordedAt DateTime @default(now())
 
   @@index([asset, recordedAt])
   @@index([recordedAt])
@@ -534,15 +629,15 @@ model PriceHistory {
 
 // Aggregated dust-loss report per asset across all protocol versions (Issue #179)
 model ProtocolInefficiencyReport {
-  id               String   @id @default(cuid())
-  asset            String   // Token address / asset identifier
-  protocolVersion  Int      @map("protocol_version") // 1, 2, 3…
-  totalDustAmount  String   @map("total_dust_amount") // Cumulative dust (stroops)
-  eventCount       Int      @default(0) @map("event_count")
-  firstSeenLedger  Int?     @map("first_seen_ledger")
-  lastSeenLedger   Int?     @map("last_seen_ledger")
-  generatedAt      DateTime @default(now()) @map("generated_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  id              String   @id @default(cuid())
+  asset           String // Token address / asset identifier
+  protocolVersion Int      @map("protocol_version") // 1, 2, 3…
+  totalDustAmount String   @map("total_dust_amount") // Cumulative dust (stroops)
+  eventCount      Int      @default(0) @map("event_count")
+  firstSeenLedger Int?     @map("first_seen_ledger")
+  lastSeenLedger  Int?     @map("last_seen_ledger")
+  generatedAt     DateTime @default(now()) @map("generated_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
   @@unique([asset, protocolVersion])
   @@index([asset])
@@ -552,17 +647,17 @@ model ProtocolInefficiencyReport {
 
 // Log of payment splits with linked USD price at time of split
 model SplitLog {
-  id             String        @id @default(cuid())
-  streamId       String
-  asset          String
-  amount         String
-  sender         String
-  receiver       String
-  txHash         String        @unique
-  priceUsd       Float?        // USD price at time of split
-  priceSource    String?       // Where the price came from
-  priceRecordedAt DateTime?    // When the price was recorded
-  executedAt     DateTime      @default(now())
+  id              String    @id @default(cuid())
+  streamId        String
+  asset           String
+  amount          String
+  sender          String
+  receiver        String
+  txHash          String    @unique
+  priceUsd        Float? // USD price at time of split
+  priceSource     String? // Where the price came from
+  priceRecordedAt DateTime? // When the price was recorded
+  executedAt      DateTime  @default(now())
 
   @@index([streamId])
   @@index([executedAt])
@@ -594,16 +689,16 @@ model MonitoredTransaction {
 // Split-draft version control (#961)
 // Header record for a draft that can have multiple versions
 model DisbursementDraft {
-  id              String                    @id @default(cuid())
-  senderAddress   String                    @map("sender_address")
-  name            String?
-  asset           String
-  currentVersion  Int                       @default(1) @map("current_version")
-  status          String                    @default("DRAFT")
-  createdAt       DateTime                  @default(now()) @map("created_at")
-  updatedAt       DateTime                  @updatedAt @map("updated_at")
+  id             String   @id @default(cuid())
+  senderAddress  String   @map("sender_address")
+  name           String?
+  asset          String
+  currentVersion Int      @default(1) @map("current_version")
+  status         String   @default("DRAFT")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
-  versions        DisbursementDraftVersion[]
+  versions DisbursementDraftVersion[]
 
   @@index([senderAddress])
   @@index([status])
@@ -612,16 +707,16 @@ model DisbursementDraft {
 
 // Individual version snapshot of a draft
 model DisbursementDraftVersion {
-  id              String                @id @default(cuid())
-  draftId         String                @map("draft_id")
-  version         Int
-  totalAmount     String                @map("total_amount")
-  recipients      Json
-  changeNote      String?               @map("change_note")
-  changedBy       String                @map("changed_by")
-  createdAt       DateTime              @default(now()) @map("created_at")
+  id          String   @id @default(cuid())
+  draftId     String   @map("draft_id")
+  version     Int
+  totalAmount String   @map("total_amount")
+  recipients  Json
+  changeNote  String?  @map("change_note")
+  changedBy   String   @map("changed_by")
+  createdAt   DateTime @default(now()) @map("created_at")
 
-  draft           DisbursementDraft     @relation(fields: [draftId], references: [id], onDelete: Cascade)
+  draft DisbursementDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
 
   @@unique([draftId, version])
   @@index([draftId])
@@ -630,13 +725,16 @@ model DisbursementDraftVersion {
 
 // Multi-sig proposal store for collecting partial signatures (#954)
 model MultisigProposal {
-  id              String   @id @default(cuid())
-  proposalId      String   @unique @map("proposal_id")
-  organizationId  String   @map("organization_id")
+  id             String       @id @default(cuid())
+  proposalId     String       @unique @map("proposal_id")
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  description     String?
   transactionXdr  String   @map("transaction_xdr")
   signatures      Json     @default("[]") // Array of {signer: String, signature: String}
   requiredSigners Int      @map("required_signers")
-  status          String   @default("PENDING") // PENDING, SIGNED, SUBMITTED, FAILED
+  status          String   @default("PENDING") // PENDING, SIGNED, SUBMITTED, FAILED, EXPIRED
   submittedTxHash String?  @map("submitted_tx_hash")
   errorMessage    String?  @map("error_message")
   createdAt       DateTime @default(now()) @map("created_at")
@@ -645,24 +743,51 @@ model MultisigProposal {
 
   @@index([organizationId])
   @@index([status])
+  @@index([proposalId])
   @@index([createdAt])
   @@map("MultisigProposal")
 }
 
+// AuditLog model - immutable audit trail for organization actions
+model AuditLog {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  actionType   String   @map("action_type") // create, update, delete, access, etc.
+  actor        String // Address of the member who performed the action
+  resourceId   String   @map("resource_id") // ID of affected resource
+  resourceType String   @map("resource_type") // organization, member, policy, etc.
+  changes      Json? // Pre/post state for updates
+  entryHash    String?  @map("entry_hash") // SHA-256 hash of this entry
+  parentHash   String?  @map("parent_hash") // SHA-256 hash of previous entry
+  verified     Boolean  @default(false) // Whether entry has been verified in chain
+  ipAddress    String?  @map("ip_address")
+  userAgent    String?  @map("user_agent")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId])
+  @@index([actionType])
+  @@index([actor])
+  @@index([createdAt, organizationId])
+  @@index([resourceId])
+  @@map("AuditLog")
+}
+
 // Cached Stellar asset metadata from Stellar-Expert (#955)
 model CachedAsset {
-  id              String   @id @default(cuid())
-  tokenAddress    String   @unique @map("token_address")
-  code            String
-  issuer          String
-  name            String?
-  description     String?
-  imageUrl        String?  @map("image_url")
-  isVerified      Boolean  @default(false) @map("is_verified")
-  decimals        Int      @default(7)
-  lastSyncedAt    DateTime @map("last_synced_at")
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  id           String   @id @default(cuid())
+  tokenAddress String   @unique @map("token_address")
+  code         String
+  issuer       String
+  name         String?
+  description  String?
+  imageUrl     String?  @map("image_url")
+  isVerified   Boolean  @default(false) @map("is_verified")
+  decimals     Int      @default(7)
+  lastSyncedAt DateTime @map("last_synced_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@index([tokenAddress])
   @@index([isVerified])
@@ -672,16 +797,16 @@ model CachedAsset {
 
 // Split-link shortened URLs (#957)
 model SplitLink {
-  id              String   @id @default(cuid())
-  slug            String   @unique
-  fullUrl         String   @map("full_url")
-  payloadHash     String   @unique @map("payload_hash")
-  creatorAddress  String   @map("creator_address")
-  passwordHash    String?  @map("password_hash") // SHA-256 of the password; null = no protection
-  clickCount      Int      @default(0) @map("click_count")
-  lastClickedAt   DateTime? @map("last_clicked_at")
-  expiresAt       DateTime? @map("expires_at")
-  createdAt       DateTime @default(now()) @map("created_at")
+  id             String    @id @default(cuid())
+  slug           String    @unique
+  fullUrl        String    @map("full_url")
+  payloadHash    String    @unique @map("payload_hash")
+  creatorAddress String    @map("creator_address")
+  passwordHash   String?   @map("password_hash") // SHA-256 of the password; null = no protection
+  clickCount     Int       @default(0) @map("click_count")
+  lastClickedAt  DateTime? @map("last_clicked_at")
+  expiresAt      DateTime? @map("expires_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
 
   @@index([slug])
   @@index([creatorAddress])

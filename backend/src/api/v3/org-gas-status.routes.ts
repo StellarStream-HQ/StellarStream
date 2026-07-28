@@ -63,7 +63,7 @@ router.get(
       }
 
       // Get all streams for this org to calculate total gas tank balance
-      const streams = await prisma.stream.findMany({
+      const _streams = await prisma.stream.findMany({
         where: { sender: orgAddress },
       });
 

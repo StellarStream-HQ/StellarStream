@@ -1,5 +1,5 @@
-import { loadConfig } from './config';
-import { RawFeeData } from './fee-calculator';
+import { loadConfig } from './config.js';
+import { RawFeeData } from './fee-calculator.js';
 
 // ---- Structured error types ----
 

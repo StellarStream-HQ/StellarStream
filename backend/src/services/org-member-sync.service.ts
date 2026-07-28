@@ -110,7 +110,7 @@ export class OrgMemberSyncService {
         result.push({
           memberAddress: member.memberAddress,
           role: member.role,
-          tags: tags.map((t) => ({ id: t, name: t })),
+          tags: tags.map((t: string) => ({ id: t, name: t })),
           addedBy: member.addedBy,
           createdAt: member.createdAt,
         });
@@ -139,7 +139,7 @@ export class OrgMemberSyncService {
       result.push({
         memberAddress: member.memberAddress,
         role: member.role,
-        tags: tags.map((t) => ({ id: t, name: t })),
+        tags: tags.map((t: string) => ({ id: t, name: t })),
         addedBy: member.addedBy,
         createdAt: member.createdAt,
       });
@@ -163,7 +163,7 @@ export class OrgMemberSyncService {
 
     for (const member of members) {
       const tags = await redis.smembers(`${TAGS_PREFIX}${orgAddress}:${member.memberAddress}`);
-      tags.forEach((t) => allTags.add(t));
+      tags.forEach((t: string) => allTags.add(t));
     }
 
     return Array.from(allTags).sort();

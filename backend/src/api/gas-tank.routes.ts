@@ -1,8 +1,8 @@
 import { Router, Request, Response } from "express";
 import { z } from "zod";
-import { GasTankService } from "../services/gas-tank.service";
-import validateRequest from "../middleware/validateRequest";
-import asyncHandler from "../utils/asyncHandler";
+import { GasTankService } from "../services/gas-tank.service.js";
+import validateRequest from "../middleware/validateRequest.js";
+import asyncHandler from "../utils/asyncHandler.js";
 
 const router = Router();
 const gasTankService = new GasTankService();

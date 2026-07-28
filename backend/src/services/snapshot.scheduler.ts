@@ -3,8 +3,8 @@
  * Runs monthly snapshot and archival tasks
  */
 
-import { SnapshotService } from "../services/snapshot.service";
-import { logger } from "../logger";
+// import { SnapshotService } from "../services/snapshot.service";
+import { logger } from "../logger.js";
 
 const snapshotService = new SnapshotService();
 

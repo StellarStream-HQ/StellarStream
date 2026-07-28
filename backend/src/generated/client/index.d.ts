@@ -74,10 +74,30 @@ export type Proposal = $Result.DefaultSelection<Prisma.$ProposalPayload>
  */
 export type Event = $Result.DefaultSelection<Prisma.$EventPayload>
 /**
+ * Model Organization
+ * 
+ */
+export type Organization = $Result.DefaultSelection<Prisma.$OrganizationPayload>
+/**
  * Model OrganizationMember
  * 
  */
 export type OrganizationMember = $Result.DefaultSelection<Prisma.$OrganizationMemberPayload>
+/**
+ * Model Invitation
+ * 
+ */
+export type Invitation = $Result.DefaultSelection<Prisma.$InvitationPayload>
+/**
+ * Model OrganizationPolicy
+ * 
+ */
+export type OrganizationPolicy = $Result.DefaultSelection<Prisma.$OrganizationPolicyPayload>
+/**
+ * Model BillingRecord
+ * 
+ */
+export type BillingRecord = $Result.DefaultSelection<Prisma.$BillingRecordPayload>
 /**
  * Model ApiKey
  * 
@@ -183,6 +203,11 @@ export type DisbursementDraftVersion = $Result.DefaultSelection<Prisma.$Disburse
  * 
  */
 export type MultisigProposal = $Result.DefaultSelection<Prisma.$MultisigProposalPayload>
+/**
+ * Model AuditLog
+ * 
+ */
+export type AuditLog = $Result.DefaultSelection<Prisma.$AuditLogPayload>
 /**
  * Model CachedAsset
  * 
@@ -498,6 +523,16 @@ export class PrismaClient<
   get event(): Prisma.EventDelegate<ExtArgs>;
 
   /**
+   * `prisma.organization`: Exposes CRUD operations for the **Organization** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Organizations
+    * const organizations = await prisma.organization.findMany()
+    * ```
+    */
+  get organization(): Prisma.OrganizationDelegate<ExtArgs>;
+
+  /**
    * `prisma.organizationMember`: Exposes CRUD operations for the **OrganizationMember** model.
     * Example usage:
     * ```ts
@@ -506,6 +541,36 @@ export class PrismaClient<
     * ```
     */
   get organizationMember(): Prisma.OrganizationMemberDelegate<ExtArgs>;
+
+  /**
+   * `prisma.invitation`: Exposes CRUD operations for the **Invitation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Invitations
+    * const invitations = await prisma.invitation.findMany()
+    * ```
+    */
+  get invitation(): Prisma.InvitationDelegate<ExtArgs>;
+
+  /**
+   * `prisma.organizationPolicy`: Exposes CRUD operations for the **OrganizationPolicy** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OrganizationPolicies
+    * const organizationPolicies = await prisma.organizationPolicy.findMany()
+    * ```
+    */
+  get organizationPolicy(): Prisma.OrganizationPolicyDelegate<ExtArgs>;
+
+  /**
+   * `prisma.billingRecord`: Exposes CRUD operations for the **BillingRecord** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BillingRecords
+    * const billingRecords = await prisma.billingRecord.findMany()
+    * ```
+    */
+  get billingRecord(): Prisma.BillingRecordDelegate<ExtArgs>;
 
   /**
    * `prisma.apiKey`: Exposes CRUD operations for the **ApiKey** model.
@@ -716,6 +781,16 @@ export class PrismaClient<
     * ```
     */
   get multisigProposal(): Prisma.MultisigProposalDelegate<ExtArgs>;
+
+  /**
+   * `prisma.auditLog`: Exposes CRUD operations for the **AuditLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AuditLogs
+    * const auditLogs = await prisma.auditLog.findMany()
+    * ```
+    */
+  get auditLog(): Prisma.AuditLogDelegate<ExtArgs>;
 
   /**
    * `prisma.cachedAsset`: Exposes CRUD operations for the **CachedAsset** model.
@@ -1189,7 +1264,11 @@ export namespace Prisma {
     BridgeLog: 'BridgeLog',
     Proposal: 'Proposal',
     Event: 'Event',
+    Organization: 'Organization',
     OrganizationMember: 'OrganizationMember',
+    Invitation: 'Invitation',
+    OrganizationPolicy: 'OrganizationPolicy',
+    BillingRecord: 'BillingRecord',
     ApiKey: 'ApiKey',
     LedgerHash: 'LedgerHash',
     NotificationSubscription: 'NotificationSubscription',
@@ -1211,6 +1290,7 @@ export namespace Prisma {
     DisbursementDraft: 'DisbursementDraft',
     DisbursementDraftVersion: 'DisbursementDraftVersion',
     MultisigProposal: 'MultisigProposal',
+    AuditLog: 'AuditLog',
     CachedAsset: 'CachedAsset',
     SplitLink: 'SplitLink'
   };
@@ -1228,7 +1308,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "stream" | "contractEvent" | "tokenPrice" | "webhook" | "webhookDelivery" | "syncState" | "eventLog" | "streamSnapshot" | "streamArchive" | "bridgeLog" | "proposal" | "event" | "organizationMember" | "apiKey" | "ledgerHash" | "notificationSubscription" | "invoiceLink" | "affiliate" | "globalStats" | "globalStats_V3" | "tvlSnapshot" | "asset" | "autopilotSchedule" | "assetConfig" | "archivedDisbursement" | "disbursement" | "assetMapping" | "priceHistory" | "protocolInefficiencyReport" | "splitLog" | "monitoredTransaction" | "disbursementDraft" | "disbursementDraftVersion" | "multisigProposal" | "cachedAsset" | "splitLink"
+      modelProps: "stream" | "contractEvent" | "tokenPrice" | "webhook" | "webhookDelivery" | "syncState" | "eventLog" | "streamSnapshot" | "streamArchive" | "bridgeLog" | "proposal" | "event" | "organization" | "organizationMember" | "invitation" | "organizationPolicy" | "billingRecord" | "apiKey" | "ledgerHash" | "notificationSubscription" | "invoiceLink" | "affiliate" | "globalStats" | "globalStats_V3" | "tvlSnapshot" | "asset" | "autopilotSchedule" | "assetConfig" | "archivedDisbursement" | "disbursement" | "assetMapping" | "priceHistory" | "protocolInefficiencyReport" | "splitLog" | "monitoredTransaction" | "disbursementDraft" | "disbursementDraftVersion" | "multisigProposal" | "auditLog" | "cachedAsset" | "splitLink"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2072,6 +2152,76 @@ export namespace Prisma {
           }
         }
       }
+      Organization: {
+        payload: Prisma.$OrganizationPayload<ExtArgs>
+        fields: Prisma.OrganizationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OrganizationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OrganizationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload>
+          }
+          findFirst: {
+            args: Prisma.OrganizationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OrganizationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload>
+          }
+          findMany: {
+            args: Prisma.OrganizationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload>[]
+          }
+          create: {
+            args: Prisma.OrganizationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload>
+          }
+          createMany: {
+            args: Prisma.OrganizationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OrganizationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload>[]
+          }
+          delete: {
+            args: Prisma.OrganizationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload>
+          }
+          update: {
+            args: Prisma.OrganizationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload>
+          }
+          deleteMany: {
+            args: Prisma.OrganizationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OrganizationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.OrganizationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPayload>
+          }
+          aggregate: {
+            args: Prisma.OrganizationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOrganization>
+          }
+          groupBy: {
+            args: Prisma.OrganizationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OrganizationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OrganizationCountArgs<ExtArgs>
+            result: $Utils.Optional<OrganizationCountAggregateOutputType> | number
+          }
+        }
+      }
       OrganizationMember: {
         payload: Prisma.$OrganizationMemberPayload<ExtArgs>
         fields: Prisma.OrganizationMemberFieldRefs
@@ -2139,6 +2289,216 @@ export namespace Prisma {
           count: {
             args: Prisma.OrganizationMemberCountArgs<ExtArgs>
             result: $Utils.Optional<OrganizationMemberCountAggregateOutputType> | number
+          }
+        }
+      }
+      Invitation: {
+        payload: Prisma.$InvitationPayload<ExtArgs>
+        fields: Prisma.InvitationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.InvitationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.InvitationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload>
+          }
+          findFirst: {
+            args: Prisma.InvitationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.InvitationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload>
+          }
+          findMany: {
+            args: Prisma.InvitationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload>[]
+          }
+          create: {
+            args: Prisma.InvitationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload>
+          }
+          createMany: {
+            args: Prisma.InvitationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.InvitationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload>[]
+          }
+          delete: {
+            args: Prisma.InvitationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload>
+          }
+          update: {
+            args: Prisma.InvitationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload>
+          }
+          deleteMany: {
+            args: Prisma.InvitationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.InvitationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.InvitationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitationPayload>
+          }
+          aggregate: {
+            args: Prisma.InvitationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateInvitation>
+          }
+          groupBy: {
+            args: Prisma.InvitationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<InvitationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.InvitationCountArgs<ExtArgs>
+            result: $Utils.Optional<InvitationCountAggregateOutputType> | number
+          }
+        }
+      }
+      OrganizationPolicy: {
+        payload: Prisma.$OrganizationPolicyPayload<ExtArgs>
+        fields: Prisma.OrganizationPolicyFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OrganizationPolicyFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPolicyPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OrganizationPolicyFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPolicyPayload>
+          }
+          findFirst: {
+            args: Prisma.OrganizationPolicyFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPolicyPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OrganizationPolicyFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPolicyPayload>
+          }
+          findMany: {
+            args: Prisma.OrganizationPolicyFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPolicyPayload>[]
+          }
+          create: {
+            args: Prisma.OrganizationPolicyCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPolicyPayload>
+          }
+          createMany: {
+            args: Prisma.OrganizationPolicyCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OrganizationPolicyCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPolicyPayload>[]
+          }
+          delete: {
+            args: Prisma.OrganizationPolicyDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPolicyPayload>
+          }
+          update: {
+            args: Prisma.OrganizationPolicyUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPolicyPayload>
+          }
+          deleteMany: {
+            args: Prisma.OrganizationPolicyDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OrganizationPolicyUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.OrganizationPolicyUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OrganizationPolicyPayload>
+          }
+          aggregate: {
+            args: Prisma.OrganizationPolicyAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOrganizationPolicy>
+          }
+          groupBy: {
+            args: Prisma.OrganizationPolicyGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OrganizationPolicyGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OrganizationPolicyCountArgs<ExtArgs>
+            result: $Utils.Optional<OrganizationPolicyCountAggregateOutputType> | number
+          }
+        }
+      }
+      BillingRecord: {
+        payload: Prisma.$BillingRecordPayload<ExtArgs>
+        fields: Prisma.BillingRecordFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BillingRecordFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingRecordPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BillingRecordFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingRecordPayload>
+          }
+          findFirst: {
+            args: Prisma.BillingRecordFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingRecordPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BillingRecordFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingRecordPayload>
+          }
+          findMany: {
+            args: Prisma.BillingRecordFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingRecordPayload>[]
+          }
+          create: {
+            args: Prisma.BillingRecordCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingRecordPayload>
+          }
+          createMany: {
+            args: Prisma.BillingRecordCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BillingRecordCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingRecordPayload>[]
+          }
+          delete: {
+            args: Prisma.BillingRecordDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingRecordPayload>
+          }
+          update: {
+            args: Prisma.BillingRecordUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingRecordPayload>
+          }
+          deleteMany: {
+            args: Prisma.BillingRecordDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BillingRecordUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.BillingRecordUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BillingRecordPayload>
+          }
+          aggregate: {
+            args: Prisma.BillingRecordAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBillingRecord>
+          }
+          groupBy: {
+            args: Prisma.BillingRecordGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BillingRecordGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BillingRecordCountArgs<ExtArgs>
+            result: $Utils.Optional<BillingRecordCountAggregateOutputType> | number
           }
         }
       }
@@ -3612,6 +3972,76 @@ export namespace Prisma {
           }
         }
       }
+      AuditLog: {
+        payload: Prisma.$AuditLogPayload<ExtArgs>
+        fields: Prisma.AuditLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AuditLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AuditLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload>
+          }
+          findFirst: {
+            args: Prisma.AuditLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AuditLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload>
+          }
+          findMany: {
+            args: Prisma.AuditLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload>[]
+          }
+          create: {
+            args: Prisma.AuditLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload>
+          }
+          createMany: {
+            args: Prisma.AuditLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AuditLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload>[]
+          }
+          delete: {
+            args: Prisma.AuditLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload>
+          }
+          update: {
+            args: Prisma.AuditLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.AuditLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AuditLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.AuditLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AuditLogPayload>
+          }
+          aggregate: {
+            args: Prisma.AuditLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAuditLog>
+          }
+          groupBy: {
+            args: Prisma.AuditLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AuditLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AuditLogCountArgs<ExtArgs>
+            result: $Utils.Optional<AuditLogCountAggregateOutputType> | number
+          }
+        }
+      }
       CachedAsset: {
         payload: Prisma.$CachedAssetPayload<ExtArgs>
         fields: Prisma.CachedAssetFieldRefs
@@ -3906,6 +4336,82 @@ export namespace Prisma {
   /**
    * Count Types
    */
+
+
+  /**
+   * Count Type OrganizationCountOutputType
+   */
+
+  export type OrganizationCountOutputType = {
+    members: number
+    invitations: number
+    policies: number
+    billingRecords: number
+    multisigProposals: number
+    auditLogs: number
+  }
+
+  export type OrganizationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    members?: boolean | OrganizationCountOutputTypeCountMembersArgs
+    invitations?: boolean | OrganizationCountOutputTypeCountInvitationsArgs
+    policies?: boolean | OrganizationCountOutputTypeCountPoliciesArgs
+    billingRecords?: boolean | OrganizationCountOutputTypeCountBillingRecordsArgs
+    multisigProposals?: boolean | OrganizationCountOutputTypeCountMultisigProposalsArgs
+    auditLogs?: boolean | OrganizationCountOutputTypeCountAuditLogsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * OrganizationCountOutputType without action
+   */
+  export type OrganizationCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationCountOutputType
+     */
+    select?: OrganizationCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * OrganizationCountOutputType without action
+   */
+  export type OrganizationCountOutputTypeCountMembersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrganizationMemberWhereInput
+  }
+
+  /**
+   * OrganizationCountOutputType without action
+   */
+  export type OrganizationCountOutputTypeCountInvitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InvitationWhereInput
+  }
+
+  /**
+   * OrganizationCountOutputType without action
+   */
+  export type OrganizationCountOutputTypeCountPoliciesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrganizationPolicyWhereInput
+  }
+
+  /**
+   * OrganizationCountOutputType without action
+   */
+  export type OrganizationCountOutputTypeCountBillingRecordsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BillingRecordWhereInput
+  }
+
+  /**
+   * OrganizationCountOutputType without action
+   */
+  export type OrganizationCountOutputTypeCountMultisigProposalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MultisigProposalWhereInput
+  }
+
+  /**
+   * OrganizationCountOutputType without action
+   */
+  export type OrganizationCountOutputTypeCountAuditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AuditLogWhereInput
+  }
 
 
   /**
@@ -15654,6 +16160,1146 @@ export namespace Prisma {
 
 
   /**
+   * Model Organization
+   */
+
+  export type AggregateOrganization = {
+    _count: OrganizationCountAggregateOutputType | null
+    _min: OrganizationMinAggregateOutputType | null
+    _max: OrganizationMaxAggregateOutputType | null
+  }
+
+  export type OrganizationMinAggregateOutputType = {
+    id: string | null
+    gAddress: string | null
+    name: string | null
+    description: string | null
+    logoUrl: string | null
+    customDomain: string | null
+    contactEmail: string | null
+    createdBy: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OrganizationMaxAggregateOutputType = {
+    id: string | null
+    gAddress: string | null
+    name: string | null
+    description: string | null
+    logoUrl: string | null
+    customDomain: string | null
+    contactEmail: string | null
+    createdBy: string | null
+    isActive: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OrganizationCountAggregateOutputType = {
+    id: number
+    gAddress: number
+    name: number
+    description: number
+    logoUrl: number
+    customDomain: number
+    contactEmail: number
+    createdBy: number
+    isActive: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type OrganizationMinAggregateInputType = {
+    id?: true
+    gAddress?: true
+    name?: true
+    description?: true
+    logoUrl?: true
+    customDomain?: true
+    contactEmail?: true
+    createdBy?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OrganizationMaxAggregateInputType = {
+    id?: true
+    gAddress?: true
+    name?: true
+    description?: true
+    logoUrl?: true
+    customDomain?: true
+    contactEmail?: true
+    createdBy?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OrganizationCountAggregateInputType = {
+    id?: true
+    gAddress?: true
+    name?: true
+    description?: true
+    logoUrl?: true
+    customDomain?: true
+    contactEmail?: true
+    createdBy?: true
+    isActive?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type OrganizationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Organization to aggregate.
+     */
+    where?: OrganizationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Organizations to fetch.
+     */
+    orderBy?: OrganizationOrderByWithRelationInput | OrganizationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OrganizationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Organizations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Organizations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Organizations
+    **/
+    _count?: true | OrganizationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OrganizationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OrganizationMaxAggregateInputType
+  }
+
+  export type GetOrganizationAggregateType<T extends OrganizationAggregateArgs> = {
+        [P in keyof T & keyof AggregateOrganization]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOrganization[P]>
+      : GetScalarType<T[P], AggregateOrganization[P]>
+  }
+
+
+
+
+  export type OrganizationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrganizationWhereInput
+    orderBy?: OrganizationOrderByWithAggregationInput | OrganizationOrderByWithAggregationInput[]
+    by: OrganizationScalarFieldEnum[] | OrganizationScalarFieldEnum
+    having?: OrganizationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OrganizationCountAggregateInputType | true
+    _min?: OrganizationMinAggregateInputType
+    _max?: OrganizationMaxAggregateInputType
+  }
+
+  export type OrganizationGroupByOutputType = {
+    id: string
+    gAddress: string
+    name: string
+    description: string | null
+    logoUrl: string | null
+    customDomain: string | null
+    contactEmail: string | null
+    createdBy: string
+    isActive: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: OrganizationCountAggregateOutputType | null
+    _min: OrganizationMinAggregateOutputType | null
+    _max: OrganizationMaxAggregateOutputType | null
+  }
+
+  type GetOrganizationGroupByPayload<T extends OrganizationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OrganizationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OrganizationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OrganizationGroupByOutputType[P]>
+            : GetScalarType<T[P], OrganizationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OrganizationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    gAddress?: boolean
+    name?: boolean
+    description?: boolean
+    logoUrl?: boolean
+    customDomain?: boolean
+    contactEmail?: boolean
+    createdBy?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    members?: boolean | Organization$membersArgs<ExtArgs>
+    invitations?: boolean | Organization$invitationsArgs<ExtArgs>
+    policies?: boolean | Organization$policiesArgs<ExtArgs>
+    billingRecords?: boolean | Organization$billingRecordsArgs<ExtArgs>
+    multisigProposals?: boolean | Organization$multisigProposalsArgs<ExtArgs>
+    auditLogs?: boolean | Organization$auditLogsArgs<ExtArgs>
+    _count?: boolean | OrganizationCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["organization"]>
+
+  export type OrganizationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    gAddress?: boolean
+    name?: boolean
+    description?: boolean
+    logoUrl?: boolean
+    customDomain?: boolean
+    contactEmail?: boolean
+    createdBy?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["organization"]>
+
+  export type OrganizationSelectScalar = {
+    id?: boolean
+    gAddress?: boolean
+    name?: boolean
+    description?: boolean
+    logoUrl?: boolean
+    customDomain?: boolean
+    contactEmail?: boolean
+    createdBy?: boolean
+    isActive?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type OrganizationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    members?: boolean | Organization$membersArgs<ExtArgs>
+    invitations?: boolean | Organization$invitationsArgs<ExtArgs>
+    policies?: boolean | Organization$policiesArgs<ExtArgs>
+    billingRecords?: boolean | Organization$billingRecordsArgs<ExtArgs>
+    multisigProposals?: boolean | Organization$multisigProposalsArgs<ExtArgs>
+    auditLogs?: boolean | Organization$auditLogsArgs<ExtArgs>
+    _count?: boolean | OrganizationCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type OrganizationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $OrganizationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Organization"
+    objects: {
+      members: Prisma.$OrganizationMemberPayload<ExtArgs>[]
+      invitations: Prisma.$InvitationPayload<ExtArgs>[]
+      policies: Prisma.$OrganizationPolicyPayload<ExtArgs>[]
+      billingRecords: Prisma.$BillingRecordPayload<ExtArgs>[]
+      multisigProposals: Prisma.$MultisigProposalPayload<ExtArgs>[]
+      auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      gAddress: string
+      name: string
+      description: string | null
+      logoUrl: string | null
+      customDomain: string | null
+      contactEmail: string | null
+      createdBy: string
+      isActive: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["organization"]>
+    composites: {}
+  }
+
+  type OrganizationGetPayload<S extends boolean | null | undefined | OrganizationDefaultArgs> = $Result.GetResult<Prisma.$OrganizationPayload, S>
+
+  type OrganizationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<OrganizationFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: OrganizationCountAggregateInputType | true
+    }
+
+  export interface OrganizationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Organization'], meta: { name: 'Organization' } }
+    /**
+     * Find zero or one Organization that matches the filter.
+     * @param {OrganizationFindUniqueArgs} args - Arguments to find a Organization
+     * @example
+     * // Get one Organization
+     * const organization = await prisma.organization.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OrganizationFindUniqueArgs>(args: SelectSubset<T, OrganizationFindUniqueArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one Organization that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {OrganizationFindUniqueOrThrowArgs} args - Arguments to find a Organization
+     * @example
+     * // Get one Organization
+     * const organization = await prisma.organization.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OrganizationFindUniqueOrThrowArgs>(args: SelectSubset<T, OrganizationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first Organization that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationFindFirstArgs} args - Arguments to find a Organization
+     * @example
+     * // Get one Organization
+     * const organization = await prisma.organization.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OrganizationFindFirstArgs>(args?: SelectSubset<T, OrganizationFindFirstArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first Organization that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationFindFirstOrThrowArgs} args - Arguments to find a Organization
+     * @example
+     * // Get one Organization
+     * const organization = await prisma.organization.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OrganizationFindFirstOrThrowArgs>(args?: SelectSubset<T, OrganizationFindFirstOrThrowArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more Organizations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Organizations
+     * const organizations = await prisma.organization.findMany()
+     * 
+     * // Get first 10 Organizations
+     * const organizations = await prisma.organization.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const organizationWithIdOnly = await prisma.organization.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OrganizationFindManyArgs>(args?: SelectSubset<T, OrganizationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a Organization.
+     * @param {OrganizationCreateArgs} args - Arguments to create a Organization.
+     * @example
+     * // Create one Organization
+     * const Organization = await prisma.organization.create({
+     *   data: {
+     *     // ... data to create a Organization
+     *   }
+     * })
+     * 
+     */
+    create<T extends OrganizationCreateArgs>(args: SelectSubset<T, OrganizationCreateArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many Organizations.
+     * @param {OrganizationCreateManyArgs} args - Arguments to create many Organizations.
+     * @example
+     * // Create many Organizations
+     * const organization = await prisma.organization.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OrganizationCreateManyArgs>(args?: SelectSubset<T, OrganizationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Organizations and returns the data saved in the database.
+     * @param {OrganizationCreateManyAndReturnArgs} args - Arguments to create many Organizations.
+     * @example
+     * // Create many Organizations
+     * const organization = await prisma.organization.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Organizations and only return the `id`
+     * const organizationWithIdOnly = await prisma.organization.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OrganizationCreateManyAndReturnArgs>(args?: SelectSubset<T, OrganizationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a Organization.
+     * @param {OrganizationDeleteArgs} args - Arguments to delete one Organization.
+     * @example
+     * // Delete one Organization
+     * const Organization = await prisma.organization.delete({
+     *   where: {
+     *     // ... filter to delete one Organization
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OrganizationDeleteArgs>(args: SelectSubset<T, OrganizationDeleteArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one Organization.
+     * @param {OrganizationUpdateArgs} args - Arguments to update one Organization.
+     * @example
+     * // Update one Organization
+     * const organization = await prisma.organization.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OrganizationUpdateArgs>(args: SelectSubset<T, OrganizationUpdateArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more Organizations.
+     * @param {OrganizationDeleteManyArgs} args - Arguments to filter Organizations to delete.
+     * @example
+     * // Delete a few Organizations
+     * const { count } = await prisma.organization.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OrganizationDeleteManyArgs>(args?: SelectSubset<T, OrganizationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Organizations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Organizations
+     * const organization = await prisma.organization.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OrganizationUpdateManyArgs>(args: SelectSubset<T, OrganizationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Organization.
+     * @param {OrganizationUpsertArgs} args - Arguments to update or create a Organization.
+     * @example
+     * // Update or create a Organization
+     * const organization = await prisma.organization.upsert({
+     *   create: {
+     *     // ... data to create a Organization
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Organization we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OrganizationUpsertArgs>(args: SelectSubset<T, OrganizationUpsertArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of Organizations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationCountArgs} args - Arguments to filter Organizations to count.
+     * @example
+     * // Count the number of Organizations
+     * const count = await prisma.organization.count({
+     *   where: {
+     *     // ... the filter for the Organizations we want to count
+     *   }
+     * })
+    **/
+    count<T extends OrganizationCountArgs>(
+      args?: Subset<T, OrganizationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OrganizationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Organization.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OrganizationAggregateArgs>(args: Subset<T, OrganizationAggregateArgs>): Prisma.PrismaPromise<GetOrganizationAggregateType<T>>
+
+    /**
+     * Group by Organization.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OrganizationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OrganizationGroupByArgs['orderBy'] }
+        : { orderBy?: OrganizationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OrganizationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOrganizationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Organization model
+   */
+  readonly fields: OrganizationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Organization.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OrganizationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    members<T extends Organization$membersArgs<ExtArgs> = {}>(args?: Subset<T, Organization$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationMemberPayload<ExtArgs>, T, "findMany"> | Null>
+    invitations<T extends Organization$invitationsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findMany"> | Null>
+    policies<T extends Organization$policiesArgs<ExtArgs> = {}>(args?: Subset<T, Organization$policiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationPolicyPayload<ExtArgs>, T, "findMany"> | Null>
+    billingRecords<T extends Organization$billingRecordsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$billingRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillingRecordPayload<ExtArgs>, T, "findMany"> | Null>
+    multisigProposals<T extends Organization$multisigProposalsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$multisigProposalsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MultisigProposalPayload<ExtArgs>, T, "findMany"> | Null>
+    auditLogs<T extends Organization$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany"> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Organization model
+   */ 
+  interface OrganizationFieldRefs {
+    readonly id: FieldRef<"Organization", 'String'>
+    readonly gAddress: FieldRef<"Organization", 'String'>
+    readonly name: FieldRef<"Organization", 'String'>
+    readonly description: FieldRef<"Organization", 'String'>
+    readonly logoUrl: FieldRef<"Organization", 'String'>
+    readonly customDomain: FieldRef<"Organization", 'String'>
+    readonly contactEmail: FieldRef<"Organization", 'String'>
+    readonly createdBy: FieldRef<"Organization", 'String'>
+    readonly isActive: FieldRef<"Organization", 'Boolean'>
+    readonly createdAt: FieldRef<"Organization", 'DateTime'>
+    readonly updatedAt: FieldRef<"Organization", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Organization findUnique
+   */
+  export type OrganizationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    /**
+     * Filter, which Organization to fetch.
+     */
+    where: OrganizationWhereUniqueInput
+  }
+
+  /**
+   * Organization findUniqueOrThrow
+   */
+  export type OrganizationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    /**
+     * Filter, which Organization to fetch.
+     */
+    where: OrganizationWhereUniqueInput
+  }
+
+  /**
+   * Organization findFirst
+   */
+  export type OrganizationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    /**
+     * Filter, which Organization to fetch.
+     */
+    where?: OrganizationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Organizations to fetch.
+     */
+    orderBy?: OrganizationOrderByWithRelationInput | OrganizationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Organizations.
+     */
+    cursor?: OrganizationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Organizations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Organizations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Organizations.
+     */
+    distinct?: OrganizationScalarFieldEnum | OrganizationScalarFieldEnum[]
+  }
+
+  /**
+   * Organization findFirstOrThrow
+   */
+  export type OrganizationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    /**
+     * Filter, which Organization to fetch.
+     */
+    where?: OrganizationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Organizations to fetch.
+     */
+    orderBy?: OrganizationOrderByWithRelationInput | OrganizationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Organizations.
+     */
+    cursor?: OrganizationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Organizations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Organizations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Organizations.
+     */
+    distinct?: OrganizationScalarFieldEnum | OrganizationScalarFieldEnum[]
+  }
+
+  /**
+   * Organization findMany
+   */
+  export type OrganizationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    /**
+     * Filter, which Organizations to fetch.
+     */
+    where?: OrganizationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Organizations to fetch.
+     */
+    orderBy?: OrganizationOrderByWithRelationInput | OrganizationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Organizations.
+     */
+    cursor?: OrganizationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Organizations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Organizations.
+     */
+    skip?: number
+    distinct?: OrganizationScalarFieldEnum | OrganizationScalarFieldEnum[]
+  }
+
+  /**
+   * Organization create
+   */
+  export type OrganizationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Organization.
+     */
+    data: XOR<OrganizationCreateInput, OrganizationUncheckedCreateInput>
+  }
+
+  /**
+   * Organization createMany
+   */
+  export type OrganizationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Organizations.
+     */
+    data: OrganizationCreateManyInput | OrganizationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Organization createManyAndReturn
+   */
+  export type OrganizationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many Organizations.
+     */
+    data: OrganizationCreateManyInput | OrganizationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Organization update
+   */
+  export type OrganizationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Organization.
+     */
+    data: XOR<OrganizationUpdateInput, OrganizationUncheckedUpdateInput>
+    /**
+     * Choose, which Organization to update.
+     */
+    where: OrganizationWhereUniqueInput
+  }
+
+  /**
+   * Organization updateMany
+   */
+  export type OrganizationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Organizations.
+     */
+    data: XOR<OrganizationUpdateManyMutationInput, OrganizationUncheckedUpdateManyInput>
+    /**
+     * Filter which Organizations to update
+     */
+    where?: OrganizationWhereInput
+  }
+
+  /**
+   * Organization upsert
+   */
+  export type OrganizationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Organization to update in case it exists.
+     */
+    where: OrganizationWhereUniqueInput
+    /**
+     * In case the Organization found by the `where` argument doesn't exist, create a new Organization with this data.
+     */
+    create: XOR<OrganizationCreateInput, OrganizationUncheckedCreateInput>
+    /**
+     * In case the Organization was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OrganizationUpdateInput, OrganizationUncheckedUpdateInput>
+  }
+
+  /**
+   * Organization delete
+   */
+  export type OrganizationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    /**
+     * Filter which Organization to delete.
+     */
+    where: OrganizationWhereUniqueInput
+  }
+
+  /**
+   * Organization deleteMany
+   */
+  export type OrganizationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Organizations to delete
+     */
+    where?: OrganizationWhereInput
+  }
+
+  /**
+   * Organization.members
+   */
+  export type Organization$membersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationMember
+     */
+    select?: OrganizationMemberSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationMemberInclude<ExtArgs> | null
+    where?: OrganizationMemberWhereInput
+    orderBy?: OrganizationMemberOrderByWithRelationInput | OrganizationMemberOrderByWithRelationInput[]
+    cursor?: OrganizationMemberWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OrganizationMemberScalarFieldEnum | OrganizationMemberScalarFieldEnum[]
+  }
+
+  /**
+   * Organization.invitations
+   */
+  export type Organization$invitationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    where?: InvitationWhereInput
+    orderBy?: InvitationOrderByWithRelationInput | InvitationOrderByWithRelationInput[]
+    cursor?: InvitationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InvitationScalarFieldEnum | InvitationScalarFieldEnum[]
+  }
+
+  /**
+   * Organization.policies
+   */
+  export type Organization$policiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationPolicy
+     */
+    select?: OrganizationPolicySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationPolicyInclude<ExtArgs> | null
+    where?: OrganizationPolicyWhereInput
+    orderBy?: OrganizationPolicyOrderByWithRelationInput | OrganizationPolicyOrderByWithRelationInput[]
+    cursor?: OrganizationPolicyWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OrganizationPolicyScalarFieldEnum | OrganizationPolicyScalarFieldEnum[]
+  }
+
+  /**
+   * Organization.billingRecords
+   */
+  export type Organization$billingRecordsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingRecord
+     */
+    select?: BillingRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingRecordInclude<ExtArgs> | null
+    where?: BillingRecordWhereInput
+    orderBy?: BillingRecordOrderByWithRelationInput | BillingRecordOrderByWithRelationInput[]
+    cursor?: BillingRecordWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BillingRecordScalarFieldEnum | BillingRecordScalarFieldEnum[]
+  }
+
+  /**
+   * Organization.multisigProposals
+   */
+  export type Organization$multisigProposalsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MultisigProposal
+     */
+    select?: MultisigProposalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MultisigProposalInclude<ExtArgs> | null
+    where?: MultisigProposalWhereInput
+    orderBy?: MultisigProposalOrderByWithRelationInput | MultisigProposalOrderByWithRelationInput[]
+    cursor?: MultisigProposalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MultisigProposalScalarFieldEnum | MultisigProposalScalarFieldEnum[]
+  }
+
+  /**
+   * Organization.auditLogs
+   */
+  export type Organization$auditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    where?: AuditLogWhereInput
+    orderBy?: AuditLogOrderByWithRelationInput | AuditLogOrderByWithRelationInput[]
+    cursor?: AuditLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AuditLogScalarFieldEnum | AuditLogScalarFieldEnum[]
+  }
+
+  /**
+   * Organization without action
+   */
+  export type OrganizationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model OrganizationMember
    */
 
@@ -15665,33 +17311,39 @@ export namespace Prisma {
 
   export type OrganizationMemberMinAggregateOutputType = {
     id: string | null
+    organizationId: string | null
     orgAddress: string | null
     memberAddress: string | null
     role: $Enums.OrgRole | null
     addedBy: string | null
     isActive: boolean | null
+    lastActivityAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
   export type OrganizationMemberMaxAggregateOutputType = {
     id: string | null
+    organizationId: string | null
     orgAddress: string | null
     memberAddress: string | null
     role: $Enums.OrgRole | null
     addedBy: string | null
     isActive: boolean | null
+    lastActivityAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
   export type OrganizationMemberCountAggregateOutputType = {
     id: number
+    organizationId: number
     orgAddress: number
     memberAddress: number
     role: number
     addedBy: number
     isActive: number
+    lastActivityAt: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -15700,33 +17352,39 @@ export namespace Prisma {
 
   export type OrganizationMemberMinAggregateInputType = {
     id?: true
+    organizationId?: true
     orgAddress?: true
     memberAddress?: true
     role?: true
     addedBy?: true
     isActive?: true
+    lastActivityAt?: true
     createdAt?: true
     updatedAt?: true
   }
 
   export type OrganizationMemberMaxAggregateInputType = {
     id?: true
+    organizationId?: true
     orgAddress?: true
     memberAddress?: true
     role?: true
     addedBy?: true
     isActive?: true
+    lastActivityAt?: true
     createdAt?: true
     updatedAt?: true
   }
 
   export type OrganizationMemberCountAggregateInputType = {
     id?: true
+    organizationId?: true
     orgAddress?: true
     memberAddress?: true
     role?: true
     addedBy?: true
     isActive?: true
+    lastActivityAt?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -15806,11 +17464,13 @@ export namespace Prisma {
 
   export type OrganizationMemberGroupByOutputType = {
     id: string
+    organizationId: string
     orgAddress: string
     memberAddress: string
     role: $Enums.OrgRole
     addedBy: string
     isActive: boolean
+    lastActivityAt: Date | null
     createdAt: Date
     updatedAt: Date
     _count: OrganizationMemberCountAggregateOutputType | null
@@ -15834,43 +17494,60 @@ export namespace Prisma {
 
   export type OrganizationMemberSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    organizationId?: boolean
     orgAddress?: boolean
     memberAddress?: boolean
     role?: boolean
     addedBy?: boolean
     isActive?: boolean
+    lastActivityAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["organizationMember"]>
 
   export type OrganizationMemberSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    organizationId?: boolean
     orgAddress?: boolean
     memberAddress?: boolean
     role?: boolean
     addedBy?: boolean
     isActive?: boolean
+    lastActivityAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["organizationMember"]>
 
   export type OrganizationMemberSelectScalar = {
     id?: boolean
+    organizationId?: boolean
     orgAddress?: boolean
     memberAddress?: boolean
     role?: boolean
     addedBy?: boolean
     isActive?: boolean
+    lastActivityAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
+  export type OrganizationMemberInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }
+  export type OrganizationMemberIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }
 
   export type $OrganizationMemberPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "OrganizationMember"
-    objects: {}
+    objects: {
+      organization: Prisma.$OrganizationPayload<ExtArgs>
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      organizationId: string
       /**
        * The shared G-address that represents the organisation
        */
@@ -15885,6 +17562,7 @@ export namespace Prisma {
        */
       addedBy: string
       isActive: boolean
+      lastActivityAt: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["organizationMember"]>
@@ -16251,6 +17929,7 @@ export namespace Prisma {
    */
   export interface Prisma__OrganizationMemberClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -16281,11 +17960,13 @@ export namespace Prisma {
    */ 
   interface OrganizationMemberFieldRefs {
     readonly id: FieldRef<"OrganizationMember", 'String'>
+    readonly organizationId: FieldRef<"OrganizationMember", 'String'>
     readonly orgAddress: FieldRef<"OrganizationMember", 'String'>
     readonly memberAddress: FieldRef<"OrganizationMember", 'String'>
     readonly role: FieldRef<"OrganizationMember", 'OrgRole'>
     readonly addedBy: FieldRef<"OrganizationMember", 'String'>
     readonly isActive: FieldRef<"OrganizationMember", 'Boolean'>
+    readonly lastActivityAt: FieldRef<"OrganizationMember", 'DateTime'>
     readonly createdAt: FieldRef<"OrganizationMember", 'DateTime'>
     readonly updatedAt: FieldRef<"OrganizationMember", 'DateTime'>
   }
@@ -16301,6 +17982,10 @@ export namespace Prisma {
      */
     select?: OrganizationMemberSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationMemberInclude<ExtArgs> | null
+    /**
      * Filter, which OrganizationMember to fetch.
      */
     where: OrganizationMemberWhereUniqueInput
@@ -16315,6 +18000,10 @@ export namespace Prisma {
      */
     select?: OrganizationMemberSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationMemberInclude<ExtArgs> | null
+    /**
      * Filter, which OrganizationMember to fetch.
      */
     where: OrganizationMemberWhereUniqueInput
@@ -16328,6 +18017,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the OrganizationMember
      */
     select?: OrganizationMemberSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationMemberInclude<ExtArgs> | null
     /**
      * Filter, which OrganizationMember to fetch.
      */
@@ -16373,6 +18066,10 @@ export namespace Prisma {
      */
     select?: OrganizationMemberSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationMemberInclude<ExtArgs> | null
+    /**
      * Filter, which OrganizationMember to fetch.
      */
     where?: OrganizationMemberWhereInput
@@ -16417,6 +18114,10 @@ export namespace Prisma {
      */
     select?: OrganizationMemberSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationMemberInclude<ExtArgs> | null
+    /**
      * Filter, which OrganizationMembers to fetch.
      */
     where?: OrganizationMemberWhereInput
@@ -16456,6 +18157,10 @@ export namespace Prisma {
      */
     select?: OrganizationMemberSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationMemberInclude<ExtArgs> | null
+    /**
      * The data needed to create a OrganizationMember.
      */
     data: XOR<OrganizationMemberCreateInput, OrganizationMemberUncheckedCreateInput>
@@ -16485,6 +18190,10 @@ export namespace Prisma {
      */
     data: OrganizationMemberCreateManyInput | OrganizationMemberCreateManyInput[]
     skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationMemberIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -16495,6 +18204,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the OrganizationMember
      */
     select?: OrganizationMemberSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationMemberInclude<ExtArgs> | null
     /**
      * The data needed to update a OrganizationMember.
      */
@@ -16528,6 +18241,10 @@ export namespace Prisma {
      */
     select?: OrganizationMemberSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationMemberInclude<ExtArgs> | null
+    /**
      * The filter to search for the OrganizationMember to update in case it exists.
      */
     where: OrganizationMemberWhereUniqueInput
@@ -16549,6 +18266,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the OrganizationMember
      */
     select?: OrganizationMemberSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationMemberInclude<ExtArgs> | null
     /**
      * Filter which OrganizationMember to delete.
      */
@@ -16573,6 +18294,3137 @@ export namespace Prisma {
      * Select specific fields to fetch from the OrganizationMember
      */
     select?: OrganizationMemberSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationMemberInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Invitation
+   */
+
+  export type AggregateInvitation = {
+    _count: InvitationCountAggregateOutputType | null
+    _min: InvitationMinAggregateOutputType | null
+    _max: InvitationMaxAggregateOutputType | null
+  }
+
+  export type InvitationMinAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    inviteeEmail: string | null
+    role: $Enums.OrgRole | null
+    tokenHash: string | null
+    status: string | null
+    expiresAt: Date | null
+    acceptedBy: string | null
+    acceptedAt: Date | null
+    revokedBy: string | null
+    revokedAt: Date | null
+    invitedBy: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type InvitationMaxAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    inviteeEmail: string | null
+    role: $Enums.OrgRole | null
+    tokenHash: string | null
+    status: string | null
+    expiresAt: Date | null
+    acceptedBy: string | null
+    acceptedAt: Date | null
+    revokedBy: string | null
+    revokedAt: Date | null
+    invitedBy: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type InvitationCountAggregateOutputType = {
+    id: number
+    organizationId: number
+    inviteeEmail: number
+    role: number
+    tokenHash: number
+    status: number
+    expiresAt: number
+    acceptedBy: number
+    acceptedAt: number
+    revokedBy: number
+    revokedAt: number
+    invitedBy: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type InvitationMinAggregateInputType = {
+    id?: true
+    organizationId?: true
+    inviteeEmail?: true
+    role?: true
+    tokenHash?: true
+    status?: true
+    expiresAt?: true
+    acceptedBy?: true
+    acceptedAt?: true
+    revokedBy?: true
+    revokedAt?: true
+    invitedBy?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type InvitationMaxAggregateInputType = {
+    id?: true
+    organizationId?: true
+    inviteeEmail?: true
+    role?: true
+    tokenHash?: true
+    status?: true
+    expiresAt?: true
+    acceptedBy?: true
+    acceptedAt?: true
+    revokedBy?: true
+    revokedAt?: true
+    invitedBy?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type InvitationCountAggregateInputType = {
+    id?: true
+    organizationId?: true
+    inviteeEmail?: true
+    role?: true
+    tokenHash?: true
+    status?: true
+    expiresAt?: true
+    acceptedBy?: true
+    acceptedAt?: true
+    revokedBy?: true
+    revokedAt?: true
+    invitedBy?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type InvitationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Invitation to aggregate.
+     */
+    where?: InvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Invitations to fetch.
+     */
+    orderBy?: InvitationOrderByWithRelationInput | InvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: InvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Invitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Invitations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Invitations
+    **/
+    _count?: true | InvitationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: InvitationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: InvitationMaxAggregateInputType
+  }
+
+  export type GetInvitationAggregateType<T extends InvitationAggregateArgs> = {
+        [P in keyof T & keyof AggregateInvitation]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateInvitation[P]>
+      : GetScalarType<T[P], AggregateInvitation[P]>
+  }
+
+
+
+
+  export type InvitationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InvitationWhereInput
+    orderBy?: InvitationOrderByWithAggregationInput | InvitationOrderByWithAggregationInput[]
+    by: InvitationScalarFieldEnum[] | InvitationScalarFieldEnum
+    having?: InvitationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: InvitationCountAggregateInputType | true
+    _min?: InvitationMinAggregateInputType
+    _max?: InvitationMaxAggregateInputType
+  }
+
+  export type InvitationGroupByOutputType = {
+    id: string
+    organizationId: string
+    inviteeEmail: string
+    role: $Enums.OrgRole
+    tokenHash: string
+    status: string
+    expiresAt: Date
+    acceptedBy: string | null
+    acceptedAt: Date | null
+    revokedBy: string | null
+    revokedAt: Date | null
+    invitedBy: string
+    createdAt: Date
+    updatedAt: Date
+    _count: InvitationCountAggregateOutputType | null
+    _min: InvitationMinAggregateOutputType | null
+    _max: InvitationMaxAggregateOutputType | null
+  }
+
+  type GetInvitationGroupByPayload<T extends InvitationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<InvitationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof InvitationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], InvitationGroupByOutputType[P]>
+            : GetScalarType<T[P], InvitationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type InvitationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    inviteeEmail?: boolean
+    role?: boolean
+    tokenHash?: boolean
+    status?: boolean
+    expiresAt?: boolean
+    acceptedBy?: boolean
+    acceptedAt?: boolean
+    revokedBy?: boolean
+    revokedAt?: boolean
+    invitedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["invitation"]>
+
+  export type InvitationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    inviteeEmail?: boolean
+    role?: boolean
+    tokenHash?: boolean
+    status?: boolean
+    expiresAt?: boolean
+    acceptedBy?: boolean
+    acceptedAt?: boolean
+    revokedBy?: boolean
+    revokedAt?: boolean
+    invitedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["invitation"]>
+
+  export type InvitationSelectScalar = {
+    id?: boolean
+    organizationId?: boolean
+    inviteeEmail?: boolean
+    role?: boolean
+    tokenHash?: boolean
+    status?: boolean
+    expiresAt?: boolean
+    acceptedBy?: boolean
+    acceptedAt?: boolean
+    revokedBy?: boolean
+    revokedAt?: boolean
+    invitedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type InvitationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }
+  export type InvitationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }
+
+  export type $InvitationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Invitation"
+    objects: {
+      organization: Prisma.$OrganizationPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      organizationId: string
+      inviteeEmail: string
+      role: $Enums.OrgRole
+      tokenHash: string
+      status: string
+      expiresAt: Date
+      acceptedBy: string | null
+      acceptedAt: Date | null
+      revokedBy: string | null
+      revokedAt: Date | null
+      invitedBy: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["invitation"]>
+    composites: {}
+  }
+
+  type InvitationGetPayload<S extends boolean | null | undefined | InvitationDefaultArgs> = $Result.GetResult<Prisma.$InvitationPayload, S>
+
+  type InvitationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<InvitationFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: InvitationCountAggregateInputType | true
+    }
+
+  export interface InvitationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Invitation'], meta: { name: 'Invitation' } }
+    /**
+     * Find zero or one Invitation that matches the filter.
+     * @param {InvitationFindUniqueArgs} args - Arguments to find a Invitation
+     * @example
+     * // Get one Invitation
+     * const invitation = await prisma.invitation.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends InvitationFindUniqueArgs>(args: SelectSubset<T, InvitationFindUniqueArgs<ExtArgs>>): Prisma__InvitationClient<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one Invitation that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {InvitationFindUniqueOrThrowArgs} args - Arguments to find a Invitation
+     * @example
+     * // Get one Invitation
+     * const invitation = await prisma.invitation.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends InvitationFindUniqueOrThrowArgs>(args: SelectSubset<T, InvitationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__InvitationClient<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first Invitation that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvitationFindFirstArgs} args - Arguments to find a Invitation
+     * @example
+     * // Get one Invitation
+     * const invitation = await prisma.invitation.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends InvitationFindFirstArgs>(args?: SelectSubset<T, InvitationFindFirstArgs<ExtArgs>>): Prisma__InvitationClient<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first Invitation that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvitationFindFirstOrThrowArgs} args - Arguments to find a Invitation
+     * @example
+     * // Get one Invitation
+     * const invitation = await prisma.invitation.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends InvitationFindFirstOrThrowArgs>(args?: SelectSubset<T, InvitationFindFirstOrThrowArgs<ExtArgs>>): Prisma__InvitationClient<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more Invitations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvitationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Invitations
+     * const invitations = await prisma.invitation.findMany()
+     * 
+     * // Get first 10 Invitations
+     * const invitations = await prisma.invitation.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const invitationWithIdOnly = await prisma.invitation.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends InvitationFindManyArgs>(args?: SelectSubset<T, InvitationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a Invitation.
+     * @param {InvitationCreateArgs} args - Arguments to create a Invitation.
+     * @example
+     * // Create one Invitation
+     * const Invitation = await prisma.invitation.create({
+     *   data: {
+     *     // ... data to create a Invitation
+     *   }
+     * })
+     * 
+     */
+    create<T extends InvitationCreateArgs>(args: SelectSubset<T, InvitationCreateArgs<ExtArgs>>): Prisma__InvitationClient<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many Invitations.
+     * @param {InvitationCreateManyArgs} args - Arguments to create many Invitations.
+     * @example
+     * // Create many Invitations
+     * const invitation = await prisma.invitation.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends InvitationCreateManyArgs>(args?: SelectSubset<T, InvitationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Invitations and returns the data saved in the database.
+     * @param {InvitationCreateManyAndReturnArgs} args - Arguments to create many Invitations.
+     * @example
+     * // Create many Invitations
+     * const invitation = await prisma.invitation.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Invitations and only return the `id`
+     * const invitationWithIdOnly = await prisma.invitation.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends InvitationCreateManyAndReturnArgs>(args?: SelectSubset<T, InvitationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a Invitation.
+     * @param {InvitationDeleteArgs} args - Arguments to delete one Invitation.
+     * @example
+     * // Delete one Invitation
+     * const Invitation = await prisma.invitation.delete({
+     *   where: {
+     *     // ... filter to delete one Invitation
+     *   }
+     * })
+     * 
+     */
+    delete<T extends InvitationDeleteArgs>(args: SelectSubset<T, InvitationDeleteArgs<ExtArgs>>): Prisma__InvitationClient<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one Invitation.
+     * @param {InvitationUpdateArgs} args - Arguments to update one Invitation.
+     * @example
+     * // Update one Invitation
+     * const invitation = await prisma.invitation.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends InvitationUpdateArgs>(args: SelectSubset<T, InvitationUpdateArgs<ExtArgs>>): Prisma__InvitationClient<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more Invitations.
+     * @param {InvitationDeleteManyArgs} args - Arguments to filter Invitations to delete.
+     * @example
+     * // Delete a few Invitations
+     * const { count } = await prisma.invitation.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends InvitationDeleteManyArgs>(args?: SelectSubset<T, InvitationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Invitations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvitationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Invitations
+     * const invitation = await prisma.invitation.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends InvitationUpdateManyArgs>(args: SelectSubset<T, InvitationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Invitation.
+     * @param {InvitationUpsertArgs} args - Arguments to update or create a Invitation.
+     * @example
+     * // Update or create a Invitation
+     * const invitation = await prisma.invitation.upsert({
+     *   create: {
+     *     // ... data to create a Invitation
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Invitation we want to update
+     *   }
+     * })
+     */
+    upsert<T extends InvitationUpsertArgs>(args: SelectSubset<T, InvitationUpsertArgs<ExtArgs>>): Prisma__InvitationClient<$Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of Invitations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvitationCountArgs} args - Arguments to filter Invitations to count.
+     * @example
+     * // Count the number of Invitations
+     * const count = await prisma.invitation.count({
+     *   where: {
+     *     // ... the filter for the Invitations we want to count
+     *   }
+     * })
+    **/
+    count<T extends InvitationCountArgs>(
+      args?: Subset<T, InvitationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], InvitationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Invitation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvitationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends InvitationAggregateArgs>(args: Subset<T, InvitationAggregateArgs>): Prisma.PrismaPromise<GetInvitationAggregateType<T>>
+
+    /**
+     * Group by Invitation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InvitationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends InvitationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: InvitationGroupByArgs['orderBy'] }
+        : { orderBy?: InvitationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, InvitationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetInvitationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Invitation model
+   */
+  readonly fields: InvitationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Invitation.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__InvitationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Invitation model
+   */ 
+  interface InvitationFieldRefs {
+    readonly id: FieldRef<"Invitation", 'String'>
+    readonly organizationId: FieldRef<"Invitation", 'String'>
+    readonly inviteeEmail: FieldRef<"Invitation", 'String'>
+    readonly role: FieldRef<"Invitation", 'OrgRole'>
+    readonly tokenHash: FieldRef<"Invitation", 'String'>
+    readonly status: FieldRef<"Invitation", 'String'>
+    readonly expiresAt: FieldRef<"Invitation", 'DateTime'>
+    readonly acceptedBy: FieldRef<"Invitation", 'String'>
+    readonly acceptedAt: FieldRef<"Invitation", 'DateTime'>
+    readonly revokedBy: FieldRef<"Invitation", 'String'>
+    readonly revokedAt: FieldRef<"Invitation", 'DateTime'>
+    readonly invitedBy: FieldRef<"Invitation", 'String'>
+    readonly createdAt: FieldRef<"Invitation", 'DateTime'>
+    readonly updatedAt: FieldRef<"Invitation", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Invitation findUnique
+   */
+  export type InvitationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which Invitation to fetch.
+     */
+    where: InvitationWhereUniqueInput
+  }
+
+  /**
+   * Invitation findUniqueOrThrow
+   */
+  export type InvitationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which Invitation to fetch.
+     */
+    where: InvitationWhereUniqueInput
+  }
+
+  /**
+   * Invitation findFirst
+   */
+  export type InvitationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which Invitation to fetch.
+     */
+    where?: InvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Invitations to fetch.
+     */
+    orderBy?: InvitationOrderByWithRelationInput | InvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Invitations.
+     */
+    cursor?: InvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Invitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Invitations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Invitations.
+     */
+    distinct?: InvitationScalarFieldEnum | InvitationScalarFieldEnum[]
+  }
+
+  /**
+   * Invitation findFirstOrThrow
+   */
+  export type InvitationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which Invitation to fetch.
+     */
+    where?: InvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Invitations to fetch.
+     */
+    orderBy?: InvitationOrderByWithRelationInput | InvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Invitations.
+     */
+    cursor?: InvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Invitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Invitations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Invitations.
+     */
+    distinct?: InvitationScalarFieldEnum | InvitationScalarFieldEnum[]
+  }
+
+  /**
+   * Invitation findMany
+   */
+  export type InvitationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    /**
+     * Filter, which Invitations to fetch.
+     */
+    where?: InvitationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Invitations to fetch.
+     */
+    orderBy?: InvitationOrderByWithRelationInput | InvitationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Invitations.
+     */
+    cursor?: InvitationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Invitations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Invitations.
+     */
+    skip?: number
+    distinct?: InvitationScalarFieldEnum | InvitationScalarFieldEnum[]
+  }
+
+  /**
+   * Invitation create
+   */
+  export type InvitationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Invitation.
+     */
+    data: XOR<InvitationCreateInput, InvitationUncheckedCreateInput>
+  }
+
+  /**
+   * Invitation createMany
+   */
+  export type InvitationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Invitations.
+     */
+    data: InvitationCreateManyInput | InvitationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Invitation createManyAndReturn
+   */
+  export type InvitationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many Invitations.
+     */
+    data: InvitationCreateManyInput | InvitationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Invitation update
+   */
+  export type InvitationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Invitation.
+     */
+    data: XOR<InvitationUpdateInput, InvitationUncheckedUpdateInput>
+    /**
+     * Choose, which Invitation to update.
+     */
+    where: InvitationWhereUniqueInput
+  }
+
+  /**
+   * Invitation updateMany
+   */
+  export type InvitationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Invitations.
+     */
+    data: XOR<InvitationUpdateManyMutationInput, InvitationUncheckedUpdateManyInput>
+    /**
+     * Filter which Invitations to update
+     */
+    where?: InvitationWhereInput
+  }
+
+  /**
+   * Invitation upsert
+   */
+  export type InvitationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Invitation to update in case it exists.
+     */
+    where: InvitationWhereUniqueInput
+    /**
+     * In case the Invitation found by the `where` argument doesn't exist, create a new Invitation with this data.
+     */
+    create: XOR<InvitationCreateInput, InvitationUncheckedCreateInput>
+    /**
+     * In case the Invitation was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<InvitationUpdateInput, InvitationUncheckedUpdateInput>
+  }
+
+  /**
+   * Invitation delete
+   */
+  export type InvitationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+    /**
+     * Filter which Invitation to delete.
+     */
+    where: InvitationWhereUniqueInput
+  }
+
+  /**
+   * Invitation deleteMany
+   */
+  export type InvitationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Invitations to delete
+     */
+    where?: InvitationWhereInput
+  }
+
+  /**
+   * Invitation without action
+   */
+  export type InvitationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invitation
+     */
+    select?: InvitationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InvitationInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model OrganizationPolicy
+   */
+
+  export type AggregateOrganizationPolicy = {
+    _count: OrganizationPolicyCountAggregateOutputType | null
+    _avg: OrganizationPolicyAvgAggregateOutputType | null
+    _sum: OrganizationPolicySumAggregateOutputType | null
+    _min: OrganizationPolicyMinAggregateOutputType | null
+    _max: OrganizationPolicyMaxAggregateOutputType | null
+  }
+
+  export type OrganizationPolicyAvgAggregateOutputType = {
+    dailySpendLimitUsd: Decimal | null
+    multisigThreshold: number | null
+  }
+
+  export type OrganizationPolicySumAggregateOutputType = {
+    dailySpendLimitUsd: Decimal | null
+    multisigThreshold: number | null
+  }
+
+  export type OrganizationPolicyMinAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    dailySpendLimitUsd: Decimal | null
+    allowedAssets: string | null
+    requiresMultisig: boolean | null
+    multisigThreshold: number | null
+    updatedBy: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OrganizationPolicyMaxAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    dailySpendLimitUsd: Decimal | null
+    allowedAssets: string | null
+    requiresMultisig: boolean | null
+    multisigThreshold: number | null
+    updatedBy: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OrganizationPolicyCountAggregateOutputType = {
+    id: number
+    organizationId: number
+    dailySpendLimitUsd: number
+    allowedAssets: number
+    requiresMultisig: number
+    multisigThreshold: number
+    updatedBy: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type OrganizationPolicyAvgAggregateInputType = {
+    dailySpendLimitUsd?: true
+    multisigThreshold?: true
+  }
+
+  export type OrganizationPolicySumAggregateInputType = {
+    dailySpendLimitUsd?: true
+    multisigThreshold?: true
+  }
+
+  export type OrganizationPolicyMinAggregateInputType = {
+    id?: true
+    organizationId?: true
+    dailySpendLimitUsd?: true
+    allowedAssets?: true
+    requiresMultisig?: true
+    multisigThreshold?: true
+    updatedBy?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OrganizationPolicyMaxAggregateInputType = {
+    id?: true
+    organizationId?: true
+    dailySpendLimitUsd?: true
+    allowedAssets?: true
+    requiresMultisig?: true
+    multisigThreshold?: true
+    updatedBy?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OrganizationPolicyCountAggregateInputType = {
+    id?: true
+    organizationId?: true
+    dailySpendLimitUsd?: true
+    allowedAssets?: true
+    requiresMultisig?: true
+    multisigThreshold?: true
+    updatedBy?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type OrganizationPolicyAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OrganizationPolicy to aggregate.
+     */
+    where?: OrganizationPolicyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrganizationPolicies to fetch.
+     */
+    orderBy?: OrganizationPolicyOrderByWithRelationInput | OrganizationPolicyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OrganizationPolicyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrganizationPolicies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrganizationPolicies.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OrganizationPolicies
+    **/
+    _count?: true | OrganizationPolicyCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OrganizationPolicyAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OrganizationPolicySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OrganizationPolicyMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OrganizationPolicyMaxAggregateInputType
+  }
+
+  export type GetOrganizationPolicyAggregateType<T extends OrganizationPolicyAggregateArgs> = {
+        [P in keyof T & keyof AggregateOrganizationPolicy]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOrganizationPolicy[P]>
+      : GetScalarType<T[P], AggregateOrganizationPolicy[P]>
+  }
+
+
+
+
+  export type OrganizationPolicyGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrganizationPolicyWhereInput
+    orderBy?: OrganizationPolicyOrderByWithAggregationInput | OrganizationPolicyOrderByWithAggregationInput[]
+    by: OrganizationPolicyScalarFieldEnum[] | OrganizationPolicyScalarFieldEnum
+    having?: OrganizationPolicyScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OrganizationPolicyCountAggregateInputType | true
+    _avg?: OrganizationPolicyAvgAggregateInputType
+    _sum?: OrganizationPolicySumAggregateInputType
+    _min?: OrganizationPolicyMinAggregateInputType
+    _max?: OrganizationPolicyMaxAggregateInputType
+  }
+
+  export type OrganizationPolicyGroupByOutputType = {
+    id: string
+    organizationId: string
+    dailySpendLimitUsd: Decimal | null
+    allowedAssets: string | null
+    requiresMultisig: boolean
+    multisigThreshold: number | null
+    updatedBy: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: OrganizationPolicyCountAggregateOutputType | null
+    _avg: OrganizationPolicyAvgAggregateOutputType | null
+    _sum: OrganizationPolicySumAggregateOutputType | null
+    _min: OrganizationPolicyMinAggregateOutputType | null
+    _max: OrganizationPolicyMaxAggregateOutputType | null
+  }
+
+  type GetOrganizationPolicyGroupByPayload<T extends OrganizationPolicyGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OrganizationPolicyGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OrganizationPolicyGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OrganizationPolicyGroupByOutputType[P]>
+            : GetScalarType<T[P], OrganizationPolicyGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OrganizationPolicySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    dailySpendLimitUsd?: boolean
+    allowedAssets?: boolean
+    requiresMultisig?: boolean
+    multisigThreshold?: boolean
+    updatedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["organizationPolicy"]>
+
+  export type OrganizationPolicySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    dailySpendLimitUsd?: boolean
+    allowedAssets?: boolean
+    requiresMultisig?: boolean
+    multisigThreshold?: boolean
+    updatedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["organizationPolicy"]>
+
+  export type OrganizationPolicySelectScalar = {
+    id?: boolean
+    organizationId?: boolean
+    dailySpendLimitUsd?: boolean
+    allowedAssets?: boolean
+    requiresMultisig?: boolean
+    multisigThreshold?: boolean
+    updatedBy?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type OrganizationPolicyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }
+  export type OrganizationPolicyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }
+
+  export type $OrganizationPolicyPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OrganizationPolicy"
+    objects: {
+      organization: Prisma.$OrganizationPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      organizationId: string
+      dailySpendLimitUsd: Prisma.Decimal | null
+      allowedAssets: string | null
+      requiresMultisig: boolean
+      multisigThreshold: number | null
+      updatedBy: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["organizationPolicy"]>
+    composites: {}
+  }
+
+  type OrganizationPolicyGetPayload<S extends boolean | null | undefined | OrganizationPolicyDefaultArgs> = $Result.GetResult<Prisma.$OrganizationPolicyPayload, S>
+
+  type OrganizationPolicyCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<OrganizationPolicyFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: OrganizationPolicyCountAggregateInputType | true
+    }
+
+  export interface OrganizationPolicyDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OrganizationPolicy'], meta: { name: 'OrganizationPolicy' } }
+    /**
+     * Find zero or one OrganizationPolicy that matches the filter.
+     * @param {OrganizationPolicyFindUniqueArgs} args - Arguments to find a OrganizationPolicy
+     * @example
+     * // Get one OrganizationPolicy
+     * const organizationPolicy = await prisma.organizationPolicy.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OrganizationPolicyFindUniqueArgs>(args: SelectSubset<T, OrganizationPolicyFindUniqueArgs<ExtArgs>>): Prisma__OrganizationPolicyClient<$Result.GetResult<Prisma.$OrganizationPolicyPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one OrganizationPolicy that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {OrganizationPolicyFindUniqueOrThrowArgs} args - Arguments to find a OrganizationPolicy
+     * @example
+     * // Get one OrganizationPolicy
+     * const organizationPolicy = await prisma.organizationPolicy.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OrganizationPolicyFindUniqueOrThrowArgs>(args: SelectSubset<T, OrganizationPolicyFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OrganizationPolicyClient<$Result.GetResult<Prisma.$OrganizationPolicyPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first OrganizationPolicy that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationPolicyFindFirstArgs} args - Arguments to find a OrganizationPolicy
+     * @example
+     * // Get one OrganizationPolicy
+     * const organizationPolicy = await prisma.organizationPolicy.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OrganizationPolicyFindFirstArgs>(args?: SelectSubset<T, OrganizationPolicyFindFirstArgs<ExtArgs>>): Prisma__OrganizationPolicyClient<$Result.GetResult<Prisma.$OrganizationPolicyPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first OrganizationPolicy that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationPolicyFindFirstOrThrowArgs} args - Arguments to find a OrganizationPolicy
+     * @example
+     * // Get one OrganizationPolicy
+     * const organizationPolicy = await prisma.organizationPolicy.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OrganizationPolicyFindFirstOrThrowArgs>(args?: SelectSubset<T, OrganizationPolicyFindFirstOrThrowArgs<ExtArgs>>): Prisma__OrganizationPolicyClient<$Result.GetResult<Prisma.$OrganizationPolicyPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more OrganizationPolicies that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationPolicyFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OrganizationPolicies
+     * const organizationPolicies = await prisma.organizationPolicy.findMany()
+     * 
+     * // Get first 10 OrganizationPolicies
+     * const organizationPolicies = await prisma.organizationPolicy.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const organizationPolicyWithIdOnly = await prisma.organizationPolicy.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OrganizationPolicyFindManyArgs>(args?: SelectSubset<T, OrganizationPolicyFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationPolicyPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a OrganizationPolicy.
+     * @param {OrganizationPolicyCreateArgs} args - Arguments to create a OrganizationPolicy.
+     * @example
+     * // Create one OrganizationPolicy
+     * const OrganizationPolicy = await prisma.organizationPolicy.create({
+     *   data: {
+     *     // ... data to create a OrganizationPolicy
+     *   }
+     * })
+     * 
+     */
+    create<T extends OrganizationPolicyCreateArgs>(args: SelectSubset<T, OrganizationPolicyCreateArgs<ExtArgs>>): Prisma__OrganizationPolicyClient<$Result.GetResult<Prisma.$OrganizationPolicyPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many OrganizationPolicies.
+     * @param {OrganizationPolicyCreateManyArgs} args - Arguments to create many OrganizationPolicies.
+     * @example
+     * // Create many OrganizationPolicies
+     * const organizationPolicy = await prisma.organizationPolicy.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OrganizationPolicyCreateManyArgs>(args?: SelectSubset<T, OrganizationPolicyCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OrganizationPolicies and returns the data saved in the database.
+     * @param {OrganizationPolicyCreateManyAndReturnArgs} args - Arguments to create many OrganizationPolicies.
+     * @example
+     * // Create many OrganizationPolicies
+     * const organizationPolicy = await prisma.organizationPolicy.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OrganizationPolicies and only return the `id`
+     * const organizationPolicyWithIdOnly = await prisma.organizationPolicy.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OrganizationPolicyCreateManyAndReturnArgs>(args?: SelectSubset<T, OrganizationPolicyCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrganizationPolicyPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a OrganizationPolicy.
+     * @param {OrganizationPolicyDeleteArgs} args - Arguments to delete one OrganizationPolicy.
+     * @example
+     * // Delete one OrganizationPolicy
+     * const OrganizationPolicy = await prisma.organizationPolicy.delete({
+     *   where: {
+     *     // ... filter to delete one OrganizationPolicy
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OrganizationPolicyDeleteArgs>(args: SelectSubset<T, OrganizationPolicyDeleteArgs<ExtArgs>>): Prisma__OrganizationPolicyClient<$Result.GetResult<Prisma.$OrganizationPolicyPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one OrganizationPolicy.
+     * @param {OrganizationPolicyUpdateArgs} args - Arguments to update one OrganizationPolicy.
+     * @example
+     * // Update one OrganizationPolicy
+     * const organizationPolicy = await prisma.organizationPolicy.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OrganizationPolicyUpdateArgs>(args: SelectSubset<T, OrganizationPolicyUpdateArgs<ExtArgs>>): Prisma__OrganizationPolicyClient<$Result.GetResult<Prisma.$OrganizationPolicyPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more OrganizationPolicies.
+     * @param {OrganizationPolicyDeleteManyArgs} args - Arguments to filter OrganizationPolicies to delete.
+     * @example
+     * // Delete a few OrganizationPolicies
+     * const { count } = await prisma.organizationPolicy.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OrganizationPolicyDeleteManyArgs>(args?: SelectSubset<T, OrganizationPolicyDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OrganizationPolicies.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationPolicyUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OrganizationPolicies
+     * const organizationPolicy = await prisma.organizationPolicy.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OrganizationPolicyUpdateManyArgs>(args: SelectSubset<T, OrganizationPolicyUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one OrganizationPolicy.
+     * @param {OrganizationPolicyUpsertArgs} args - Arguments to update or create a OrganizationPolicy.
+     * @example
+     * // Update or create a OrganizationPolicy
+     * const organizationPolicy = await prisma.organizationPolicy.upsert({
+     *   create: {
+     *     // ... data to create a OrganizationPolicy
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OrganizationPolicy we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OrganizationPolicyUpsertArgs>(args: SelectSubset<T, OrganizationPolicyUpsertArgs<ExtArgs>>): Prisma__OrganizationPolicyClient<$Result.GetResult<Prisma.$OrganizationPolicyPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of OrganizationPolicies.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationPolicyCountArgs} args - Arguments to filter OrganizationPolicies to count.
+     * @example
+     * // Count the number of OrganizationPolicies
+     * const count = await prisma.organizationPolicy.count({
+     *   where: {
+     *     // ... the filter for the OrganizationPolicies we want to count
+     *   }
+     * })
+    **/
+    count<T extends OrganizationPolicyCountArgs>(
+      args?: Subset<T, OrganizationPolicyCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OrganizationPolicyCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OrganizationPolicy.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationPolicyAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OrganizationPolicyAggregateArgs>(args: Subset<T, OrganizationPolicyAggregateArgs>): Prisma.PrismaPromise<GetOrganizationPolicyAggregateType<T>>
+
+    /**
+     * Group by OrganizationPolicy.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrganizationPolicyGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OrganizationPolicyGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OrganizationPolicyGroupByArgs['orderBy'] }
+        : { orderBy?: OrganizationPolicyGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OrganizationPolicyGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOrganizationPolicyGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OrganizationPolicy model
+   */
+  readonly fields: OrganizationPolicyFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OrganizationPolicy.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OrganizationPolicyClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OrganizationPolicy model
+   */ 
+  interface OrganizationPolicyFieldRefs {
+    readonly id: FieldRef<"OrganizationPolicy", 'String'>
+    readonly organizationId: FieldRef<"OrganizationPolicy", 'String'>
+    readonly dailySpendLimitUsd: FieldRef<"OrganizationPolicy", 'Decimal'>
+    readonly allowedAssets: FieldRef<"OrganizationPolicy", 'String'>
+    readonly requiresMultisig: FieldRef<"OrganizationPolicy", 'Boolean'>
+    readonly multisigThreshold: FieldRef<"OrganizationPolicy", 'Int'>
+    readonly updatedBy: FieldRef<"OrganizationPolicy", 'String'>
+    readonly createdAt: FieldRef<"OrganizationPolicy", 'DateTime'>
+    readonly updatedAt: FieldRef<"OrganizationPolicy", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OrganizationPolicy findUnique
+   */
+  export type OrganizationPolicyFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationPolicy
+     */
+    select?: OrganizationPolicySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationPolicyInclude<ExtArgs> | null
+    /**
+     * Filter, which OrganizationPolicy to fetch.
+     */
+    where: OrganizationPolicyWhereUniqueInput
+  }
+
+  /**
+   * OrganizationPolicy findUniqueOrThrow
+   */
+  export type OrganizationPolicyFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationPolicy
+     */
+    select?: OrganizationPolicySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationPolicyInclude<ExtArgs> | null
+    /**
+     * Filter, which OrganizationPolicy to fetch.
+     */
+    where: OrganizationPolicyWhereUniqueInput
+  }
+
+  /**
+   * OrganizationPolicy findFirst
+   */
+  export type OrganizationPolicyFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationPolicy
+     */
+    select?: OrganizationPolicySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationPolicyInclude<ExtArgs> | null
+    /**
+     * Filter, which OrganizationPolicy to fetch.
+     */
+    where?: OrganizationPolicyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrganizationPolicies to fetch.
+     */
+    orderBy?: OrganizationPolicyOrderByWithRelationInput | OrganizationPolicyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OrganizationPolicies.
+     */
+    cursor?: OrganizationPolicyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrganizationPolicies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrganizationPolicies.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OrganizationPolicies.
+     */
+    distinct?: OrganizationPolicyScalarFieldEnum | OrganizationPolicyScalarFieldEnum[]
+  }
+
+  /**
+   * OrganizationPolicy findFirstOrThrow
+   */
+  export type OrganizationPolicyFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationPolicy
+     */
+    select?: OrganizationPolicySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationPolicyInclude<ExtArgs> | null
+    /**
+     * Filter, which OrganizationPolicy to fetch.
+     */
+    where?: OrganizationPolicyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrganizationPolicies to fetch.
+     */
+    orderBy?: OrganizationPolicyOrderByWithRelationInput | OrganizationPolicyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OrganizationPolicies.
+     */
+    cursor?: OrganizationPolicyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrganizationPolicies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrganizationPolicies.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OrganizationPolicies.
+     */
+    distinct?: OrganizationPolicyScalarFieldEnum | OrganizationPolicyScalarFieldEnum[]
+  }
+
+  /**
+   * OrganizationPolicy findMany
+   */
+  export type OrganizationPolicyFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationPolicy
+     */
+    select?: OrganizationPolicySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationPolicyInclude<ExtArgs> | null
+    /**
+     * Filter, which OrganizationPolicies to fetch.
+     */
+    where?: OrganizationPolicyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OrganizationPolicies to fetch.
+     */
+    orderBy?: OrganizationPolicyOrderByWithRelationInput | OrganizationPolicyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OrganizationPolicies.
+     */
+    cursor?: OrganizationPolicyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OrganizationPolicies from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OrganizationPolicies.
+     */
+    skip?: number
+    distinct?: OrganizationPolicyScalarFieldEnum | OrganizationPolicyScalarFieldEnum[]
+  }
+
+  /**
+   * OrganizationPolicy create
+   */
+  export type OrganizationPolicyCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationPolicy
+     */
+    select?: OrganizationPolicySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationPolicyInclude<ExtArgs> | null
+    /**
+     * The data needed to create a OrganizationPolicy.
+     */
+    data: XOR<OrganizationPolicyCreateInput, OrganizationPolicyUncheckedCreateInput>
+  }
+
+  /**
+   * OrganizationPolicy createMany
+   */
+  export type OrganizationPolicyCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OrganizationPolicies.
+     */
+    data: OrganizationPolicyCreateManyInput | OrganizationPolicyCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OrganizationPolicy createManyAndReturn
+   */
+  export type OrganizationPolicyCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationPolicy
+     */
+    select?: OrganizationPolicySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many OrganizationPolicies.
+     */
+    data: OrganizationPolicyCreateManyInput | OrganizationPolicyCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationPolicyIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * OrganizationPolicy update
+   */
+  export type OrganizationPolicyUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationPolicy
+     */
+    select?: OrganizationPolicySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationPolicyInclude<ExtArgs> | null
+    /**
+     * The data needed to update a OrganizationPolicy.
+     */
+    data: XOR<OrganizationPolicyUpdateInput, OrganizationPolicyUncheckedUpdateInput>
+    /**
+     * Choose, which OrganizationPolicy to update.
+     */
+    where: OrganizationPolicyWhereUniqueInput
+  }
+
+  /**
+   * OrganizationPolicy updateMany
+   */
+  export type OrganizationPolicyUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OrganizationPolicies.
+     */
+    data: XOR<OrganizationPolicyUpdateManyMutationInput, OrganizationPolicyUncheckedUpdateManyInput>
+    /**
+     * Filter which OrganizationPolicies to update
+     */
+    where?: OrganizationPolicyWhereInput
+  }
+
+  /**
+   * OrganizationPolicy upsert
+   */
+  export type OrganizationPolicyUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationPolicy
+     */
+    select?: OrganizationPolicySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationPolicyInclude<ExtArgs> | null
+    /**
+     * The filter to search for the OrganizationPolicy to update in case it exists.
+     */
+    where: OrganizationPolicyWhereUniqueInput
+    /**
+     * In case the OrganizationPolicy found by the `where` argument doesn't exist, create a new OrganizationPolicy with this data.
+     */
+    create: XOR<OrganizationPolicyCreateInput, OrganizationPolicyUncheckedCreateInput>
+    /**
+     * In case the OrganizationPolicy was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OrganizationPolicyUpdateInput, OrganizationPolicyUncheckedUpdateInput>
+  }
+
+  /**
+   * OrganizationPolicy delete
+   */
+  export type OrganizationPolicyDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationPolicy
+     */
+    select?: OrganizationPolicySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationPolicyInclude<ExtArgs> | null
+    /**
+     * Filter which OrganizationPolicy to delete.
+     */
+    where: OrganizationPolicyWhereUniqueInput
+  }
+
+  /**
+   * OrganizationPolicy deleteMany
+   */
+  export type OrganizationPolicyDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OrganizationPolicies to delete
+     */
+    where?: OrganizationPolicyWhereInput
+  }
+
+  /**
+   * OrganizationPolicy without action
+   */
+  export type OrganizationPolicyDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrganizationPolicy
+     */
+    select?: OrganizationPolicySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationPolicyInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model BillingRecord
+   */
+
+  export type AggregateBillingRecord = {
+    _count: BillingRecordCountAggregateOutputType | null
+    _avg: BillingRecordAvgAggregateOutputType | null
+    _sum: BillingRecordSumAggregateOutputType | null
+    _min: BillingRecordMinAggregateOutputType | null
+    _max: BillingRecordMaxAggregateOutputType | null
+  }
+
+  export type BillingRecordAvgAggregateOutputType = {
+    streamsCreated: number | null
+    disbursementsProcessed: number | null
+    apiRequests: number | null
+    volumeUsd: Decimal | null
+    chargeUsd: Decimal | null
+  }
+
+  export type BillingRecordSumAggregateOutputType = {
+    streamsCreated: number | null
+    disbursementsProcessed: number | null
+    apiRequests: number | null
+    volumeUsd: Decimal | null
+    chargeUsd: Decimal | null
+  }
+
+  export type BillingRecordMinAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    billingPeriod: string | null
+    streamsCreated: number | null
+    disbursementsProcessed: number | null
+    apiRequests: number | null
+    volumeUsd: Decimal | null
+    chargeUsd: Decimal | null
+    plan: string | null
+    status: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BillingRecordMaxAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    billingPeriod: string | null
+    streamsCreated: number | null
+    disbursementsProcessed: number | null
+    apiRequests: number | null
+    volumeUsd: Decimal | null
+    chargeUsd: Decimal | null
+    plan: string | null
+    status: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BillingRecordCountAggregateOutputType = {
+    id: number
+    organizationId: number
+    billingPeriod: number
+    streamsCreated: number
+    disbursementsProcessed: number
+    apiRequests: number
+    volumeUsd: number
+    chargeUsd: number
+    plan: number
+    status: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type BillingRecordAvgAggregateInputType = {
+    streamsCreated?: true
+    disbursementsProcessed?: true
+    apiRequests?: true
+    volumeUsd?: true
+    chargeUsd?: true
+  }
+
+  export type BillingRecordSumAggregateInputType = {
+    streamsCreated?: true
+    disbursementsProcessed?: true
+    apiRequests?: true
+    volumeUsd?: true
+    chargeUsd?: true
+  }
+
+  export type BillingRecordMinAggregateInputType = {
+    id?: true
+    organizationId?: true
+    billingPeriod?: true
+    streamsCreated?: true
+    disbursementsProcessed?: true
+    apiRequests?: true
+    volumeUsd?: true
+    chargeUsd?: true
+    plan?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BillingRecordMaxAggregateInputType = {
+    id?: true
+    organizationId?: true
+    billingPeriod?: true
+    streamsCreated?: true
+    disbursementsProcessed?: true
+    apiRequests?: true
+    volumeUsd?: true
+    chargeUsd?: true
+    plan?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BillingRecordCountAggregateInputType = {
+    id?: true
+    organizationId?: true
+    billingPeriod?: true
+    streamsCreated?: true
+    disbursementsProcessed?: true
+    apiRequests?: true
+    volumeUsd?: true
+    chargeUsd?: true
+    plan?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type BillingRecordAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BillingRecord to aggregate.
+     */
+    where?: BillingRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BillingRecords to fetch.
+     */
+    orderBy?: BillingRecordOrderByWithRelationInput | BillingRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BillingRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BillingRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BillingRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BillingRecords
+    **/
+    _count?: true | BillingRecordCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: BillingRecordAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: BillingRecordSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BillingRecordMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BillingRecordMaxAggregateInputType
+  }
+
+  export type GetBillingRecordAggregateType<T extends BillingRecordAggregateArgs> = {
+        [P in keyof T & keyof AggregateBillingRecord]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBillingRecord[P]>
+      : GetScalarType<T[P], AggregateBillingRecord[P]>
+  }
+
+
+
+
+  export type BillingRecordGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BillingRecordWhereInput
+    orderBy?: BillingRecordOrderByWithAggregationInput | BillingRecordOrderByWithAggregationInput[]
+    by: BillingRecordScalarFieldEnum[] | BillingRecordScalarFieldEnum
+    having?: BillingRecordScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BillingRecordCountAggregateInputType | true
+    _avg?: BillingRecordAvgAggregateInputType
+    _sum?: BillingRecordSumAggregateInputType
+    _min?: BillingRecordMinAggregateInputType
+    _max?: BillingRecordMaxAggregateInputType
+  }
+
+  export type BillingRecordGroupByOutputType = {
+    id: string
+    organizationId: string
+    billingPeriod: string
+    streamsCreated: number
+    disbursementsProcessed: number
+    apiRequests: number
+    volumeUsd: Decimal
+    chargeUsd: Decimal
+    plan: string
+    status: string
+    createdAt: Date
+    updatedAt: Date
+    _count: BillingRecordCountAggregateOutputType | null
+    _avg: BillingRecordAvgAggregateOutputType | null
+    _sum: BillingRecordSumAggregateOutputType | null
+    _min: BillingRecordMinAggregateOutputType | null
+    _max: BillingRecordMaxAggregateOutputType | null
+  }
+
+  type GetBillingRecordGroupByPayload<T extends BillingRecordGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BillingRecordGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BillingRecordGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BillingRecordGroupByOutputType[P]>
+            : GetScalarType<T[P], BillingRecordGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BillingRecordSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    billingPeriod?: boolean
+    streamsCreated?: boolean
+    disbursementsProcessed?: boolean
+    apiRequests?: boolean
+    volumeUsd?: boolean
+    chargeUsd?: boolean
+    plan?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["billingRecord"]>
+
+  export type BillingRecordSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    billingPeriod?: boolean
+    streamsCreated?: boolean
+    disbursementsProcessed?: boolean
+    apiRequests?: boolean
+    volumeUsd?: boolean
+    chargeUsd?: boolean
+    plan?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["billingRecord"]>
+
+  export type BillingRecordSelectScalar = {
+    id?: boolean
+    organizationId?: boolean
+    billingPeriod?: boolean
+    streamsCreated?: boolean
+    disbursementsProcessed?: boolean
+    apiRequests?: boolean
+    volumeUsd?: boolean
+    chargeUsd?: boolean
+    plan?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type BillingRecordInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }
+  export type BillingRecordIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }
+
+  export type $BillingRecordPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BillingRecord"
+    objects: {
+      organization: Prisma.$OrganizationPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      organizationId: string
+      billingPeriod: string
+      streamsCreated: number
+      disbursementsProcessed: number
+      apiRequests: number
+      volumeUsd: Prisma.Decimal
+      chargeUsd: Prisma.Decimal
+      plan: string
+      status: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["billingRecord"]>
+    composites: {}
+  }
+
+  type BillingRecordGetPayload<S extends boolean | null | undefined | BillingRecordDefaultArgs> = $Result.GetResult<Prisma.$BillingRecordPayload, S>
+
+  type BillingRecordCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<BillingRecordFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: BillingRecordCountAggregateInputType | true
+    }
+
+  export interface BillingRecordDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BillingRecord'], meta: { name: 'BillingRecord' } }
+    /**
+     * Find zero or one BillingRecord that matches the filter.
+     * @param {BillingRecordFindUniqueArgs} args - Arguments to find a BillingRecord
+     * @example
+     * // Get one BillingRecord
+     * const billingRecord = await prisma.billingRecord.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BillingRecordFindUniqueArgs>(args: SelectSubset<T, BillingRecordFindUniqueArgs<ExtArgs>>): Prisma__BillingRecordClient<$Result.GetResult<Prisma.$BillingRecordPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one BillingRecord that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {BillingRecordFindUniqueOrThrowArgs} args - Arguments to find a BillingRecord
+     * @example
+     * // Get one BillingRecord
+     * const billingRecord = await prisma.billingRecord.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BillingRecordFindUniqueOrThrowArgs>(args: SelectSubset<T, BillingRecordFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BillingRecordClient<$Result.GetResult<Prisma.$BillingRecordPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first BillingRecord that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillingRecordFindFirstArgs} args - Arguments to find a BillingRecord
+     * @example
+     * // Get one BillingRecord
+     * const billingRecord = await prisma.billingRecord.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BillingRecordFindFirstArgs>(args?: SelectSubset<T, BillingRecordFindFirstArgs<ExtArgs>>): Prisma__BillingRecordClient<$Result.GetResult<Prisma.$BillingRecordPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first BillingRecord that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillingRecordFindFirstOrThrowArgs} args - Arguments to find a BillingRecord
+     * @example
+     * // Get one BillingRecord
+     * const billingRecord = await prisma.billingRecord.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BillingRecordFindFirstOrThrowArgs>(args?: SelectSubset<T, BillingRecordFindFirstOrThrowArgs<ExtArgs>>): Prisma__BillingRecordClient<$Result.GetResult<Prisma.$BillingRecordPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more BillingRecords that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillingRecordFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BillingRecords
+     * const billingRecords = await prisma.billingRecord.findMany()
+     * 
+     * // Get first 10 BillingRecords
+     * const billingRecords = await prisma.billingRecord.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const billingRecordWithIdOnly = await prisma.billingRecord.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BillingRecordFindManyArgs>(args?: SelectSubset<T, BillingRecordFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillingRecordPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a BillingRecord.
+     * @param {BillingRecordCreateArgs} args - Arguments to create a BillingRecord.
+     * @example
+     * // Create one BillingRecord
+     * const BillingRecord = await prisma.billingRecord.create({
+     *   data: {
+     *     // ... data to create a BillingRecord
+     *   }
+     * })
+     * 
+     */
+    create<T extends BillingRecordCreateArgs>(args: SelectSubset<T, BillingRecordCreateArgs<ExtArgs>>): Prisma__BillingRecordClient<$Result.GetResult<Prisma.$BillingRecordPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many BillingRecords.
+     * @param {BillingRecordCreateManyArgs} args - Arguments to create many BillingRecords.
+     * @example
+     * // Create many BillingRecords
+     * const billingRecord = await prisma.billingRecord.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BillingRecordCreateManyArgs>(args?: SelectSubset<T, BillingRecordCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BillingRecords and returns the data saved in the database.
+     * @param {BillingRecordCreateManyAndReturnArgs} args - Arguments to create many BillingRecords.
+     * @example
+     * // Create many BillingRecords
+     * const billingRecord = await prisma.billingRecord.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BillingRecords and only return the `id`
+     * const billingRecordWithIdOnly = await prisma.billingRecord.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BillingRecordCreateManyAndReturnArgs>(args?: SelectSubset<T, BillingRecordCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillingRecordPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a BillingRecord.
+     * @param {BillingRecordDeleteArgs} args - Arguments to delete one BillingRecord.
+     * @example
+     * // Delete one BillingRecord
+     * const BillingRecord = await prisma.billingRecord.delete({
+     *   where: {
+     *     // ... filter to delete one BillingRecord
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BillingRecordDeleteArgs>(args: SelectSubset<T, BillingRecordDeleteArgs<ExtArgs>>): Prisma__BillingRecordClient<$Result.GetResult<Prisma.$BillingRecordPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one BillingRecord.
+     * @param {BillingRecordUpdateArgs} args - Arguments to update one BillingRecord.
+     * @example
+     * // Update one BillingRecord
+     * const billingRecord = await prisma.billingRecord.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BillingRecordUpdateArgs>(args: SelectSubset<T, BillingRecordUpdateArgs<ExtArgs>>): Prisma__BillingRecordClient<$Result.GetResult<Prisma.$BillingRecordPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more BillingRecords.
+     * @param {BillingRecordDeleteManyArgs} args - Arguments to filter BillingRecords to delete.
+     * @example
+     * // Delete a few BillingRecords
+     * const { count } = await prisma.billingRecord.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BillingRecordDeleteManyArgs>(args?: SelectSubset<T, BillingRecordDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BillingRecords.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillingRecordUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BillingRecords
+     * const billingRecord = await prisma.billingRecord.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BillingRecordUpdateManyArgs>(args: SelectSubset<T, BillingRecordUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one BillingRecord.
+     * @param {BillingRecordUpsertArgs} args - Arguments to update or create a BillingRecord.
+     * @example
+     * // Update or create a BillingRecord
+     * const billingRecord = await prisma.billingRecord.upsert({
+     *   create: {
+     *     // ... data to create a BillingRecord
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BillingRecord we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BillingRecordUpsertArgs>(args: SelectSubset<T, BillingRecordUpsertArgs<ExtArgs>>): Prisma__BillingRecordClient<$Result.GetResult<Prisma.$BillingRecordPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of BillingRecords.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillingRecordCountArgs} args - Arguments to filter BillingRecords to count.
+     * @example
+     * // Count the number of BillingRecords
+     * const count = await prisma.billingRecord.count({
+     *   where: {
+     *     // ... the filter for the BillingRecords we want to count
+     *   }
+     * })
+    **/
+    count<T extends BillingRecordCountArgs>(
+      args?: Subset<T, BillingRecordCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BillingRecordCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BillingRecord.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillingRecordAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BillingRecordAggregateArgs>(args: Subset<T, BillingRecordAggregateArgs>): Prisma.PrismaPromise<GetBillingRecordAggregateType<T>>
+
+    /**
+     * Group by BillingRecord.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BillingRecordGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BillingRecordGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BillingRecordGroupByArgs['orderBy'] }
+        : { orderBy?: BillingRecordGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BillingRecordGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBillingRecordGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BillingRecord model
+   */
+  readonly fields: BillingRecordFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BillingRecord.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BillingRecordClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BillingRecord model
+   */ 
+  interface BillingRecordFieldRefs {
+    readonly id: FieldRef<"BillingRecord", 'String'>
+    readonly organizationId: FieldRef<"BillingRecord", 'String'>
+    readonly billingPeriod: FieldRef<"BillingRecord", 'String'>
+    readonly streamsCreated: FieldRef<"BillingRecord", 'Int'>
+    readonly disbursementsProcessed: FieldRef<"BillingRecord", 'Int'>
+    readonly apiRequests: FieldRef<"BillingRecord", 'Int'>
+    readonly volumeUsd: FieldRef<"BillingRecord", 'Decimal'>
+    readonly chargeUsd: FieldRef<"BillingRecord", 'Decimal'>
+    readonly plan: FieldRef<"BillingRecord", 'String'>
+    readonly status: FieldRef<"BillingRecord", 'String'>
+    readonly createdAt: FieldRef<"BillingRecord", 'DateTime'>
+    readonly updatedAt: FieldRef<"BillingRecord", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BillingRecord findUnique
+   */
+  export type BillingRecordFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingRecord
+     */
+    select?: BillingRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which BillingRecord to fetch.
+     */
+    where: BillingRecordWhereUniqueInput
+  }
+
+  /**
+   * BillingRecord findUniqueOrThrow
+   */
+  export type BillingRecordFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingRecord
+     */
+    select?: BillingRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which BillingRecord to fetch.
+     */
+    where: BillingRecordWhereUniqueInput
+  }
+
+  /**
+   * BillingRecord findFirst
+   */
+  export type BillingRecordFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingRecord
+     */
+    select?: BillingRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which BillingRecord to fetch.
+     */
+    where?: BillingRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BillingRecords to fetch.
+     */
+    orderBy?: BillingRecordOrderByWithRelationInput | BillingRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BillingRecords.
+     */
+    cursor?: BillingRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BillingRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BillingRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BillingRecords.
+     */
+    distinct?: BillingRecordScalarFieldEnum | BillingRecordScalarFieldEnum[]
+  }
+
+  /**
+   * BillingRecord findFirstOrThrow
+   */
+  export type BillingRecordFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingRecord
+     */
+    select?: BillingRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which BillingRecord to fetch.
+     */
+    where?: BillingRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BillingRecords to fetch.
+     */
+    orderBy?: BillingRecordOrderByWithRelationInput | BillingRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BillingRecords.
+     */
+    cursor?: BillingRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BillingRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BillingRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BillingRecords.
+     */
+    distinct?: BillingRecordScalarFieldEnum | BillingRecordScalarFieldEnum[]
+  }
+
+  /**
+   * BillingRecord findMany
+   */
+  export type BillingRecordFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingRecord
+     */
+    select?: BillingRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which BillingRecords to fetch.
+     */
+    where?: BillingRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BillingRecords to fetch.
+     */
+    orderBy?: BillingRecordOrderByWithRelationInput | BillingRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BillingRecords.
+     */
+    cursor?: BillingRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BillingRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BillingRecords.
+     */
+    skip?: number
+    distinct?: BillingRecordScalarFieldEnum | BillingRecordScalarFieldEnum[]
+  }
+
+  /**
+   * BillingRecord create
+   */
+  export type BillingRecordCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingRecord
+     */
+    select?: BillingRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingRecordInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BillingRecord.
+     */
+    data: XOR<BillingRecordCreateInput, BillingRecordUncheckedCreateInput>
+  }
+
+  /**
+   * BillingRecord createMany
+   */
+  export type BillingRecordCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BillingRecords.
+     */
+    data: BillingRecordCreateManyInput | BillingRecordCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BillingRecord createManyAndReturn
+   */
+  export type BillingRecordCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingRecord
+     */
+    select?: BillingRecordSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many BillingRecords.
+     */
+    data: BillingRecordCreateManyInput | BillingRecordCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingRecordIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BillingRecord update
+   */
+  export type BillingRecordUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingRecord
+     */
+    select?: BillingRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingRecordInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BillingRecord.
+     */
+    data: XOR<BillingRecordUpdateInput, BillingRecordUncheckedUpdateInput>
+    /**
+     * Choose, which BillingRecord to update.
+     */
+    where: BillingRecordWhereUniqueInput
+  }
+
+  /**
+   * BillingRecord updateMany
+   */
+  export type BillingRecordUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BillingRecords.
+     */
+    data: XOR<BillingRecordUpdateManyMutationInput, BillingRecordUncheckedUpdateManyInput>
+    /**
+     * Filter which BillingRecords to update
+     */
+    where?: BillingRecordWhereInput
+  }
+
+  /**
+   * BillingRecord upsert
+   */
+  export type BillingRecordUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingRecord
+     */
+    select?: BillingRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingRecordInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BillingRecord to update in case it exists.
+     */
+    where: BillingRecordWhereUniqueInput
+    /**
+     * In case the BillingRecord found by the `where` argument doesn't exist, create a new BillingRecord with this data.
+     */
+    create: XOR<BillingRecordCreateInput, BillingRecordUncheckedCreateInput>
+    /**
+     * In case the BillingRecord was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BillingRecordUpdateInput, BillingRecordUncheckedUpdateInput>
+  }
+
+  /**
+   * BillingRecord delete
+   */
+  export type BillingRecordDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingRecord
+     */
+    select?: BillingRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingRecordInclude<ExtArgs> | null
+    /**
+     * Filter which BillingRecord to delete.
+     */
+    where: BillingRecordWhereUniqueInput
+  }
+
+  /**
+   * BillingRecord deleteMany
+   */
+  export type BillingRecordDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BillingRecords to delete
+     */
+    where?: BillingRecordWhereInput
+  }
+
+  /**
+   * BillingRecord without action
+   */
+  export type BillingRecordDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BillingRecord
+     */
+    select?: BillingRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillingRecordInclude<ExtArgs> | null
   }
 
 
@@ -35911,6 +40763,7 @@ export namespace Prisma {
     id: string | null
     proposalId: string | null
     organizationId: string | null
+    description: string | null
     transactionXdr: string | null
     requiredSigners: number | null
     status: string | null
@@ -35925,6 +40778,7 @@ export namespace Prisma {
     id: string | null
     proposalId: string | null
     organizationId: string | null
+    description: string | null
     transactionXdr: string | null
     requiredSigners: number | null
     status: string | null
@@ -35939,6 +40793,7 @@ export namespace Prisma {
     id: number
     proposalId: number
     organizationId: number
+    description: number
     transactionXdr: number
     signatures: number
     requiredSigners: number
@@ -35964,6 +40819,7 @@ export namespace Prisma {
     id?: true
     proposalId?: true
     organizationId?: true
+    description?: true
     transactionXdr?: true
     requiredSigners?: true
     status?: true
@@ -35978,6 +40834,7 @@ export namespace Prisma {
     id?: true
     proposalId?: true
     organizationId?: true
+    description?: true
     transactionXdr?: true
     requiredSigners?: true
     status?: true
@@ -35992,6 +40849,7 @@ export namespace Prisma {
     id?: true
     proposalId?: true
     organizationId?: true
+    description?: true
     transactionXdr?: true
     signatures?: true
     requiredSigners?: true
@@ -36094,6 +40952,7 @@ export namespace Prisma {
     id: string
     proposalId: string
     organizationId: string
+    description: string | null
     transactionXdr: string
     signatures: JsonValue
     requiredSigners: number
@@ -36128,6 +40987,7 @@ export namespace Prisma {
     id?: boolean
     proposalId?: boolean
     organizationId?: boolean
+    description?: boolean
     transactionXdr?: boolean
     signatures?: boolean
     requiredSigners?: boolean
@@ -36137,12 +40997,14 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     expiresAt?: boolean
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["multisigProposal"]>
 
   export type MultisigProposalSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     proposalId?: boolean
     organizationId?: boolean
+    description?: boolean
     transactionXdr?: boolean
     signatures?: boolean
     requiredSigners?: boolean
@@ -36152,12 +41014,14 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     expiresAt?: boolean
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["multisigProposal"]>
 
   export type MultisigProposalSelectScalar = {
     id?: boolean
     proposalId?: boolean
     organizationId?: boolean
+    description?: boolean
     transactionXdr?: boolean
     signatures?: boolean
     requiredSigners?: boolean
@@ -36169,14 +41033,23 @@ export namespace Prisma {
     expiresAt?: boolean
   }
 
+  export type MultisigProposalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }
+  export type MultisigProposalIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }
 
   export type $MultisigProposalPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "MultisigProposal"
-    objects: {}
+    objects: {
+      organization: Prisma.$OrganizationPayload<ExtArgs>
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       proposalId: string
       organizationId: string
+      description: string | null
       transactionXdr: string
       signatures: Prisma.JsonValue
       requiredSigners: number
@@ -36550,6 +41423,7 @@ export namespace Prisma {
    */
   export interface Prisma__MultisigProposalClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -36582,6 +41456,7 @@ export namespace Prisma {
     readonly id: FieldRef<"MultisigProposal", 'String'>
     readonly proposalId: FieldRef<"MultisigProposal", 'String'>
     readonly organizationId: FieldRef<"MultisigProposal", 'String'>
+    readonly description: FieldRef<"MultisigProposal", 'String'>
     readonly transactionXdr: FieldRef<"MultisigProposal", 'String'>
     readonly signatures: FieldRef<"MultisigProposal", 'Json'>
     readonly requiredSigners: FieldRef<"MultisigProposal", 'Int'>
@@ -36604,6 +41479,10 @@ export namespace Prisma {
      */
     select?: MultisigProposalSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MultisigProposalInclude<ExtArgs> | null
+    /**
      * Filter, which MultisigProposal to fetch.
      */
     where: MultisigProposalWhereUniqueInput
@@ -36618,6 +41497,10 @@ export namespace Prisma {
      */
     select?: MultisigProposalSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MultisigProposalInclude<ExtArgs> | null
+    /**
      * Filter, which MultisigProposal to fetch.
      */
     where: MultisigProposalWhereUniqueInput
@@ -36631,6 +41514,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the MultisigProposal
      */
     select?: MultisigProposalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MultisigProposalInclude<ExtArgs> | null
     /**
      * Filter, which MultisigProposal to fetch.
      */
@@ -36676,6 +41563,10 @@ export namespace Prisma {
      */
     select?: MultisigProposalSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MultisigProposalInclude<ExtArgs> | null
+    /**
      * Filter, which MultisigProposal to fetch.
      */
     where?: MultisigProposalWhereInput
@@ -36720,6 +41611,10 @@ export namespace Prisma {
      */
     select?: MultisigProposalSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MultisigProposalInclude<ExtArgs> | null
+    /**
      * Filter, which MultisigProposals to fetch.
      */
     where?: MultisigProposalWhereInput
@@ -36759,6 +41654,10 @@ export namespace Prisma {
      */
     select?: MultisigProposalSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MultisigProposalInclude<ExtArgs> | null
+    /**
      * The data needed to create a MultisigProposal.
      */
     data: XOR<MultisigProposalCreateInput, MultisigProposalUncheckedCreateInput>
@@ -36788,6 +41687,10 @@ export namespace Prisma {
      */
     data: MultisigProposalCreateManyInput | MultisigProposalCreateManyInput[]
     skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MultisigProposalIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -36798,6 +41701,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the MultisigProposal
      */
     select?: MultisigProposalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MultisigProposalInclude<ExtArgs> | null
     /**
      * The data needed to update a MultisigProposal.
      */
@@ -36831,6 +41738,10 @@ export namespace Prisma {
      */
     select?: MultisigProposalSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MultisigProposalInclude<ExtArgs> | null
+    /**
      * The filter to search for the MultisigProposal to update in case it exists.
      */
     where: MultisigProposalWhereUniqueInput
@@ -36852,6 +41763,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the MultisigProposal
      */
     select?: MultisigProposalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MultisigProposalInclude<ExtArgs> | null
     /**
      * Filter which MultisigProposal to delete.
      */
@@ -36876,6 +41791,1035 @@ export namespace Prisma {
      * Select specific fields to fetch from the MultisigProposal
      */
     select?: MultisigProposalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MultisigProposalInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AuditLog
+   */
+
+  export type AggregateAuditLog = {
+    _count: AuditLogCountAggregateOutputType | null
+    _min: AuditLogMinAggregateOutputType | null
+    _max: AuditLogMaxAggregateOutputType | null
+  }
+
+  export type AuditLogMinAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    actionType: string | null
+    actor: string | null
+    resourceId: string | null
+    resourceType: string | null
+    entryHash: string | null
+    parentHash: string | null
+    verified: boolean | null
+    ipAddress: string | null
+    userAgent: string | null
+    createdAt: Date | null
+  }
+
+  export type AuditLogMaxAggregateOutputType = {
+    id: string | null
+    organizationId: string | null
+    actionType: string | null
+    actor: string | null
+    resourceId: string | null
+    resourceType: string | null
+    entryHash: string | null
+    parentHash: string | null
+    verified: boolean | null
+    ipAddress: string | null
+    userAgent: string | null
+    createdAt: Date | null
+  }
+
+  export type AuditLogCountAggregateOutputType = {
+    id: number
+    organizationId: number
+    actionType: number
+    actor: number
+    resourceId: number
+    resourceType: number
+    changes: number
+    entryHash: number
+    parentHash: number
+    verified: number
+    ipAddress: number
+    userAgent: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AuditLogMinAggregateInputType = {
+    id?: true
+    organizationId?: true
+    actionType?: true
+    actor?: true
+    resourceId?: true
+    resourceType?: true
+    entryHash?: true
+    parentHash?: true
+    verified?: true
+    ipAddress?: true
+    userAgent?: true
+    createdAt?: true
+  }
+
+  export type AuditLogMaxAggregateInputType = {
+    id?: true
+    organizationId?: true
+    actionType?: true
+    actor?: true
+    resourceId?: true
+    resourceType?: true
+    entryHash?: true
+    parentHash?: true
+    verified?: true
+    ipAddress?: true
+    userAgent?: true
+    createdAt?: true
+  }
+
+  export type AuditLogCountAggregateInputType = {
+    id?: true
+    organizationId?: true
+    actionType?: true
+    actor?: true
+    resourceId?: true
+    resourceType?: true
+    changes?: true
+    entryHash?: true
+    parentHash?: true
+    verified?: true
+    ipAddress?: true
+    userAgent?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AuditLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AuditLog to aggregate.
+     */
+    where?: AuditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditLogs to fetch.
+     */
+    orderBy?: AuditLogOrderByWithRelationInput | AuditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AuditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AuditLogs
+    **/
+    _count?: true | AuditLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AuditLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AuditLogMaxAggregateInputType
+  }
+
+  export type GetAuditLogAggregateType<T extends AuditLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateAuditLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAuditLog[P]>
+      : GetScalarType<T[P], AggregateAuditLog[P]>
+  }
+
+
+
+
+  export type AuditLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AuditLogWhereInput
+    orderBy?: AuditLogOrderByWithAggregationInput | AuditLogOrderByWithAggregationInput[]
+    by: AuditLogScalarFieldEnum[] | AuditLogScalarFieldEnum
+    having?: AuditLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AuditLogCountAggregateInputType | true
+    _min?: AuditLogMinAggregateInputType
+    _max?: AuditLogMaxAggregateInputType
+  }
+
+  export type AuditLogGroupByOutputType = {
+    id: string
+    organizationId: string
+    actionType: string
+    actor: string
+    resourceId: string
+    resourceType: string
+    changes: JsonValue | null
+    entryHash: string | null
+    parentHash: string | null
+    verified: boolean
+    ipAddress: string | null
+    userAgent: string | null
+    createdAt: Date
+    _count: AuditLogCountAggregateOutputType | null
+    _min: AuditLogMinAggregateOutputType | null
+    _max: AuditLogMaxAggregateOutputType | null
+  }
+
+  type GetAuditLogGroupByPayload<T extends AuditLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AuditLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AuditLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AuditLogGroupByOutputType[P]>
+            : GetScalarType<T[P], AuditLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AuditLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    actionType?: boolean
+    actor?: boolean
+    resourceId?: boolean
+    resourceType?: boolean
+    changes?: boolean
+    entryHash?: boolean
+    parentHash?: boolean
+    verified?: boolean
+    ipAddress?: boolean
+    userAgent?: boolean
+    createdAt?: boolean
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["auditLog"]>
+
+  export type AuditLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    organizationId?: boolean
+    actionType?: boolean
+    actor?: boolean
+    resourceId?: boolean
+    resourceType?: boolean
+    changes?: boolean
+    entryHash?: boolean
+    parentHash?: boolean
+    verified?: boolean
+    ipAddress?: boolean
+    userAgent?: boolean
+    createdAt?: boolean
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["auditLog"]>
+
+  export type AuditLogSelectScalar = {
+    id?: boolean
+    organizationId?: boolean
+    actionType?: boolean
+    actor?: boolean
+    resourceId?: boolean
+    resourceType?: boolean
+    changes?: boolean
+    entryHash?: boolean
+    parentHash?: boolean
+    verified?: boolean
+    ipAddress?: boolean
+    userAgent?: boolean
+    createdAt?: boolean
+  }
+
+  export type AuditLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }
+  export type AuditLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | OrganizationDefaultArgs<ExtArgs>
+  }
+
+  export type $AuditLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AuditLog"
+    objects: {
+      organization: Prisma.$OrganizationPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      organizationId: string
+      actionType: string
+      actor: string
+      resourceId: string
+      resourceType: string
+      changes: Prisma.JsonValue | null
+      entryHash: string | null
+      parentHash: string | null
+      verified: boolean
+      ipAddress: string | null
+      userAgent: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["auditLog"]>
+    composites: {}
+  }
+
+  type AuditLogGetPayload<S extends boolean | null | undefined | AuditLogDefaultArgs> = $Result.GetResult<Prisma.$AuditLogPayload, S>
+
+  type AuditLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AuditLogFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: AuditLogCountAggregateInputType | true
+    }
+
+  export interface AuditLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AuditLog'], meta: { name: 'AuditLog' } }
+    /**
+     * Find zero or one AuditLog that matches the filter.
+     * @param {AuditLogFindUniqueArgs} args - Arguments to find a AuditLog
+     * @example
+     * // Get one AuditLog
+     * const auditLog = await prisma.auditLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AuditLogFindUniqueArgs>(args: SelectSubset<T, AuditLogFindUniqueArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one AuditLog that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {AuditLogFindUniqueOrThrowArgs} args - Arguments to find a AuditLog
+     * @example
+     * // Get one AuditLog
+     * const auditLog = await prisma.auditLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AuditLogFindUniqueOrThrowArgs>(args: SelectSubset<T, AuditLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first AuditLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogFindFirstArgs} args - Arguments to find a AuditLog
+     * @example
+     * // Get one AuditLog
+     * const auditLog = await prisma.auditLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AuditLogFindFirstArgs>(args?: SelectSubset<T, AuditLogFindFirstArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first AuditLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogFindFirstOrThrowArgs} args - Arguments to find a AuditLog
+     * @example
+     * // Get one AuditLog
+     * const auditLog = await prisma.auditLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AuditLogFindFirstOrThrowArgs>(args?: SelectSubset<T, AuditLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more AuditLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AuditLogs
+     * const auditLogs = await prisma.auditLog.findMany()
+     * 
+     * // Get first 10 AuditLogs
+     * const auditLogs = await prisma.auditLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const auditLogWithIdOnly = await prisma.auditLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AuditLogFindManyArgs>(args?: SelectSubset<T, AuditLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a AuditLog.
+     * @param {AuditLogCreateArgs} args - Arguments to create a AuditLog.
+     * @example
+     * // Create one AuditLog
+     * const AuditLog = await prisma.auditLog.create({
+     *   data: {
+     *     // ... data to create a AuditLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends AuditLogCreateArgs>(args: SelectSubset<T, AuditLogCreateArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many AuditLogs.
+     * @param {AuditLogCreateManyArgs} args - Arguments to create many AuditLogs.
+     * @example
+     * // Create many AuditLogs
+     * const auditLog = await prisma.auditLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AuditLogCreateManyArgs>(args?: SelectSubset<T, AuditLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AuditLogs and returns the data saved in the database.
+     * @param {AuditLogCreateManyAndReturnArgs} args - Arguments to create many AuditLogs.
+     * @example
+     * // Create many AuditLogs
+     * const auditLog = await prisma.auditLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AuditLogs and only return the `id`
+     * const auditLogWithIdOnly = await prisma.auditLog.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AuditLogCreateManyAndReturnArgs>(args?: SelectSubset<T, AuditLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a AuditLog.
+     * @param {AuditLogDeleteArgs} args - Arguments to delete one AuditLog.
+     * @example
+     * // Delete one AuditLog
+     * const AuditLog = await prisma.auditLog.delete({
+     *   where: {
+     *     // ... filter to delete one AuditLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AuditLogDeleteArgs>(args: SelectSubset<T, AuditLogDeleteArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one AuditLog.
+     * @param {AuditLogUpdateArgs} args - Arguments to update one AuditLog.
+     * @example
+     * // Update one AuditLog
+     * const auditLog = await prisma.auditLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AuditLogUpdateArgs>(args: SelectSubset<T, AuditLogUpdateArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more AuditLogs.
+     * @param {AuditLogDeleteManyArgs} args - Arguments to filter AuditLogs to delete.
+     * @example
+     * // Delete a few AuditLogs
+     * const { count } = await prisma.auditLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AuditLogDeleteManyArgs>(args?: SelectSubset<T, AuditLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AuditLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AuditLogs
+     * const auditLog = await prisma.auditLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AuditLogUpdateManyArgs>(args: SelectSubset<T, AuditLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one AuditLog.
+     * @param {AuditLogUpsertArgs} args - Arguments to update or create a AuditLog.
+     * @example
+     * // Update or create a AuditLog
+     * const auditLog = await prisma.auditLog.upsert({
+     *   create: {
+     *     // ... data to create a AuditLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AuditLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AuditLogUpsertArgs>(args: SelectSubset<T, AuditLogUpsertArgs<ExtArgs>>): Prisma__AuditLogClient<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of AuditLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogCountArgs} args - Arguments to filter AuditLogs to count.
+     * @example
+     * // Count the number of AuditLogs
+     * const count = await prisma.auditLog.count({
+     *   where: {
+     *     // ... the filter for the AuditLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends AuditLogCountArgs>(
+      args?: Subset<T, AuditLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AuditLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AuditLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AuditLogAggregateArgs>(args: Subset<T, AuditLogAggregateArgs>): Prisma.PrismaPromise<GetAuditLogAggregateType<T>>
+
+    /**
+     * Group by AuditLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AuditLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AuditLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AuditLogGroupByArgs['orderBy'] }
+        : { orderBy?: AuditLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AuditLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAuditLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AuditLog model
+   */
+  readonly fields: AuditLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AuditLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AuditLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends OrganizationDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizationDefaultArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AuditLog model
+   */ 
+  interface AuditLogFieldRefs {
+    readonly id: FieldRef<"AuditLog", 'String'>
+    readonly organizationId: FieldRef<"AuditLog", 'String'>
+    readonly actionType: FieldRef<"AuditLog", 'String'>
+    readonly actor: FieldRef<"AuditLog", 'String'>
+    readonly resourceId: FieldRef<"AuditLog", 'String'>
+    readonly resourceType: FieldRef<"AuditLog", 'String'>
+    readonly changes: FieldRef<"AuditLog", 'Json'>
+    readonly entryHash: FieldRef<"AuditLog", 'String'>
+    readonly parentHash: FieldRef<"AuditLog", 'String'>
+    readonly verified: FieldRef<"AuditLog", 'Boolean'>
+    readonly ipAddress: FieldRef<"AuditLog", 'String'>
+    readonly userAgent: FieldRef<"AuditLog", 'String'>
+    readonly createdAt: FieldRef<"AuditLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AuditLog findUnique
+   */
+  export type AuditLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditLog to fetch.
+     */
+    where: AuditLogWhereUniqueInput
+  }
+
+  /**
+   * AuditLog findUniqueOrThrow
+   */
+  export type AuditLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditLog to fetch.
+     */
+    where: AuditLogWhereUniqueInput
+  }
+
+  /**
+   * AuditLog findFirst
+   */
+  export type AuditLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditLog to fetch.
+     */
+    where?: AuditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditLogs to fetch.
+     */
+    orderBy?: AuditLogOrderByWithRelationInput | AuditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AuditLogs.
+     */
+    cursor?: AuditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AuditLogs.
+     */
+    distinct?: AuditLogScalarFieldEnum | AuditLogScalarFieldEnum[]
+  }
+
+  /**
+   * AuditLog findFirstOrThrow
+   */
+  export type AuditLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditLog to fetch.
+     */
+    where?: AuditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditLogs to fetch.
+     */
+    orderBy?: AuditLogOrderByWithRelationInput | AuditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AuditLogs.
+     */
+    cursor?: AuditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AuditLogs.
+     */
+    distinct?: AuditLogScalarFieldEnum | AuditLogScalarFieldEnum[]
+  }
+
+  /**
+   * AuditLog findMany
+   */
+  export type AuditLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    /**
+     * Filter, which AuditLogs to fetch.
+     */
+    where?: AuditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AuditLogs to fetch.
+     */
+    orderBy?: AuditLogOrderByWithRelationInput | AuditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AuditLogs.
+     */
+    cursor?: AuditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AuditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AuditLogs.
+     */
+    skip?: number
+    distinct?: AuditLogScalarFieldEnum | AuditLogScalarFieldEnum[]
+  }
+
+  /**
+   * AuditLog create
+   */
+  export type AuditLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AuditLog.
+     */
+    data: XOR<AuditLogCreateInput, AuditLogUncheckedCreateInput>
+  }
+
+  /**
+   * AuditLog createMany
+   */
+  export type AuditLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AuditLogs.
+     */
+    data: AuditLogCreateManyInput | AuditLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AuditLog createManyAndReturn
+   */
+  export type AuditLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many AuditLogs.
+     */
+    data: AuditLogCreateManyInput | AuditLogCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AuditLog update
+   */
+  export type AuditLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AuditLog.
+     */
+    data: XOR<AuditLogUpdateInput, AuditLogUncheckedUpdateInput>
+    /**
+     * Choose, which AuditLog to update.
+     */
+    where: AuditLogWhereUniqueInput
+  }
+
+  /**
+   * AuditLog updateMany
+   */
+  export type AuditLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AuditLogs.
+     */
+    data: XOR<AuditLogUpdateManyMutationInput, AuditLogUncheckedUpdateManyInput>
+    /**
+     * Filter which AuditLogs to update
+     */
+    where?: AuditLogWhereInput
+  }
+
+  /**
+   * AuditLog upsert
+   */
+  export type AuditLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AuditLog to update in case it exists.
+     */
+    where: AuditLogWhereUniqueInput
+    /**
+     * In case the AuditLog found by the `where` argument doesn't exist, create a new AuditLog with this data.
+     */
+    create: XOR<AuditLogCreateInput, AuditLogUncheckedCreateInput>
+    /**
+     * In case the AuditLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AuditLogUpdateInput, AuditLogUncheckedUpdateInput>
+  }
+
+  /**
+   * AuditLog delete
+   */
+  export type AuditLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
+    /**
+     * Filter which AuditLog to delete.
+     */
+    where: AuditLogWhereUniqueInput
+  }
+
+  /**
+   * AuditLog deleteMany
+   */
+  export type AuditLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AuditLogs to delete
+     */
+    where?: AuditLogWhereInput
+  }
+
+  /**
+   * AuditLog without action
+   */
+  export type AuditLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AuditLog
+     */
+    select?: AuditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AuditLogInclude<ExtArgs> | null
   }
 
 
@@ -39063,18 +45007,90 @@ export namespace Prisma {
   export type EventScalarFieldEnum = (typeof EventScalarFieldEnum)[keyof typeof EventScalarFieldEnum]
 
 
-  export const OrganizationMemberScalarFieldEnum: {
+  export const OrganizationScalarFieldEnum: {
     id: 'id',
-    orgAddress: 'orgAddress',
-    memberAddress: 'memberAddress',
-    role: 'role',
-    addedBy: 'addedBy',
+    gAddress: 'gAddress',
+    name: 'name',
+    description: 'description',
+    logoUrl: 'logoUrl',
+    customDomain: 'customDomain',
+    contactEmail: 'contactEmail',
+    createdBy: 'createdBy',
     isActive: 'isActive',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
+  export type OrganizationScalarFieldEnum = (typeof OrganizationScalarFieldEnum)[keyof typeof OrganizationScalarFieldEnum]
+
+
+  export const OrganizationMemberScalarFieldEnum: {
+    id: 'id',
+    organizationId: 'organizationId',
+    orgAddress: 'orgAddress',
+    memberAddress: 'memberAddress',
+    role: 'role',
+    addedBy: 'addedBy',
+    isActive: 'isActive',
+    lastActivityAt: 'lastActivityAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
   export type OrganizationMemberScalarFieldEnum = (typeof OrganizationMemberScalarFieldEnum)[keyof typeof OrganizationMemberScalarFieldEnum]
+
+
+  export const InvitationScalarFieldEnum: {
+    id: 'id',
+    organizationId: 'organizationId',
+    inviteeEmail: 'inviteeEmail',
+    role: 'role',
+    tokenHash: 'tokenHash',
+    status: 'status',
+    expiresAt: 'expiresAt',
+    acceptedBy: 'acceptedBy',
+    acceptedAt: 'acceptedAt',
+    revokedBy: 'revokedBy',
+    revokedAt: 'revokedAt',
+    invitedBy: 'invitedBy',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type InvitationScalarFieldEnum = (typeof InvitationScalarFieldEnum)[keyof typeof InvitationScalarFieldEnum]
+
+
+  export const OrganizationPolicyScalarFieldEnum: {
+    id: 'id',
+    organizationId: 'organizationId',
+    dailySpendLimitUsd: 'dailySpendLimitUsd',
+    allowedAssets: 'allowedAssets',
+    requiresMultisig: 'requiresMultisig',
+    multisigThreshold: 'multisigThreshold',
+    updatedBy: 'updatedBy',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type OrganizationPolicyScalarFieldEnum = (typeof OrganizationPolicyScalarFieldEnum)[keyof typeof OrganizationPolicyScalarFieldEnum]
+
+
+  export const BillingRecordScalarFieldEnum: {
+    id: 'id',
+    organizationId: 'organizationId',
+    billingPeriod: 'billingPeriod',
+    streamsCreated: 'streamsCreated',
+    disbursementsProcessed: 'disbursementsProcessed',
+    apiRequests: 'apiRequests',
+    volumeUsd: 'volumeUsd',
+    chargeUsd: 'chargeUsd',
+    plan: 'plan',
+    status: 'status',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type BillingRecordScalarFieldEnum = (typeof BillingRecordScalarFieldEnum)[keyof typeof BillingRecordScalarFieldEnum]
 
 
   export const ApiKeyScalarFieldEnum: {
@@ -39386,6 +45402,7 @@ export namespace Prisma {
     id: 'id',
     proposalId: 'proposalId',
     organizationId: 'organizationId',
+    description: 'description',
     transactionXdr: 'transactionXdr',
     signatures: 'signatures',
     requiredSigners: 'requiredSigners',
@@ -39398,6 +45415,25 @@ export namespace Prisma {
   };
 
   export type MultisigProposalScalarFieldEnum = (typeof MultisigProposalScalarFieldEnum)[keyof typeof MultisigProposalScalarFieldEnum]
+
+
+  export const AuditLogScalarFieldEnum: {
+    id: 'id',
+    organizationId: 'organizationId',
+    actionType: 'actionType',
+    actor: 'actor',
+    resourceId: 'resourceId',
+    resourceType: 'resourceType',
+    changes: 'changes',
+    entryHash: 'entryHash',
+    parentHash: 'parentHash',
+    verified: 'verified',
+    ipAddress: 'ipAddress',
+    userAgent: 'userAgent',
+    createdAt: 'createdAt'
+  };
+
+  export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
 
 
   export const CachedAssetScalarFieldEnum: {
@@ -39447,6 +45483,14 @@ export namespace Prisma {
   };
 
   export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
   export const QueryMode: {
@@ -39588,6 +45632,20 @@ export namespace Prisma {
    * Reference to a field of type 'OrgRole[]'
    */
   export type ListEnumOrgRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrgRole[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Decimal'
+   */
+  export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+    
+
+
+  /**
+   * Reference to a field of type 'Decimal[]'
+   */
+  export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
     
 
 
@@ -40617,53 +46675,164 @@ export namespace Prisma {
     previousHash?: StringNullableWithAggregatesFilter<"Event"> | string | null
   }
 
+  export type OrganizationWhereInput = {
+    AND?: OrganizationWhereInput | OrganizationWhereInput[]
+    OR?: OrganizationWhereInput[]
+    NOT?: OrganizationWhereInput | OrganizationWhereInput[]
+    id?: StringFilter<"Organization"> | string
+    gAddress?: StringFilter<"Organization"> | string
+    name?: StringFilter<"Organization"> | string
+    description?: StringNullableFilter<"Organization"> | string | null
+    logoUrl?: StringNullableFilter<"Organization"> | string | null
+    customDomain?: StringNullableFilter<"Organization"> | string | null
+    contactEmail?: StringNullableFilter<"Organization"> | string | null
+    createdBy?: StringFilter<"Organization"> | string
+    isActive?: BoolFilter<"Organization"> | boolean
+    createdAt?: DateTimeFilter<"Organization"> | Date | string
+    updatedAt?: DateTimeFilter<"Organization"> | Date | string
+    members?: OrganizationMemberListRelationFilter
+    invitations?: InvitationListRelationFilter
+    policies?: OrganizationPolicyListRelationFilter
+    billingRecords?: BillingRecordListRelationFilter
+    multisigProposals?: MultisigProposalListRelationFilter
+    auditLogs?: AuditLogListRelationFilter
+  }
+
+  export type OrganizationOrderByWithRelationInput = {
+    id?: SortOrder
+    gAddress?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    logoUrl?: SortOrderInput | SortOrder
+    customDomain?: SortOrderInput | SortOrder
+    contactEmail?: SortOrderInput | SortOrder
+    createdBy?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    members?: OrganizationMemberOrderByRelationAggregateInput
+    invitations?: InvitationOrderByRelationAggregateInput
+    policies?: OrganizationPolicyOrderByRelationAggregateInput
+    billingRecords?: BillingRecordOrderByRelationAggregateInput
+    multisigProposals?: MultisigProposalOrderByRelationAggregateInput
+    auditLogs?: AuditLogOrderByRelationAggregateInput
+  }
+
+  export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    gAddress?: string
+    AND?: OrganizationWhereInput | OrganizationWhereInput[]
+    OR?: OrganizationWhereInput[]
+    NOT?: OrganizationWhereInput | OrganizationWhereInput[]
+    name?: StringFilter<"Organization"> | string
+    description?: StringNullableFilter<"Organization"> | string | null
+    logoUrl?: StringNullableFilter<"Organization"> | string | null
+    customDomain?: StringNullableFilter<"Organization"> | string | null
+    contactEmail?: StringNullableFilter<"Organization"> | string | null
+    createdBy?: StringFilter<"Organization"> | string
+    isActive?: BoolFilter<"Organization"> | boolean
+    createdAt?: DateTimeFilter<"Organization"> | Date | string
+    updatedAt?: DateTimeFilter<"Organization"> | Date | string
+    members?: OrganizationMemberListRelationFilter
+    invitations?: InvitationListRelationFilter
+    policies?: OrganizationPolicyListRelationFilter
+    billingRecords?: BillingRecordListRelationFilter
+    multisigProposals?: MultisigProposalListRelationFilter
+    auditLogs?: AuditLogListRelationFilter
+  }, "id" | "gAddress">
+
+  export type OrganizationOrderByWithAggregationInput = {
+    id?: SortOrder
+    gAddress?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    logoUrl?: SortOrderInput | SortOrder
+    customDomain?: SortOrderInput | SortOrder
+    contactEmail?: SortOrderInput | SortOrder
+    createdBy?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: OrganizationCountOrderByAggregateInput
+    _max?: OrganizationMaxOrderByAggregateInput
+    _min?: OrganizationMinOrderByAggregateInput
+  }
+
+  export type OrganizationScalarWhereWithAggregatesInput = {
+    AND?: OrganizationScalarWhereWithAggregatesInput | OrganizationScalarWhereWithAggregatesInput[]
+    OR?: OrganizationScalarWhereWithAggregatesInput[]
+    NOT?: OrganizationScalarWhereWithAggregatesInput | OrganizationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Organization"> | string
+    gAddress?: StringWithAggregatesFilter<"Organization"> | string
+    name?: StringWithAggregatesFilter<"Organization"> | string
+    description?: StringNullableWithAggregatesFilter<"Organization"> | string | null
+    logoUrl?: StringNullableWithAggregatesFilter<"Organization"> | string | null
+    customDomain?: StringNullableWithAggregatesFilter<"Organization"> | string | null
+    contactEmail?: StringNullableWithAggregatesFilter<"Organization"> | string | null
+    createdBy?: StringWithAggregatesFilter<"Organization"> | string
+    isActive?: BoolWithAggregatesFilter<"Organization"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"Organization"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Organization"> | Date | string
+  }
+
   export type OrganizationMemberWhereInput = {
     AND?: OrganizationMemberWhereInput | OrganizationMemberWhereInput[]
     OR?: OrganizationMemberWhereInput[]
     NOT?: OrganizationMemberWhereInput | OrganizationMemberWhereInput[]
     id?: StringFilter<"OrganizationMember"> | string
+    organizationId?: StringFilter<"OrganizationMember"> | string
     orgAddress?: StringFilter<"OrganizationMember"> | string
     memberAddress?: StringFilter<"OrganizationMember"> | string
     role?: EnumOrgRoleFilter<"OrganizationMember"> | $Enums.OrgRole
     addedBy?: StringFilter<"OrganizationMember"> | string
     isActive?: BoolFilter<"OrganizationMember"> | boolean
+    lastActivityAt?: DateTimeNullableFilter<"OrganizationMember"> | Date | string | null
     createdAt?: DateTimeFilter<"OrganizationMember"> | Date | string
     updatedAt?: DateTimeFilter<"OrganizationMember"> | Date | string
+    organization?: XOR<OrganizationRelationFilter, OrganizationWhereInput>
   }
 
   export type OrganizationMemberOrderByWithRelationInput = {
     id?: SortOrder
+    organizationId?: SortOrder
     orgAddress?: SortOrder
     memberAddress?: SortOrder
     role?: SortOrder
     addedBy?: SortOrder
     isActive?: SortOrder
+    lastActivityAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    organization?: OrganizationOrderByWithRelationInput
   }
 
   export type OrganizationMemberWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    orgAddress_memberAddress?: OrganizationMemberOrgAddressMemberAddressCompoundUniqueInput
+    organizationId_memberAddress?: OrganizationMemberOrganizationIdMemberAddressCompoundUniqueInput
     AND?: OrganizationMemberWhereInput | OrganizationMemberWhereInput[]
     OR?: OrganizationMemberWhereInput[]
     NOT?: OrganizationMemberWhereInput | OrganizationMemberWhereInput[]
+    organizationId?: StringFilter<"OrganizationMember"> | string
     orgAddress?: StringFilter<"OrganizationMember"> | string
     memberAddress?: StringFilter<"OrganizationMember"> | string
     role?: EnumOrgRoleFilter<"OrganizationMember"> | $Enums.OrgRole
     addedBy?: StringFilter<"OrganizationMember"> | string
     isActive?: BoolFilter<"OrganizationMember"> | boolean
+    lastActivityAt?: DateTimeNullableFilter<"OrganizationMember"> | Date | string | null
     createdAt?: DateTimeFilter<"OrganizationMember"> | Date | string
     updatedAt?: DateTimeFilter<"OrganizationMember"> | Date | string
-  }, "id" | "orgAddress_memberAddress">
+    organization?: XOR<OrganizationRelationFilter, OrganizationWhereInput>
+  }, "id" | "organizationId_memberAddress">
 
   export type OrganizationMemberOrderByWithAggregationInput = {
     id?: SortOrder
+    organizationId?: SortOrder
     orgAddress?: SortOrder
     memberAddress?: SortOrder
     role?: SortOrder
     addedBy?: SortOrder
     isActive?: SortOrder
+    lastActivityAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: OrganizationMemberCountOrderByAggregateInput
@@ -40676,13 +46845,285 @@ export namespace Prisma {
     OR?: OrganizationMemberScalarWhereWithAggregatesInput[]
     NOT?: OrganizationMemberScalarWhereWithAggregatesInput | OrganizationMemberScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"OrganizationMember"> | string
+    organizationId?: StringWithAggregatesFilter<"OrganizationMember"> | string
     orgAddress?: StringWithAggregatesFilter<"OrganizationMember"> | string
     memberAddress?: StringWithAggregatesFilter<"OrganizationMember"> | string
     role?: EnumOrgRoleWithAggregatesFilter<"OrganizationMember"> | $Enums.OrgRole
     addedBy?: StringWithAggregatesFilter<"OrganizationMember"> | string
     isActive?: BoolWithAggregatesFilter<"OrganizationMember"> | boolean
+    lastActivityAt?: DateTimeNullableWithAggregatesFilter<"OrganizationMember"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"OrganizationMember"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"OrganizationMember"> | Date | string
+  }
+
+  export type InvitationWhereInput = {
+    AND?: InvitationWhereInput | InvitationWhereInput[]
+    OR?: InvitationWhereInput[]
+    NOT?: InvitationWhereInput | InvitationWhereInput[]
+    id?: StringFilter<"Invitation"> | string
+    organizationId?: StringFilter<"Invitation"> | string
+    inviteeEmail?: StringFilter<"Invitation"> | string
+    role?: EnumOrgRoleFilter<"Invitation"> | $Enums.OrgRole
+    tokenHash?: StringFilter<"Invitation"> | string
+    status?: StringFilter<"Invitation"> | string
+    expiresAt?: DateTimeFilter<"Invitation"> | Date | string
+    acceptedBy?: StringNullableFilter<"Invitation"> | string | null
+    acceptedAt?: DateTimeNullableFilter<"Invitation"> | Date | string | null
+    revokedBy?: StringNullableFilter<"Invitation"> | string | null
+    revokedAt?: DateTimeNullableFilter<"Invitation"> | Date | string | null
+    invitedBy?: StringFilter<"Invitation"> | string
+    createdAt?: DateTimeFilter<"Invitation"> | Date | string
+    updatedAt?: DateTimeFilter<"Invitation"> | Date | string
+    organization?: XOR<OrganizationRelationFilter, OrganizationWhereInput>
+  }
+
+  export type InvitationOrderByWithRelationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    inviteeEmail?: SortOrder
+    role?: SortOrder
+    tokenHash?: SortOrder
+    status?: SortOrder
+    expiresAt?: SortOrder
+    acceptedBy?: SortOrderInput | SortOrder
+    acceptedAt?: SortOrderInput | SortOrder
+    revokedBy?: SortOrderInput | SortOrder
+    revokedAt?: SortOrderInput | SortOrder
+    invitedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    organization?: OrganizationOrderByWithRelationInput
+  }
+
+  export type InvitationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tokenHash?: string
+    AND?: InvitationWhereInput | InvitationWhereInput[]
+    OR?: InvitationWhereInput[]
+    NOT?: InvitationWhereInput | InvitationWhereInput[]
+    organizationId?: StringFilter<"Invitation"> | string
+    inviteeEmail?: StringFilter<"Invitation"> | string
+    role?: EnumOrgRoleFilter<"Invitation"> | $Enums.OrgRole
+    status?: StringFilter<"Invitation"> | string
+    expiresAt?: DateTimeFilter<"Invitation"> | Date | string
+    acceptedBy?: StringNullableFilter<"Invitation"> | string | null
+    acceptedAt?: DateTimeNullableFilter<"Invitation"> | Date | string | null
+    revokedBy?: StringNullableFilter<"Invitation"> | string | null
+    revokedAt?: DateTimeNullableFilter<"Invitation"> | Date | string | null
+    invitedBy?: StringFilter<"Invitation"> | string
+    createdAt?: DateTimeFilter<"Invitation"> | Date | string
+    updatedAt?: DateTimeFilter<"Invitation"> | Date | string
+    organization?: XOR<OrganizationRelationFilter, OrganizationWhereInput>
+  }, "id" | "tokenHash">
+
+  export type InvitationOrderByWithAggregationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    inviteeEmail?: SortOrder
+    role?: SortOrder
+    tokenHash?: SortOrder
+    status?: SortOrder
+    expiresAt?: SortOrder
+    acceptedBy?: SortOrderInput | SortOrder
+    acceptedAt?: SortOrderInput | SortOrder
+    revokedBy?: SortOrderInput | SortOrder
+    revokedAt?: SortOrderInput | SortOrder
+    invitedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: InvitationCountOrderByAggregateInput
+    _max?: InvitationMaxOrderByAggregateInput
+    _min?: InvitationMinOrderByAggregateInput
+  }
+
+  export type InvitationScalarWhereWithAggregatesInput = {
+    AND?: InvitationScalarWhereWithAggregatesInput | InvitationScalarWhereWithAggregatesInput[]
+    OR?: InvitationScalarWhereWithAggregatesInput[]
+    NOT?: InvitationScalarWhereWithAggregatesInput | InvitationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Invitation"> | string
+    organizationId?: StringWithAggregatesFilter<"Invitation"> | string
+    inviteeEmail?: StringWithAggregatesFilter<"Invitation"> | string
+    role?: EnumOrgRoleWithAggregatesFilter<"Invitation"> | $Enums.OrgRole
+    tokenHash?: StringWithAggregatesFilter<"Invitation"> | string
+    status?: StringWithAggregatesFilter<"Invitation"> | string
+    expiresAt?: DateTimeWithAggregatesFilter<"Invitation"> | Date | string
+    acceptedBy?: StringNullableWithAggregatesFilter<"Invitation"> | string | null
+    acceptedAt?: DateTimeNullableWithAggregatesFilter<"Invitation"> | Date | string | null
+    revokedBy?: StringNullableWithAggregatesFilter<"Invitation"> | string | null
+    revokedAt?: DateTimeNullableWithAggregatesFilter<"Invitation"> | Date | string | null
+    invitedBy?: StringWithAggregatesFilter<"Invitation"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Invitation"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Invitation"> | Date | string
+  }
+
+  export type OrganizationPolicyWhereInput = {
+    AND?: OrganizationPolicyWhereInput | OrganizationPolicyWhereInput[]
+    OR?: OrganizationPolicyWhereInput[]
+    NOT?: OrganizationPolicyWhereInput | OrganizationPolicyWhereInput[]
+    id?: StringFilter<"OrganizationPolicy"> | string
+    organizationId?: StringFilter<"OrganizationPolicy"> | string
+    dailySpendLimitUsd?: DecimalNullableFilter<"OrganizationPolicy"> | Decimal | DecimalJsLike | number | string | null
+    allowedAssets?: StringNullableFilter<"OrganizationPolicy"> | string | null
+    requiresMultisig?: BoolFilter<"OrganizationPolicy"> | boolean
+    multisigThreshold?: IntNullableFilter<"OrganizationPolicy"> | number | null
+    updatedBy?: StringNullableFilter<"OrganizationPolicy"> | string | null
+    createdAt?: DateTimeFilter<"OrganizationPolicy"> | Date | string
+    updatedAt?: DateTimeFilter<"OrganizationPolicy"> | Date | string
+    organization?: XOR<OrganizationRelationFilter, OrganizationWhereInput>
+  }
+
+  export type OrganizationPolicyOrderByWithRelationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    dailySpendLimitUsd?: SortOrderInput | SortOrder
+    allowedAssets?: SortOrderInput | SortOrder
+    requiresMultisig?: SortOrder
+    multisigThreshold?: SortOrderInput | SortOrder
+    updatedBy?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    organization?: OrganizationOrderByWithRelationInput
+  }
+
+  export type OrganizationPolicyWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    organizationId?: string
+    AND?: OrganizationPolicyWhereInput | OrganizationPolicyWhereInput[]
+    OR?: OrganizationPolicyWhereInput[]
+    NOT?: OrganizationPolicyWhereInput | OrganizationPolicyWhereInput[]
+    dailySpendLimitUsd?: DecimalNullableFilter<"OrganizationPolicy"> | Decimal | DecimalJsLike | number | string | null
+    allowedAssets?: StringNullableFilter<"OrganizationPolicy"> | string | null
+    requiresMultisig?: BoolFilter<"OrganizationPolicy"> | boolean
+    multisigThreshold?: IntNullableFilter<"OrganizationPolicy"> | number | null
+    updatedBy?: StringNullableFilter<"OrganizationPolicy"> | string | null
+    createdAt?: DateTimeFilter<"OrganizationPolicy"> | Date | string
+    updatedAt?: DateTimeFilter<"OrganizationPolicy"> | Date | string
+    organization?: XOR<OrganizationRelationFilter, OrganizationWhereInput>
+  }, "id" | "organizationId">
+
+  export type OrganizationPolicyOrderByWithAggregationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    dailySpendLimitUsd?: SortOrderInput | SortOrder
+    allowedAssets?: SortOrderInput | SortOrder
+    requiresMultisig?: SortOrder
+    multisigThreshold?: SortOrderInput | SortOrder
+    updatedBy?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: OrganizationPolicyCountOrderByAggregateInput
+    _avg?: OrganizationPolicyAvgOrderByAggregateInput
+    _max?: OrganizationPolicyMaxOrderByAggregateInput
+    _min?: OrganizationPolicyMinOrderByAggregateInput
+    _sum?: OrganizationPolicySumOrderByAggregateInput
+  }
+
+  export type OrganizationPolicyScalarWhereWithAggregatesInput = {
+    AND?: OrganizationPolicyScalarWhereWithAggregatesInput | OrganizationPolicyScalarWhereWithAggregatesInput[]
+    OR?: OrganizationPolicyScalarWhereWithAggregatesInput[]
+    NOT?: OrganizationPolicyScalarWhereWithAggregatesInput | OrganizationPolicyScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OrganizationPolicy"> | string
+    organizationId?: StringWithAggregatesFilter<"OrganizationPolicy"> | string
+    dailySpendLimitUsd?: DecimalNullableWithAggregatesFilter<"OrganizationPolicy"> | Decimal | DecimalJsLike | number | string | null
+    allowedAssets?: StringNullableWithAggregatesFilter<"OrganizationPolicy"> | string | null
+    requiresMultisig?: BoolWithAggregatesFilter<"OrganizationPolicy"> | boolean
+    multisigThreshold?: IntNullableWithAggregatesFilter<"OrganizationPolicy"> | number | null
+    updatedBy?: StringNullableWithAggregatesFilter<"OrganizationPolicy"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"OrganizationPolicy"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"OrganizationPolicy"> | Date | string
+  }
+
+  export type BillingRecordWhereInput = {
+    AND?: BillingRecordWhereInput | BillingRecordWhereInput[]
+    OR?: BillingRecordWhereInput[]
+    NOT?: BillingRecordWhereInput | BillingRecordWhereInput[]
+    id?: StringFilter<"BillingRecord"> | string
+    organizationId?: StringFilter<"BillingRecord"> | string
+    billingPeriod?: StringFilter<"BillingRecord"> | string
+    streamsCreated?: IntFilter<"BillingRecord"> | number
+    disbursementsProcessed?: IntFilter<"BillingRecord"> | number
+    apiRequests?: IntFilter<"BillingRecord"> | number
+    volumeUsd?: DecimalFilter<"BillingRecord"> | Decimal | DecimalJsLike | number | string
+    chargeUsd?: DecimalFilter<"BillingRecord"> | Decimal | DecimalJsLike | number | string
+    plan?: StringFilter<"BillingRecord"> | string
+    status?: StringFilter<"BillingRecord"> | string
+    createdAt?: DateTimeFilter<"BillingRecord"> | Date | string
+    updatedAt?: DateTimeFilter<"BillingRecord"> | Date | string
+    organization?: XOR<OrganizationRelationFilter, OrganizationWhereInput>
+  }
+
+  export type BillingRecordOrderByWithRelationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    billingPeriod?: SortOrder
+    streamsCreated?: SortOrder
+    disbursementsProcessed?: SortOrder
+    apiRequests?: SortOrder
+    volumeUsd?: SortOrder
+    chargeUsd?: SortOrder
+    plan?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    organization?: OrganizationOrderByWithRelationInput
+  }
+
+  export type BillingRecordWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    organizationId_billingPeriod?: BillingRecordOrganizationIdBillingPeriodCompoundUniqueInput
+    AND?: BillingRecordWhereInput | BillingRecordWhereInput[]
+    OR?: BillingRecordWhereInput[]
+    NOT?: BillingRecordWhereInput | BillingRecordWhereInput[]
+    organizationId?: StringFilter<"BillingRecord"> | string
+    billingPeriod?: StringFilter<"BillingRecord"> | string
+    streamsCreated?: IntFilter<"BillingRecord"> | number
+    disbursementsProcessed?: IntFilter<"BillingRecord"> | number
+    apiRequests?: IntFilter<"BillingRecord"> | number
+    volumeUsd?: DecimalFilter<"BillingRecord"> | Decimal | DecimalJsLike | number | string
+    chargeUsd?: DecimalFilter<"BillingRecord"> | Decimal | DecimalJsLike | number | string
+    plan?: StringFilter<"BillingRecord"> | string
+    status?: StringFilter<"BillingRecord"> | string
+    createdAt?: DateTimeFilter<"BillingRecord"> | Date | string
+    updatedAt?: DateTimeFilter<"BillingRecord"> | Date | string
+    organization?: XOR<OrganizationRelationFilter, OrganizationWhereInput>
+  }, "id" | "organizationId_billingPeriod">
+
+  export type BillingRecordOrderByWithAggregationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    billingPeriod?: SortOrder
+    streamsCreated?: SortOrder
+    disbursementsProcessed?: SortOrder
+    apiRequests?: SortOrder
+    volumeUsd?: SortOrder
+    chargeUsd?: SortOrder
+    plan?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: BillingRecordCountOrderByAggregateInput
+    _avg?: BillingRecordAvgOrderByAggregateInput
+    _max?: BillingRecordMaxOrderByAggregateInput
+    _min?: BillingRecordMinOrderByAggregateInput
+    _sum?: BillingRecordSumOrderByAggregateInput
+  }
+
+  export type BillingRecordScalarWhereWithAggregatesInput = {
+    AND?: BillingRecordScalarWhereWithAggregatesInput | BillingRecordScalarWhereWithAggregatesInput[]
+    OR?: BillingRecordScalarWhereWithAggregatesInput[]
+    NOT?: BillingRecordScalarWhereWithAggregatesInput | BillingRecordScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BillingRecord"> | string
+    organizationId?: StringWithAggregatesFilter<"BillingRecord"> | string
+    billingPeriod?: StringWithAggregatesFilter<"BillingRecord"> | string
+    streamsCreated?: IntWithAggregatesFilter<"BillingRecord"> | number
+    disbursementsProcessed?: IntWithAggregatesFilter<"BillingRecord"> | number
+    apiRequests?: IntWithAggregatesFilter<"BillingRecord"> | number
+    volumeUsd?: DecimalWithAggregatesFilter<"BillingRecord"> | Decimal | DecimalJsLike | number | string
+    chargeUsd?: DecimalWithAggregatesFilter<"BillingRecord"> | Decimal | DecimalJsLike | number | string
+    plan?: StringWithAggregatesFilter<"BillingRecord"> | string
+    status?: StringWithAggregatesFilter<"BillingRecord"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"BillingRecord"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"BillingRecord"> | Date | string
   }
 
   export type ApiKeyWhereInput = {
@@ -42200,6 +48641,7 @@ export namespace Prisma {
     id?: StringFilter<"MultisigProposal"> | string
     proposalId?: StringFilter<"MultisigProposal"> | string
     organizationId?: StringFilter<"MultisigProposal"> | string
+    description?: StringNullableFilter<"MultisigProposal"> | string | null
     transactionXdr?: StringFilter<"MultisigProposal"> | string
     signatures?: JsonFilter<"MultisigProposal">
     requiredSigners?: IntFilter<"MultisigProposal"> | number
@@ -42209,12 +48651,14 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"MultisigProposal"> | Date | string
     updatedAt?: DateTimeFilter<"MultisigProposal"> | Date | string
     expiresAt?: DateTimeFilter<"MultisigProposal"> | Date | string
+    organization?: XOR<OrganizationRelationFilter, OrganizationWhereInput>
   }
 
   export type MultisigProposalOrderByWithRelationInput = {
     id?: SortOrder
     proposalId?: SortOrder
     organizationId?: SortOrder
+    description?: SortOrderInput | SortOrder
     transactionXdr?: SortOrder
     signatures?: SortOrder
     requiredSigners?: SortOrder
@@ -42224,6 +48668,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     expiresAt?: SortOrder
+    organization?: OrganizationOrderByWithRelationInput
   }
 
   export type MultisigProposalWhereUniqueInput = Prisma.AtLeast<{
@@ -42233,6 +48678,7 @@ export namespace Prisma {
     OR?: MultisigProposalWhereInput[]
     NOT?: MultisigProposalWhereInput | MultisigProposalWhereInput[]
     organizationId?: StringFilter<"MultisigProposal"> | string
+    description?: StringNullableFilter<"MultisigProposal"> | string | null
     transactionXdr?: StringFilter<"MultisigProposal"> | string
     signatures?: JsonFilter<"MultisigProposal">
     requiredSigners?: IntFilter<"MultisigProposal"> | number
@@ -42242,12 +48688,14 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"MultisigProposal"> | Date | string
     updatedAt?: DateTimeFilter<"MultisigProposal"> | Date | string
     expiresAt?: DateTimeFilter<"MultisigProposal"> | Date | string
+    organization?: XOR<OrganizationRelationFilter, OrganizationWhereInput>
   }, "id" | "proposalId">
 
   export type MultisigProposalOrderByWithAggregationInput = {
     id?: SortOrder
     proposalId?: SortOrder
     organizationId?: SortOrder
+    description?: SortOrderInput | SortOrder
     transactionXdr?: SortOrder
     signatures?: SortOrder
     requiredSigners?: SortOrder
@@ -42271,6 +48719,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"MultisigProposal"> | string
     proposalId?: StringWithAggregatesFilter<"MultisigProposal"> | string
     organizationId?: StringWithAggregatesFilter<"MultisigProposal"> | string
+    description?: StringNullableWithAggregatesFilter<"MultisigProposal"> | string | null
     transactionXdr?: StringWithAggregatesFilter<"MultisigProposal"> | string
     signatures?: JsonWithAggregatesFilter<"MultisigProposal">
     requiredSigners?: IntWithAggregatesFilter<"MultisigProposal"> | number
@@ -42280,6 +48729,101 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"MultisigProposal"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"MultisigProposal"> | Date | string
     expiresAt?: DateTimeWithAggregatesFilter<"MultisigProposal"> | Date | string
+  }
+
+  export type AuditLogWhereInput = {
+    AND?: AuditLogWhereInput | AuditLogWhereInput[]
+    OR?: AuditLogWhereInput[]
+    NOT?: AuditLogWhereInput | AuditLogWhereInput[]
+    id?: StringFilter<"AuditLog"> | string
+    organizationId?: StringFilter<"AuditLog"> | string
+    actionType?: StringFilter<"AuditLog"> | string
+    actor?: StringFilter<"AuditLog"> | string
+    resourceId?: StringFilter<"AuditLog"> | string
+    resourceType?: StringFilter<"AuditLog"> | string
+    changes?: JsonNullableFilter<"AuditLog">
+    entryHash?: StringNullableFilter<"AuditLog"> | string | null
+    parentHash?: StringNullableFilter<"AuditLog"> | string | null
+    verified?: BoolFilter<"AuditLog"> | boolean
+    ipAddress?: StringNullableFilter<"AuditLog"> | string | null
+    userAgent?: StringNullableFilter<"AuditLog"> | string | null
+    createdAt?: DateTimeFilter<"AuditLog"> | Date | string
+    organization?: XOR<OrganizationRelationFilter, OrganizationWhereInput>
+  }
+
+  export type AuditLogOrderByWithRelationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    actionType?: SortOrder
+    actor?: SortOrder
+    resourceId?: SortOrder
+    resourceType?: SortOrder
+    changes?: SortOrderInput | SortOrder
+    entryHash?: SortOrderInput | SortOrder
+    parentHash?: SortOrderInput | SortOrder
+    verified?: SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    organization?: OrganizationOrderByWithRelationInput
+  }
+
+  export type AuditLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AuditLogWhereInput | AuditLogWhereInput[]
+    OR?: AuditLogWhereInput[]
+    NOT?: AuditLogWhereInput | AuditLogWhereInput[]
+    organizationId?: StringFilter<"AuditLog"> | string
+    actionType?: StringFilter<"AuditLog"> | string
+    actor?: StringFilter<"AuditLog"> | string
+    resourceId?: StringFilter<"AuditLog"> | string
+    resourceType?: StringFilter<"AuditLog"> | string
+    changes?: JsonNullableFilter<"AuditLog">
+    entryHash?: StringNullableFilter<"AuditLog"> | string | null
+    parentHash?: StringNullableFilter<"AuditLog"> | string | null
+    verified?: BoolFilter<"AuditLog"> | boolean
+    ipAddress?: StringNullableFilter<"AuditLog"> | string | null
+    userAgent?: StringNullableFilter<"AuditLog"> | string | null
+    createdAt?: DateTimeFilter<"AuditLog"> | Date | string
+    organization?: XOR<OrganizationRelationFilter, OrganizationWhereInput>
+  }, "id">
+
+  export type AuditLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    actionType?: SortOrder
+    actor?: SortOrder
+    resourceId?: SortOrder
+    resourceType?: SortOrder
+    changes?: SortOrderInput | SortOrder
+    entryHash?: SortOrderInput | SortOrder
+    parentHash?: SortOrderInput | SortOrder
+    verified?: SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: AuditLogCountOrderByAggregateInput
+    _max?: AuditLogMaxOrderByAggregateInput
+    _min?: AuditLogMinOrderByAggregateInput
+  }
+
+  export type AuditLogScalarWhereWithAggregatesInput = {
+    AND?: AuditLogScalarWhereWithAggregatesInput | AuditLogScalarWhereWithAggregatesInput[]
+    OR?: AuditLogScalarWhereWithAggregatesInput[]
+    NOT?: AuditLogScalarWhereWithAggregatesInput | AuditLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AuditLog"> | string
+    organizationId?: StringWithAggregatesFilter<"AuditLog"> | string
+    actionType?: StringWithAggregatesFilter<"AuditLog"> | string
+    actor?: StringWithAggregatesFilter<"AuditLog"> | string
+    resourceId?: StringWithAggregatesFilter<"AuditLog"> | string
+    resourceType?: StringWithAggregatesFilter<"AuditLog"> | string
+    changes?: JsonNullableWithAggregatesFilter<"AuditLog">
+    entryHash?: StringNullableWithAggregatesFilter<"AuditLog"> | string | null
+    parentHash?: StringNullableWithAggregatesFilter<"AuditLog"> | string | null
+    verified?: BoolWithAggregatesFilter<"AuditLog"> | boolean
+    ipAddress?: StringNullableWithAggregatesFilter<"AuditLog"> | string | null
+    userAgent?: StringNullableWithAggregatesFilter<"AuditLog"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"AuditLog"> | Date | string
   }
 
   export type CachedAssetWhereInput = {
@@ -43612,6 +50156,128 @@ export namespace Prisma {
     previousHash?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type OrganizationCreateInput = {
+    id?: string
+    gAddress: string
+    name: string
+    description?: string | null
+    logoUrl?: string | null
+    customDomain?: string | null
+    contactEmail?: string | null
+    createdBy: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OrganizationMemberCreateNestedManyWithoutOrganizationInput
+    invitations?: InvitationCreateNestedManyWithoutOrganizationInput
+    policies?: OrganizationPolicyCreateNestedManyWithoutOrganizationInput
+    billingRecords?: BillingRecordCreateNestedManyWithoutOrganizationInput
+    multisigProposals?: MultisigProposalCreateNestedManyWithoutOrganizationInput
+    auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateInput = {
+    id?: string
+    gAddress: string
+    name: string
+    description?: string | null
+    logoUrl?: string | null
+    customDomain?: string | null
+    contactEmail?: string | null
+    createdBy: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutOrganizationInput
+    policies?: OrganizationPolicyUncheckedCreateNestedManyWithoutOrganizationInput
+    billingRecords?: BillingRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    multisigProposals?: MultisigProposalUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gAddress?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    invitations?: InvitationUpdateManyWithoutOrganizationNestedInput
+    policies?: OrganizationPolicyUpdateManyWithoutOrganizationNestedInput
+    billingRecords?: BillingRecordUpdateManyWithoutOrganizationNestedInput
+    multisigProposals?: MultisigProposalUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gAddress?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutOrganizationNestedInput
+    policies?: OrganizationPolicyUncheckedUpdateManyWithoutOrganizationNestedInput
+    billingRecords?: BillingRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    multisigProposals?: MultisigProposalUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationCreateManyInput = {
+    id?: string
+    gAddress: string
+    name: string
+    description?: string | null
+    logoUrl?: string | null
+    customDomain?: string | null
+    contactEmail?: string | null
+    createdBy: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrganizationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gAddress?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrganizationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gAddress?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type OrganizationMemberCreateInput = {
     id?: string
     orgAddress: string
@@ -43619,17 +50285,21 @@ export namespace Prisma {
     role: $Enums.OrgRole
     addedBy: string
     isActive?: boolean
+    lastActivityAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    organization: OrganizationCreateNestedOneWithoutMembersInput
   }
 
   export type OrganizationMemberUncheckedCreateInput = {
     id?: string
+    organizationId: string
     orgAddress: string
     memberAddress: string
     role: $Enums.OrgRole
     addedBy: string
     isActive?: boolean
+    lastActivityAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -43641,28 +50311,34 @@ export namespace Prisma {
     role?: EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
     addedBy?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastActivityAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneRequiredWithoutMembersNestedInput
   }
 
   export type OrganizationMemberUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
     orgAddress?: StringFieldUpdateOperationsInput | string
     memberAddress?: StringFieldUpdateOperationsInput | string
     role?: EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
     addedBy?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastActivityAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OrganizationMemberCreateManyInput = {
     id?: string
+    organizationId: string
     orgAddress: string
     memberAddress: string
     role: $Enums.OrgRole
     addedBy: string
     isActive?: boolean
+    lastActivityAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -43674,17 +50350,325 @@ export namespace Prisma {
     role?: EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
     addedBy?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastActivityAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OrganizationMemberUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
     orgAddress?: StringFieldUpdateOperationsInput | string
     memberAddress?: StringFieldUpdateOperationsInput | string
     role?: EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
     addedBy?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastActivityAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvitationCreateInput = {
+    id?: string
+    inviteeEmail: string
+    role: $Enums.OrgRole
+    tokenHash: string
+    status?: string
+    expiresAt: Date | string
+    acceptedBy?: string | null
+    acceptedAt?: Date | string | null
+    revokedBy?: string | null
+    revokedAt?: Date | string | null
+    invitedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization: OrganizationCreateNestedOneWithoutInvitationsInput
+  }
+
+  export type InvitationUncheckedCreateInput = {
+    id?: string
+    organizationId: string
+    inviteeEmail: string
+    role: $Enums.OrgRole
+    tokenHash: string
+    status?: string
+    expiresAt: Date | string
+    acceptedBy?: string | null
+    acceptedAt?: Date | string | null
+    revokedBy?: string | null
+    revokedAt?: Date | string | null
+    invitedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InvitationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inviteeEmail?: StringFieldUpdateOperationsInput | string
+    role?: EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invitedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneRequiredWithoutInvitationsNestedInput
+  }
+
+  export type InvitationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    inviteeEmail?: StringFieldUpdateOperationsInput | string
+    role?: EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invitedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvitationCreateManyInput = {
+    id?: string
+    organizationId: string
+    inviteeEmail: string
+    role: $Enums.OrgRole
+    tokenHash: string
+    status?: string
+    expiresAt: Date | string
+    acceptedBy?: string | null
+    acceptedAt?: Date | string | null
+    revokedBy?: string | null
+    revokedAt?: Date | string | null
+    invitedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InvitationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inviteeEmail?: StringFieldUpdateOperationsInput | string
+    role?: EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invitedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvitationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    inviteeEmail?: StringFieldUpdateOperationsInput | string
+    role?: EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invitedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrganizationPolicyCreateInput = {
+    id?: string
+    dailySpendLimitUsd?: Decimal | DecimalJsLike | number | string | null
+    allowedAssets?: string | null
+    requiresMultisig?: boolean
+    multisigThreshold?: number | null
+    updatedBy?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization: OrganizationCreateNestedOneWithoutPoliciesInput
+  }
+
+  export type OrganizationPolicyUncheckedCreateInput = {
+    id?: string
+    organizationId: string
+    dailySpendLimitUsd?: Decimal | DecimalJsLike | number | string | null
+    allowedAssets?: string | null
+    requiresMultisig?: boolean
+    multisigThreshold?: number | null
+    updatedBy?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrganizationPolicyUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dailySpendLimitUsd?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    allowedAssets?: NullableStringFieldUpdateOperationsInput | string | null
+    requiresMultisig?: BoolFieldUpdateOperationsInput | boolean
+    multisigThreshold?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneRequiredWithoutPoliciesNestedInput
+  }
+
+  export type OrganizationPolicyUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    dailySpendLimitUsd?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    allowedAssets?: NullableStringFieldUpdateOperationsInput | string | null
+    requiresMultisig?: BoolFieldUpdateOperationsInput | boolean
+    multisigThreshold?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrganizationPolicyCreateManyInput = {
+    id?: string
+    organizationId: string
+    dailySpendLimitUsd?: Decimal | DecimalJsLike | number | string | null
+    allowedAssets?: string | null
+    requiresMultisig?: boolean
+    multisigThreshold?: number | null
+    updatedBy?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrganizationPolicyUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dailySpendLimitUsd?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    allowedAssets?: NullableStringFieldUpdateOperationsInput | string | null
+    requiresMultisig?: BoolFieldUpdateOperationsInput | boolean
+    multisigThreshold?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrganizationPolicyUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    dailySpendLimitUsd?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    allowedAssets?: NullableStringFieldUpdateOperationsInput | string | null
+    requiresMultisig?: BoolFieldUpdateOperationsInput | boolean
+    multisigThreshold?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BillingRecordCreateInput = {
+    id?: string
+    billingPeriod: string
+    streamsCreated?: number
+    disbursementsProcessed?: number
+    apiRequests?: number
+    volumeUsd?: Decimal | DecimalJsLike | number | string
+    chargeUsd?: Decimal | DecimalJsLike | number | string
+    plan?: string
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization: OrganizationCreateNestedOneWithoutBillingRecordsInput
+  }
+
+  export type BillingRecordUncheckedCreateInput = {
+    id?: string
+    organizationId: string
+    billingPeriod: string
+    streamsCreated?: number
+    disbursementsProcessed?: number
+    apiRequests?: number
+    volumeUsd?: Decimal | DecimalJsLike | number | string
+    chargeUsd?: Decimal | DecimalJsLike | number | string
+    plan?: string
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BillingRecordUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    billingPeriod?: StringFieldUpdateOperationsInput | string
+    streamsCreated?: IntFieldUpdateOperationsInput | number
+    disbursementsProcessed?: IntFieldUpdateOperationsInput | number
+    apiRequests?: IntFieldUpdateOperationsInput | number
+    volumeUsd?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    chargeUsd?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    plan?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneRequiredWithoutBillingRecordsNestedInput
+  }
+
+  export type BillingRecordUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    billingPeriod?: StringFieldUpdateOperationsInput | string
+    streamsCreated?: IntFieldUpdateOperationsInput | number
+    disbursementsProcessed?: IntFieldUpdateOperationsInput | number
+    apiRequests?: IntFieldUpdateOperationsInput | number
+    volumeUsd?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    chargeUsd?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    plan?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BillingRecordCreateManyInput = {
+    id?: string
+    organizationId: string
+    billingPeriod: string
+    streamsCreated?: number
+    disbursementsProcessed?: number
+    apiRequests?: number
+    volumeUsd?: Decimal | DecimalJsLike | number | string
+    chargeUsd?: Decimal | DecimalJsLike | number | string
+    plan?: string
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BillingRecordUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    billingPeriod?: StringFieldUpdateOperationsInput | string
+    streamsCreated?: IntFieldUpdateOperationsInput | number
+    disbursementsProcessed?: IntFieldUpdateOperationsInput | number
+    apiRequests?: IntFieldUpdateOperationsInput | number
+    volumeUsd?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    chargeUsd?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    plan?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BillingRecordUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    billingPeriod?: StringFieldUpdateOperationsInput | string
+    streamsCreated?: IntFieldUpdateOperationsInput | number
+    disbursementsProcessed?: IntFieldUpdateOperationsInput | number
+    apiRequests?: IntFieldUpdateOperationsInput | number
+    volumeUsd?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    chargeUsd?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    plan?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -45410,7 +52394,7 @@ export namespace Prisma {
   export type MultisigProposalCreateInput = {
     id?: string
     proposalId: string
-    organizationId: string
+    description?: string | null
     transactionXdr: string
     signatures?: JsonNullValueInput | InputJsonValue
     requiredSigners: number
@@ -45420,12 +52404,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     expiresAt: Date | string
+    organization: OrganizationCreateNestedOneWithoutMultisigProposalsInput
   }
 
   export type MultisigProposalUncheckedCreateInput = {
     id?: string
     proposalId: string
     organizationId: string
+    description?: string | null
     transactionXdr: string
     signatures?: JsonNullValueInput | InputJsonValue
     requiredSigners: number
@@ -45440,7 +52426,7 @@ export namespace Prisma {
   export type MultisigProposalUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     proposalId?: StringFieldUpdateOperationsInput | string
-    organizationId?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     transactionXdr?: StringFieldUpdateOperationsInput | string
     signatures?: JsonNullValueInput | InputJsonValue
     requiredSigners?: IntFieldUpdateOperationsInput | number
@@ -45450,12 +52436,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneRequiredWithoutMultisigProposalsNestedInput
   }
 
   export type MultisigProposalUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     proposalId?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     transactionXdr?: StringFieldUpdateOperationsInput | string
     signatures?: JsonNullValueInput | InputJsonValue
     requiredSigners?: IntFieldUpdateOperationsInput | number
@@ -45471,6 +52459,7 @@ export namespace Prisma {
     id?: string
     proposalId: string
     organizationId: string
+    description?: string | null
     transactionXdr: string
     signatures?: JsonNullValueInput | InputJsonValue
     requiredSigners: number
@@ -45485,7 +52474,7 @@ export namespace Prisma {
   export type MultisigProposalUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     proposalId?: StringFieldUpdateOperationsInput | string
-    organizationId?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     transactionXdr?: StringFieldUpdateOperationsInput | string
     signatures?: JsonNullValueInput | InputJsonValue
     requiredSigners?: IntFieldUpdateOperationsInput | number
@@ -45501,6 +52490,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     proposalId?: StringFieldUpdateOperationsInput | string
     organizationId?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     transactionXdr?: StringFieldUpdateOperationsInput | string
     signatures?: JsonNullValueInput | InputJsonValue
     requiredSigners?: IntFieldUpdateOperationsInput | number
@@ -45510,6 +52500,117 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditLogCreateInput = {
+    id?: string
+    actionType: string
+    actor: string
+    resourceId: string
+    resourceType: string
+    changes?: NullableJsonNullValueInput | InputJsonValue
+    entryHash?: string | null
+    parentHash?: string | null
+    verified?: boolean
+    ipAddress?: string | null
+    userAgent?: string | null
+    createdAt?: Date | string
+    organization: OrganizationCreateNestedOneWithoutAuditLogsInput
+  }
+
+  export type AuditLogUncheckedCreateInput = {
+    id?: string
+    organizationId: string
+    actionType: string
+    actor: string
+    resourceId: string
+    resourceType: string
+    changes?: NullableJsonNullValueInput | InputJsonValue
+    entryHash?: string | null
+    parentHash?: string | null
+    verified?: boolean
+    ipAddress?: string | null
+    userAgent?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AuditLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actionType?: StringFieldUpdateOperationsInput | string
+    actor?: StringFieldUpdateOperationsInput | string
+    resourceId?: StringFieldUpdateOperationsInput | string
+    resourceType?: StringFieldUpdateOperationsInput | string
+    changes?: NullableJsonNullValueInput | InputJsonValue
+    entryHash?: NullableStringFieldUpdateOperationsInput | string | null
+    parentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verified?: BoolFieldUpdateOperationsInput | boolean
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneRequiredWithoutAuditLogsNestedInput
+  }
+
+  export type AuditLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    actionType?: StringFieldUpdateOperationsInput | string
+    actor?: StringFieldUpdateOperationsInput | string
+    resourceId?: StringFieldUpdateOperationsInput | string
+    resourceType?: StringFieldUpdateOperationsInput | string
+    changes?: NullableJsonNullValueInput | InputJsonValue
+    entryHash?: NullableStringFieldUpdateOperationsInput | string | null
+    parentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verified?: BoolFieldUpdateOperationsInput | boolean
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditLogCreateManyInput = {
+    id?: string
+    organizationId: string
+    actionType: string
+    actor: string
+    resourceId: string
+    resourceType: string
+    changes?: NullableJsonNullValueInput | InputJsonValue
+    entryHash?: string | null
+    parentHash?: string | null
+    verified?: boolean
+    ipAddress?: string | null
+    userAgent?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AuditLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actionType?: StringFieldUpdateOperationsInput | string
+    actor?: StringFieldUpdateOperationsInput | string
+    resourceId?: StringFieldUpdateOperationsInput | string
+    resourceType?: StringFieldUpdateOperationsInput | string
+    changes?: NullableJsonNullValueInput | InputJsonValue
+    entryHash?: NullableStringFieldUpdateOperationsInput | string | null
+    parentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verified?: BoolFieldUpdateOperationsInput | boolean
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    organizationId?: StringFieldUpdateOperationsInput | string
+    actionType?: StringFieldUpdateOperationsInput | string
+    actor?: StringFieldUpdateOperationsInput | string
+    resourceId?: StringFieldUpdateOperationsInput | string
+    resourceType?: StringFieldUpdateOperationsInput | string
+    changes?: NullableJsonNullValueInput | InputJsonValue
+    entryHash?: NullableStringFieldUpdateOperationsInput | string | null
+    parentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verified?: BoolFieldUpdateOperationsInput | boolean
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CachedAssetCreateInput = {
@@ -46648,6 +53749,108 @@ export namespace Prisma {
     previousHash?: SortOrder
   }
 
+  export type OrganizationMemberListRelationFilter = {
+    every?: OrganizationMemberWhereInput
+    some?: OrganizationMemberWhereInput
+    none?: OrganizationMemberWhereInput
+  }
+
+  export type InvitationListRelationFilter = {
+    every?: InvitationWhereInput
+    some?: InvitationWhereInput
+    none?: InvitationWhereInput
+  }
+
+  export type OrganizationPolicyListRelationFilter = {
+    every?: OrganizationPolicyWhereInput
+    some?: OrganizationPolicyWhereInput
+    none?: OrganizationPolicyWhereInput
+  }
+
+  export type BillingRecordListRelationFilter = {
+    every?: BillingRecordWhereInput
+    some?: BillingRecordWhereInput
+    none?: BillingRecordWhereInput
+  }
+
+  export type MultisigProposalListRelationFilter = {
+    every?: MultisigProposalWhereInput
+    some?: MultisigProposalWhereInput
+    none?: MultisigProposalWhereInput
+  }
+
+  export type AuditLogListRelationFilter = {
+    every?: AuditLogWhereInput
+    some?: AuditLogWhereInput
+    none?: AuditLogWhereInput
+  }
+
+  export type OrganizationMemberOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type InvitationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OrganizationPolicyOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type BillingRecordOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type MultisigProposalOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AuditLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type OrganizationCountOrderByAggregateInput = {
+    id?: SortOrder
+    gAddress?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    logoUrl?: SortOrder
+    customDomain?: SortOrder
+    contactEmail?: SortOrder
+    createdBy?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrganizationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    gAddress?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    logoUrl?: SortOrder
+    customDomain?: SortOrder
+    contactEmail?: SortOrder
+    createdBy?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrganizationMinOrderByAggregateInput = {
+    id?: SortOrder
+    gAddress?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    logoUrl?: SortOrder
+    customDomain?: SortOrder
+    contactEmail?: SortOrder
+    createdBy?: SortOrder
+    isActive?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type EnumOrgRoleFilter<$PrismaModel = never> = {
     equals?: $Enums.OrgRole | EnumOrgRoleFieldRefInput<$PrismaModel>
     in?: $Enums.OrgRole[] | ListEnumOrgRoleFieldRefInput<$PrismaModel>
@@ -46655,40 +53858,51 @@ export namespace Prisma {
     not?: NestedEnumOrgRoleFilter<$PrismaModel> | $Enums.OrgRole
   }
 
-  export type OrganizationMemberOrgAddressMemberAddressCompoundUniqueInput = {
-    orgAddress: string
+  export type OrganizationRelationFilter = {
+    is?: OrganizationWhereInput
+    isNot?: OrganizationWhereInput
+  }
+
+  export type OrganizationMemberOrganizationIdMemberAddressCompoundUniqueInput = {
+    organizationId: string
     memberAddress: string
   }
 
   export type OrganizationMemberCountOrderByAggregateInput = {
     id?: SortOrder
+    organizationId?: SortOrder
     orgAddress?: SortOrder
     memberAddress?: SortOrder
     role?: SortOrder
     addedBy?: SortOrder
     isActive?: SortOrder
+    lastActivityAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type OrganizationMemberMaxOrderByAggregateInput = {
     id?: SortOrder
+    organizationId?: SortOrder
     orgAddress?: SortOrder
     memberAddress?: SortOrder
     role?: SortOrder
     addedBy?: SortOrder
     isActive?: SortOrder
+    lastActivityAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type OrganizationMemberMinOrderByAggregateInput = {
     id?: SortOrder
+    organizationId?: SortOrder
     orgAddress?: SortOrder
     memberAddress?: SortOrder
     role?: SortOrder
     addedBy?: SortOrder
     isActive?: SortOrder
+    lastActivityAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -46701,6 +53915,223 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumOrgRoleFilter<$PrismaModel>
     _max?: NestedEnumOrgRoleFilter<$PrismaModel>
+  }
+
+  export type InvitationCountOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    inviteeEmail?: SortOrder
+    role?: SortOrder
+    tokenHash?: SortOrder
+    status?: SortOrder
+    expiresAt?: SortOrder
+    acceptedBy?: SortOrder
+    acceptedAt?: SortOrder
+    revokedBy?: SortOrder
+    revokedAt?: SortOrder
+    invitedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type InvitationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    inviteeEmail?: SortOrder
+    role?: SortOrder
+    tokenHash?: SortOrder
+    status?: SortOrder
+    expiresAt?: SortOrder
+    acceptedBy?: SortOrder
+    acceptedAt?: SortOrder
+    revokedBy?: SortOrder
+    revokedAt?: SortOrder
+    invitedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type InvitationMinOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    inviteeEmail?: SortOrder
+    role?: SortOrder
+    tokenHash?: SortOrder
+    status?: SortOrder
+    expiresAt?: SortOrder
+    acceptedBy?: SortOrder
+    acceptedAt?: SortOrder
+    revokedBy?: SortOrder
+    revokedAt?: SortOrder
+    invitedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DecimalNullableFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type OrganizationPolicyCountOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    dailySpendLimitUsd?: SortOrder
+    allowedAssets?: SortOrder
+    requiresMultisig?: SortOrder
+    multisigThreshold?: SortOrder
+    updatedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrganizationPolicyAvgOrderByAggregateInput = {
+    dailySpendLimitUsd?: SortOrder
+    multisigThreshold?: SortOrder
+  }
+
+  export type OrganizationPolicyMaxOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    dailySpendLimitUsd?: SortOrder
+    allowedAssets?: SortOrder
+    requiresMultisig?: SortOrder
+    multisigThreshold?: SortOrder
+    updatedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrganizationPolicyMinOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    dailySpendLimitUsd?: SortOrder
+    allowedAssets?: SortOrder
+    requiresMultisig?: SortOrder
+    multisigThreshold?: SortOrder
+    updatedBy?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrganizationPolicySumOrderByAggregateInput = {
+    dailySpendLimitUsd?: SortOrder
+    multisigThreshold?: SortOrder
+  }
+
+  export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedDecimalNullableFilter<$PrismaModel>
+    _sum?: NestedDecimalNullableFilter<$PrismaModel>
+    _min?: NestedDecimalNullableFilter<$PrismaModel>
+    _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
+  export type DecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
+  export type BillingRecordOrganizationIdBillingPeriodCompoundUniqueInput = {
+    organizationId: string
+    billingPeriod: string
+  }
+
+  export type BillingRecordCountOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    billingPeriod?: SortOrder
+    streamsCreated?: SortOrder
+    disbursementsProcessed?: SortOrder
+    apiRequests?: SortOrder
+    volumeUsd?: SortOrder
+    chargeUsd?: SortOrder
+    plan?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BillingRecordAvgOrderByAggregateInput = {
+    streamsCreated?: SortOrder
+    disbursementsProcessed?: SortOrder
+    apiRequests?: SortOrder
+    volumeUsd?: SortOrder
+    chargeUsd?: SortOrder
+  }
+
+  export type BillingRecordMaxOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    billingPeriod?: SortOrder
+    streamsCreated?: SortOrder
+    disbursementsProcessed?: SortOrder
+    apiRequests?: SortOrder
+    volumeUsd?: SortOrder
+    chargeUsd?: SortOrder
+    plan?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BillingRecordMinOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    billingPeriod?: SortOrder
+    streamsCreated?: SortOrder
+    disbursementsProcessed?: SortOrder
+    apiRequests?: SortOrder
+    volumeUsd?: SortOrder
+    chargeUsd?: SortOrder
+    plan?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BillingRecordSumOrderByAggregateInput = {
+    streamsCreated?: SortOrder
+    disbursementsProcessed?: SortOrder
+    apiRequests?: SortOrder
+    volumeUsd?: SortOrder
+    chargeUsd?: SortOrder
+  }
+
+  export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
   }
 
   export type ApiKeyCountOrderByAggregateInput = {
@@ -47683,6 +55114,7 @@ export namespace Prisma {
     id?: SortOrder
     proposalId?: SortOrder
     organizationId?: SortOrder
+    description?: SortOrder
     transactionXdr?: SortOrder
     signatures?: SortOrder
     requiredSigners?: SortOrder
@@ -47702,6 +55134,7 @@ export namespace Prisma {
     id?: SortOrder
     proposalId?: SortOrder
     organizationId?: SortOrder
+    description?: SortOrder
     transactionXdr?: SortOrder
     requiredSigners?: SortOrder
     status?: SortOrder
@@ -47716,6 +55149,7 @@ export namespace Prisma {
     id?: SortOrder
     proposalId?: SortOrder
     organizationId?: SortOrder
+    description?: SortOrder
     transactionXdr?: SortOrder
     requiredSigners?: SortOrder
     status?: SortOrder
@@ -47728,6 +55162,99 @@ export namespace Prisma {
 
   export type MultisigProposalSumOrderByAggregateInput = {
     requiredSigners?: SortOrder
+  }
+  export type JsonNullableFilter<$PrismaModel = never> = 
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type AuditLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    actionType?: SortOrder
+    actor?: SortOrder
+    resourceId?: SortOrder
+    resourceType?: SortOrder
+    changes?: SortOrder
+    entryHash?: SortOrder
+    parentHash?: SortOrder
+    verified?: SortOrder
+    ipAddress?: SortOrder
+    userAgent?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AuditLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    actionType?: SortOrder
+    actor?: SortOrder
+    resourceId?: SortOrder
+    resourceType?: SortOrder
+    entryHash?: SortOrder
+    parentHash?: SortOrder
+    verified?: SortOrder
+    ipAddress?: SortOrder
+    userAgent?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AuditLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    organizationId?: SortOrder
+    actionType?: SortOrder
+    actor?: SortOrder
+    resourceId?: SortOrder
+    resourceType?: SortOrder
+    entryHash?: SortOrder
+    parentHash?: SortOrder
+    verified?: SortOrder
+    ipAddress?: SortOrder
+    userAgent?: SortOrder
+    createdAt?: SortOrder
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> = 
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type CachedAssetCountOrderByAggregateInput = {
@@ -47903,8 +55430,332 @@ export namespace Prisma {
     divide?: bigint | number
   }
 
+  export type OrganizationMemberCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OrganizationMemberCreateWithoutOrganizationInput, OrganizationMemberUncheckedCreateWithoutOrganizationInput> | OrganizationMemberCreateWithoutOrganizationInput[] | OrganizationMemberUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OrganizationMemberCreateOrConnectWithoutOrganizationInput | OrganizationMemberCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OrganizationMemberCreateManyOrganizationInputEnvelope
+    connect?: OrganizationMemberWhereUniqueInput | OrganizationMemberWhereUniqueInput[]
+  }
+
+  export type InvitationCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<InvitationCreateWithoutOrganizationInput, InvitationUncheckedCreateWithoutOrganizationInput> | InvitationCreateWithoutOrganizationInput[] | InvitationUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: InvitationCreateOrConnectWithoutOrganizationInput | InvitationCreateOrConnectWithoutOrganizationInput[]
+    createMany?: InvitationCreateManyOrganizationInputEnvelope
+    connect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+  }
+
+  export type OrganizationPolicyCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OrganizationPolicyCreateWithoutOrganizationInput, OrganizationPolicyUncheckedCreateWithoutOrganizationInput> | OrganizationPolicyCreateWithoutOrganizationInput[] | OrganizationPolicyUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OrganizationPolicyCreateOrConnectWithoutOrganizationInput | OrganizationPolicyCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OrganizationPolicyCreateManyOrganizationInputEnvelope
+    connect?: OrganizationPolicyWhereUniqueInput | OrganizationPolicyWhereUniqueInput[]
+  }
+
+  export type BillingRecordCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<BillingRecordCreateWithoutOrganizationInput, BillingRecordUncheckedCreateWithoutOrganizationInput> | BillingRecordCreateWithoutOrganizationInput[] | BillingRecordUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: BillingRecordCreateOrConnectWithoutOrganizationInput | BillingRecordCreateOrConnectWithoutOrganizationInput[]
+    createMany?: BillingRecordCreateManyOrganizationInputEnvelope
+    connect?: BillingRecordWhereUniqueInput | BillingRecordWhereUniqueInput[]
+  }
+
+  export type MultisigProposalCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<MultisigProposalCreateWithoutOrganizationInput, MultisigProposalUncheckedCreateWithoutOrganizationInput> | MultisigProposalCreateWithoutOrganizationInput[] | MultisigProposalUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: MultisigProposalCreateOrConnectWithoutOrganizationInput | MultisigProposalCreateOrConnectWithoutOrganizationInput[]
+    createMany?: MultisigProposalCreateManyOrganizationInputEnvelope
+    connect?: MultisigProposalWhereUniqueInput | MultisigProposalWhereUniqueInput[]
+  }
+
+  export type AuditLogCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<AuditLogCreateWithoutOrganizationInput, AuditLogUncheckedCreateWithoutOrganizationInput> | AuditLogCreateWithoutOrganizationInput[] | AuditLogUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: AuditLogCreateOrConnectWithoutOrganizationInput | AuditLogCreateOrConnectWithoutOrganizationInput[]
+    createMany?: AuditLogCreateManyOrganizationInputEnvelope
+    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+  }
+
+  export type OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OrganizationMemberCreateWithoutOrganizationInput, OrganizationMemberUncheckedCreateWithoutOrganizationInput> | OrganizationMemberCreateWithoutOrganizationInput[] | OrganizationMemberUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OrganizationMemberCreateOrConnectWithoutOrganizationInput | OrganizationMemberCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OrganizationMemberCreateManyOrganizationInputEnvelope
+    connect?: OrganizationMemberWhereUniqueInput | OrganizationMemberWhereUniqueInput[]
+  }
+
+  export type InvitationUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<InvitationCreateWithoutOrganizationInput, InvitationUncheckedCreateWithoutOrganizationInput> | InvitationCreateWithoutOrganizationInput[] | InvitationUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: InvitationCreateOrConnectWithoutOrganizationInput | InvitationCreateOrConnectWithoutOrganizationInput[]
+    createMany?: InvitationCreateManyOrganizationInputEnvelope
+    connect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+  }
+
+  export type OrganizationPolicyUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<OrganizationPolicyCreateWithoutOrganizationInput, OrganizationPolicyUncheckedCreateWithoutOrganizationInput> | OrganizationPolicyCreateWithoutOrganizationInput[] | OrganizationPolicyUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OrganizationPolicyCreateOrConnectWithoutOrganizationInput | OrganizationPolicyCreateOrConnectWithoutOrganizationInput[]
+    createMany?: OrganizationPolicyCreateManyOrganizationInputEnvelope
+    connect?: OrganizationPolicyWhereUniqueInput | OrganizationPolicyWhereUniqueInput[]
+  }
+
+  export type BillingRecordUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<BillingRecordCreateWithoutOrganizationInput, BillingRecordUncheckedCreateWithoutOrganizationInput> | BillingRecordCreateWithoutOrganizationInput[] | BillingRecordUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: BillingRecordCreateOrConnectWithoutOrganizationInput | BillingRecordCreateOrConnectWithoutOrganizationInput[]
+    createMany?: BillingRecordCreateManyOrganizationInputEnvelope
+    connect?: BillingRecordWhereUniqueInput | BillingRecordWhereUniqueInput[]
+  }
+
+  export type MultisigProposalUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<MultisigProposalCreateWithoutOrganizationInput, MultisigProposalUncheckedCreateWithoutOrganizationInput> | MultisigProposalCreateWithoutOrganizationInput[] | MultisigProposalUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: MultisigProposalCreateOrConnectWithoutOrganizationInput | MultisigProposalCreateOrConnectWithoutOrganizationInput[]
+    createMany?: MultisigProposalCreateManyOrganizationInputEnvelope
+    connect?: MultisigProposalWhereUniqueInput | MultisigProposalWhereUniqueInput[]
+  }
+
+  export type AuditLogUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<AuditLogCreateWithoutOrganizationInput, AuditLogUncheckedCreateWithoutOrganizationInput> | AuditLogCreateWithoutOrganizationInput[] | AuditLogUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: AuditLogCreateOrConnectWithoutOrganizationInput | AuditLogCreateOrConnectWithoutOrganizationInput[]
+    createMany?: AuditLogCreateManyOrganizationInputEnvelope
+    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+  }
+
+  export type OrganizationMemberUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OrganizationMemberCreateWithoutOrganizationInput, OrganizationMemberUncheckedCreateWithoutOrganizationInput> | OrganizationMemberCreateWithoutOrganizationInput[] | OrganizationMemberUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OrganizationMemberCreateOrConnectWithoutOrganizationInput | OrganizationMemberCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OrganizationMemberUpsertWithWhereUniqueWithoutOrganizationInput | OrganizationMemberUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OrganizationMemberCreateManyOrganizationInputEnvelope
+    set?: OrganizationMemberWhereUniqueInput | OrganizationMemberWhereUniqueInput[]
+    disconnect?: OrganizationMemberWhereUniqueInput | OrganizationMemberWhereUniqueInput[]
+    delete?: OrganizationMemberWhereUniqueInput | OrganizationMemberWhereUniqueInput[]
+    connect?: OrganizationMemberWhereUniqueInput | OrganizationMemberWhereUniqueInput[]
+    update?: OrganizationMemberUpdateWithWhereUniqueWithoutOrganizationInput | OrganizationMemberUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OrganizationMemberUpdateManyWithWhereWithoutOrganizationInput | OrganizationMemberUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OrganizationMemberScalarWhereInput | OrganizationMemberScalarWhereInput[]
+  }
+
+  export type InvitationUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<InvitationCreateWithoutOrganizationInput, InvitationUncheckedCreateWithoutOrganizationInput> | InvitationCreateWithoutOrganizationInput[] | InvitationUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: InvitationCreateOrConnectWithoutOrganizationInput | InvitationCreateOrConnectWithoutOrganizationInput[]
+    upsert?: InvitationUpsertWithWhereUniqueWithoutOrganizationInput | InvitationUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: InvitationCreateManyOrganizationInputEnvelope
+    set?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    disconnect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    delete?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    connect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    update?: InvitationUpdateWithWhereUniqueWithoutOrganizationInput | InvitationUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: InvitationUpdateManyWithWhereWithoutOrganizationInput | InvitationUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: InvitationScalarWhereInput | InvitationScalarWhereInput[]
+  }
+
+  export type OrganizationPolicyUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OrganizationPolicyCreateWithoutOrganizationInput, OrganizationPolicyUncheckedCreateWithoutOrganizationInput> | OrganizationPolicyCreateWithoutOrganizationInput[] | OrganizationPolicyUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OrganizationPolicyCreateOrConnectWithoutOrganizationInput | OrganizationPolicyCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OrganizationPolicyUpsertWithWhereUniqueWithoutOrganizationInput | OrganizationPolicyUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OrganizationPolicyCreateManyOrganizationInputEnvelope
+    set?: OrganizationPolicyWhereUniqueInput | OrganizationPolicyWhereUniqueInput[]
+    disconnect?: OrganizationPolicyWhereUniqueInput | OrganizationPolicyWhereUniqueInput[]
+    delete?: OrganizationPolicyWhereUniqueInput | OrganizationPolicyWhereUniqueInput[]
+    connect?: OrganizationPolicyWhereUniqueInput | OrganizationPolicyWhereUniqueInput[]
+    update?: OrganizationPolicyUpdateWithWhereUniqueWithoutOrganizationInput | OrganizationPolicyUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OrganizationPolicyUpdateManyWithWhereWithoutOrganizationInput | OrganizationPolicyUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OrganizationPolicyScalarWhereInput | OrganizationPolicyScalarWhereInput[]
+  }
+
+  export type BillingRecordUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<BillingRecordCreateWithoutOrganizationInput, BillingRecordUncheckedCreateWithoutOrganizationInput> | BillingRecordCreateWithoutOrganizationInput[] | BillingRecordUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: BillingRecordCreateOrConnectWithoutOrganizationInput | BillingRecordCreateOrConnectWithoutOrganizationInput[]
+    upsert?: BillingRecordUpsertWithWhereUniqueWithoutOrganizationInput | BillingRecordUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: BillingRecordCreateManyOrganizationInputEnvelope
+    set?: BillingRecordWhereUniqueInput | BillingRecordWhereUniqueInput[]
+    disconnect?: BillingRecordWhereUniqueInput | BillingRecordWhereUniqueInput[]
+    delete?: BillingRecordWhereUniqueInput | BillingRecordWhereUniqueInput[]
+    connect?: BillingRecordWhereUniqueInput | BillingRecordWhereUniqueInput[]
+    update?: BillingRecordUpdateWithWhereUniqueWithoutOrganizationInput | BillingRecordUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: BillingRecordUpdateManyWithWhereWithoutOrganizationInput | BillingRecordUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: BillingRecordScalarWhereInput | BillingRecordScalarWhereInput[]
+  }
+
+  export type MultisigProposalUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<MultisigProposalCreateWithoutOrganizationInput, MultisigProposalUncheckedCreateWithoutOrganizationInput> | MultisigProposalCreateWithoutOrganizationInput[] | MultisigProposalUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: MultisigProposalCreateOrConnectWithoutOrganizationInput | MultisigProposalCreateOrConnectWithoutOrganizationInput[]
+    upsert?: MultisigProposalUpsertWithWhereUniqueWithoutOrganizationInput | MultisigProposalUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: MultisigProposalCreateManyOrganizationInputEnvelope
+    set?: MultisigProposalWhereUniqueInput | MultisigProposalWhereUniqueInput[]
+    disconnect?: MultisigProposalWhereUniqueInput | MultisigProposalWhereUniqueInput[]
+    delete?: MultisigProposalWhereUniqueInput | MultisigProposalWhereUniqueInput[]
+    connect?: MultisigProposalWhereUniqueInput | MultisigProposalWhereUniqueInput[]
+    update?: MultisigProposalUpdateWithWhereUniqueWithoutOrganizationInput | MultisigProposalUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: MultisigProposalUpdateManyWithWhereWithoutOrganizationInput | MultisigProposalUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: MultisigProposalScalarWhereInput | MultisigProposalScalarWhereInput[]
+  }
+
+  export type AuditLogUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<AuditLogCreateWithoutOrganizationInput, AuditLogUncheckedCreateWithoutOrganizationInput> | AuditLogCreateWithoutOrganizationInput[] | AuditLogUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: AuditLogCreateOrConnectWithoutOrganizationInput | AuditLogCreateOrConnectWithoutOrganizationInput[]
+    upsert?: AuditLogUpsertWithWhereUniqueWithoutOrganizationInput | AuditLogUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: AuditLogCreateManyOrganizationInputEnvelope
+    set?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    disconnect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    delete?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    update?: AuditLogUpdateWithWhereUniqueWithoutOrganizationInput | AuditLogUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: AuditLogUpdateManyWithWhereWithoutOrganizationInput | AuditLogUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+  }
+
+  export type OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OrganizationMemberCreateWithoutOrganizationInput, OrganizationMemberUncheckedCreateWithoutOrganizationInput> | OrganizationMemberCreateWithoutOrganizationInput[] | OrganizationMemberUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OrganizationMemberCreateOrConnectWithoutOrganizationInput | OrganizationMemberCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OrganizationMemberUpsertWithWhereUniqueWithoutOrganizationInput | OrganizationMemberUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OrganizationMemberCreateManyOrganizationInputEnvelope
+    set?: OrganizationMemberWhereUniqueInput | OrganizationMemberWhereUniqueInput[]
+    disconnect?: OrganizationMemberWhereUniqueInput | OrganizationMemberWhereUniqueInput[]
+    delete?: OrganizationMemberWhereUniqueInput | OrganizationMemberWhereUniqueInput[]
+    connect?: OrganizationMemberWhereUniqueInput | OrganizationMemberWhereUniqueInput[]
+    update?: OrganizationMemberUpdateWithWhereUniqueWithoutOrganizationInput | OrganizationMemberUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OrganizationMemberUpdateManyWithWhereWithoutOrganizationInput | OrganizationMemberUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OrganizationMemberScalarWhereInput | OrganizationMemberScalarWhereInput[]
+  }
+
+  export type InvitationUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<InvitationCreateWithoutOrganizationInput, InvitationUncheckedCreateWithoutOrganizationInput> | InvitationCreateWithoutOrganizationInput[] | InvitationUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: InvitationCreateOrConnectWithoutOrganizationInput | InvitationCreateOrConnectWithoutOrganizationInput[]
+    upsert?: InvitationUpsertWithWhereUniqueWithoutOrganizationInput | InvitationUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: InvitationCreateManyOrganizationInputEnvelope
+    set?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    disconnect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    delete?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    connect?: InvitationWhereUniqueInput | InvitationWhereUniqueInput[]
+    update?: InvitationUpdateWithWhereUniqueWithoutOrganizationInput | InvitationUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: InvitationUpdateManyWithWhereWithoutOrganizationInput | InvitationUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: InvitationScalarWhereInput | InvitationScalarWhereInput[]
+  }
+
+  export type OrganizationPolicyUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<OrganizationPolicyCreateWithoutOrganizationInput, OrganizationPolicyUncheckedCreateWithoutOrganizationInput> | OrganizationPolicyCreateWithoutOrganizationInput[] | OrganizationPolicyUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: OrganizationPolicyCreateOrConnectWithoutOrganizationInput | OrganizationPolicyCreateOrConnectWithoutOrganizationInput[]
+    upsert?: OrganizationPolicyUpsertWithWhereUniqueWithoutOrganizationInput | OrganizationPolicyUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: OrganizationPolicyCreateManyOrganizationInputEnvelope
+    set?: OrganizationPolicyWhereUniqueInput | OrganizationPolicyWhereUniqueInput[]
+    disconnect?: OrganizationPolicyWhereUniqueInput | OrganizationPolicyWhereUniqueInput[]
+    delete?: OrganizationPolicyWhereUniqueInput | OrganizationPolicyWhereUniqueInput[]
+    connect?: OrganizationPolicyWhereUniqueInput | OrganizationPolicyWhereUniqueInput[]
+    update?: OrganizationPolicyUpdateWithWhereUniqueWithoutOrganizationInput | OrganizationPolicyUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: OrganizationPolicyUpdateManyWithWhereWithoutOrganizationInput | OrganizationPolicyUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: OrganizationPolicyScalarWhereInput | OrganizationPolicyScalarWhereInput[]
+  }
+
+  export type BillingRecordUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<BillingRecordCreateWithoutOrganizationInput, BillingRecordUncheckedCreateWithoutOrganizationInput> | BillingRecordCreateWithoutOrganizationInput[] | BillingRecordUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: BillingRecordCreateOrConnectWithoutOrganizationInput | BillingRecordCreateOrConnectWithoutOrganizationInput[]
+    upsert?: BillingRecordUpsertWithWhereUniqueWithoutOrganizationInput | BillingRecordUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: BillingRecordCreateManyOrganizationInputEnvelope
+    set?: BillingRecordWhereUniqueInput | BillingRecordWhereUniqueInput[]
+    disconnect?: BillingRecordWhereUniqueInput | BillingRecordWhereUniqueInput[]
+    delete?: BillingRecordWhereUniqueInput | BillingRecordWhereUniqueInput[]
+    connect?: BillingRecordWhereUniqueInput | BillingRecordWhereUniqueInput[]
+    update?: BillingRecordUpdateWithWhereUniqueWithoutOrganizationInput | BillingRecordUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: BillingRecordUpdateManyWithWhereWithoutOrganizationInput | BillingRecordUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: BillingRecordScalarWhereInput | BillingRecordScalarWhereInput[]
+  }
+
+  export type MultisigProposalUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<MultisigProposalCreateWithoutOrganizationInput, MultisigProposalUncheckedCreateWithoutOrganizationInput> | MultisigProposalCreateWithoutOrganizationInput[] | MultisigProposalUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: MultisigProposalCreateOrConnectWithoutOrganizationInput | MultisigProposalCreateOrConnectWithoutOrganizationInput[]
+    upsert?: MultisigProposalUpsertWithWhereUniqueWithoutOrganizationInput | MultisigProposalUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: MultisigProposalCreateManyOrganizationInputEnvelope
+    set?: MultisigProposalWhereUniqueInput | MultisigProposalWhereUniqueInput[]
+    disconnect?: MultisigProposalWhereUniqueInput | MultisigProposalWhereUniqueInput[]
+    delete?: MultisigProposalWhereUniqueInput | MultisigProposalWhereUniqueInput[]
+    connect?: MultisigProposalWhereUniqueInput | MultisigProposalWhereUniqueInput[]
+    update?: MultisigProposalUpdateWithWhereUniqueWithoutOrganizationInput | MultisigProposalUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: MultisigProposalUpdateManyWithWhereWithoutOrganizationInput | MultisigProposalUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: MultisigProposalScalarWhereInput | MultisigProposalScalarWhereInput[]
+  }
+
+  export type AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<AuditLogCreateWithoutOrganizationInput, AuditLogUncheckedCreateWithoutOrganizationInput> | AuditLogCreateWithoutOrganizationInput[] | AuditLogUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: AuditLogCreateOrConnectWithoutOrganizationInput | AuditLogCreateOrConnectWithoutOrganizationInput[]
+    upsert?: AuditLogUpsertWithWhereUniqueWithoutOrganizationInput | AuditLogUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: AuditLogCreateManyOrganizationInputEnvelope
+    set?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    disconnect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    delete?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+    update?: AuditLogUpdateWithWhereUniqueWithoutOrganizationInput | AuditLogUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: AuditLogUpdateManyWithWhereWithoutOrganizationInput | AuditLogUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+  }
+
+  export type OrganizationCreateNestedOneWithoutMembersInput = {
+    create?: XOR<OrganizationCreateWithoutMembersInput, OrganizationUncheckedCreateWithoutMembersInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutMembersInput
+    connect?: OrganizationWhereUniqueInput
+  }
+
   export type EnumOrgRoleFieldUpdateOperationsInput = {
     set?: $Enums.OrgRole
+  }
+
+  export type OrganizationUpdateOneRequiredWithoutMembersNestedInput = {
+    create?: XOR<OrganizationCreateWithoutMembersInput, OrganizationUncheckedCreateWithoutMembersInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutMembersInput
+    upsert?: OrganizationUpsertWithoutMembersInput
+    connect?: OrganizationWhereUniqueInput
+    update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutMembersInput, OrganizationUpdateWithoutMembersInput>, OrganizationUncheckedUpdateWithoutMembersInput>
+  }
+
+  export type OrganizationCreateNestedOneWithoutInvitationsInput = {
+    create?: XOR<OrganizationCreateWithoutInvitationsInput, OrganizationUncheckedCreateWithoutInvitationsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutInvitationsInput
+    connect?: OrganizationWhereUniqueInput
+  }
+
+  export type OrganizationUpdateOneRequiredWithoutInvitationsNestedInput = {
+    create?: XOR<OrganizationCreateWithoutInvitationsInput, OrganizationUncheckedCreateWithoutInvitationsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutInvitationsInput
+    upsert?: OrganizationUpsertWithoutInvitationsInput
+    connect?: OrganizationWhereUniqueInput
+    update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutInvitationsInput, OrganizationUpdateWithoutInvitationsInput>, OrganizationUncheckedUpdateWithoutInvitationsInput>
+  }
+
+  export type OrganizationCreateNestedOneWithoutPoliciesInput = {
+    create?: XOR<OrganizationCreateWithoutPoliciesInput, OrganizationUncheckedCreateWithoutPoliciesInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutPoliciesInput
+    connect?: OrganizationWhereUniqueInput
+  }
+
+  export type NullableDecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string | null
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type OrganizationUpdateOneRequiredWithoutPoliciesNestedInput = {
+    create?: XOR<OrganizationCreateWithoutPoliciesInput, OrganizationUncheckedCreateWithoutPoliciesInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutPoliciesInput
+    upsert?: OrganizationUpsertWithoutPoliciesInput
+    connect?: OrganizationWhereUniqueInput
+    update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutPoliciesInput, OrganizationUpdateWithoutPoliciesInput>, OrganizationUncheckedUpdateWithoutPoliciesInput>
+  }
+
+  export type OrganizationCreateNestedOneWithoutBillingRecordsInput = {
+    create?: XOR<OrganizationCreateWithoutBillingRecordsInput, OrganizationUncheckedCreateWithoutBillingRecordsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutBillingRecordsInput
+    connect?: OrganizationWhereUniqueInput
+  }
+
+  export type DecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type OrganizationUpdateOneRequiredWithoutBillingRecordsNestedInput = {
+    create?: XOR<OrganizationCreateWithoutBillingRecordsInput, OrganizationUncheckedCreateWithoutBillingRecordsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutBillingRecordsInput
+    upsert?: OrganizationUpsertWithoutBillingRecordsInput
+    connect?: OrganizationWhereUniqueInput
+    update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutBillingRecordsInput, OrganizationUpdateWithoutBillingRecordsInput>, OrganizationUncheckedUpdateWithoutBillingRecordsInput>
   }
 
   export type EnumNotificationPlatformFieldUpdateOperationsInput = {
@@ -47977,6 +55828,34 @@ export namespace Prisma {
     upsert?: DisbursementDraftUpsertWithoutVersionsInput
     connect?: DisbursementDraftWhereUniqueInput
     update?: XOR<XOR<DisbursementDraftUpdateToOneWithWhereWithoutVersionsInput, DisbursementDraftUpdateWithoutVersionsInput>, DisbursementDraftUncheckedUpdateWithoutVersionsInput>
+  }
+
+  export type OrganizationCreateNestedOneWithoutMultisigProposalsInput = {
+    create?: XOR<OrganizationCreateWithoutMultisigProposalsInput, OrganizationUncheckedCreateWithoutMultisigProposalsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutMultisigProposalsInput
+    connect?: OrganizationWhereUniqueInput
+  }
+
+  export type OrganizationUpdateOneRequiredWithoutMultisigProposalsNestedInput = {
+    create?: XOR<OrganizationCreateWithoutMultisigProposalsInput, OrganizationUncheckedCreateWithoutMultisigProposalsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutMultisigProposalsInput
+    upsert?: OrganizationUpsertWithoutMultisigProposalsInput
+    connect?: OrganizationWhereUniqueInput
+    update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutMultisigProposalsInput, OrganizationUpdateWithoutMultisigProposalsInput>, OrganizationUncheckedUpdateWithoutMultisigProposalsInput>
+  }
+
+  export type OrganizationCreateNestedOneWithoutAuditLogsInput = {
+    create?: XOR<OrganizationCreateWithoutAuditLogsInput, OrganizationUncheckedCreateWithoutAuditLogsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutAuditLogsInput
+    connect?: OrganizationWhereUniqueInput
+  }
+
+  export type OrganizationUpdateOneRequiredWithoutAuditLogsNestedInput = {
+    create?: XOR<OrganizationCreateWithoutAuditLogsInput, OrganizationUncheckedCreateWithoutAuditLogsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutAuditLogsInput
+    upsert?: OrganizationUpsertWithoutAuditLogsInput
+    connect?: OrganizationWhereUniqueInput
+    update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutAuditLogsInput, OrganizationUpdateWithoutAuditLogsInput>, OrganizationUncheckedUpdateWithoutAuditLogsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -48306,6 +56185,60 @@ export namespace Prisma {
     _max?: NestedEnumOrgRoleFilter<$PrismaModel>
   }
 
+  export type NestedDecimalNullableFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedDecimalNullableFilter<$PrismaModel>
+    _sum?: NestedDecimalNullableFilter<$PrismaModel>
+    _min?: NestedDecimalNullableFilter<$PrismaModel>
+    _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
+  export type NestedDecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
+  export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
   export type NestedEnumNotificationPlatformFilter<$PrismaModel = never> = {
     equals?: $Enums.NotificationPlatform | EnumNotificationPlatformFieldRefInput<$PrismaModel>
     in?: $Enums.NotificationPlatform[] | ListEnumNotificationPlatformFieldRefInput<$PrismaModel>
@@ -48354,6 +56287,825 @@ export namespace Prisma {
     _sum?: NestedFloatNullableFilter<$PrismaModel>
     _min?: NestedFloatNullableFilter<$PrismaModel>
     _max?: NestedFloatNullableFilter<$PrismaModel>
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> = 
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type OrganizationMemberCreateWithoutOrganizationInput = {
+    id?: string
+    orgAddress: string
+    memberAddress: string
+    role: $Enums.OrgRole
+    addedBy: string
+    isActive?: boolean
+    lastActivityAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrganizationMemberUncheckedCreateWithoutOrganizationInput = {
+    id?: string
+    orgAddress: string
+    memberAddress: string
+    role: $Enums.OrgRole
+    addedBy: string
+    isActive?: boolean
+    lastActivityAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrganizationMemberCreateOrConnectWithoutOrganizationInput = {
+    where: OrganizationMemberWhereUniqueInput
+    create: XOR<OrganizationMemberCreateWithoutOrganizationInput, OrganizationMemberUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OrganizationMemberCreateManyOrganizationInputEnvelope = {
+    data: OrganizationMemberCreateManyOrganizationInput | OrganizationMemberCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type InvitationCreateWithoutOrganizationInput = {
+    id?: string
+    inviteeEmail: string
+    role: $Enums.OrgRole
+    tokenHash: string
+    status?: string
+    expiresAt: Date | string
+    acceptedBy?: string | null
+    acceptedAt?: Date | string | null
+    revokedBy?: string | null
+    revokedAt?: Date | string | null
+    invitedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InvitationUncheckedCreateWithoutOrganizationInput = {
+    id?: string
+    inviteeEmail: string
+    role: $Enums.OrgRole
+    tokenHash: string
+    status?: string
+    expiresAt: Date | string
+    acceptedBy?: string | null
+    acceptedAt?: Date | string | null
+    revokedBy?: string | null
+    revokedAt?: Date | string | null
+    invitedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InvitationCreateOrConnectWithoutOrganizationInput = {
+    where: InvitationWhereUniqueInput
+    create: XOR<InvitationCreateWithoutOrganizationInput, InvitationUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type InvitationCreateManyOrganizationInputEnvelope = {
+    data: InvitationCreateManyOrganizationInput | InvitationCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OrganizationPolicyCreateWithoutOrganizationInput = {
+    id?: string
+    dailySpendLimitUsd?: Decimal | DecimalJsLike | number | string | null
+    allowedAssets?: string | null
+    requiresMultisig?: boolean
+    multisigThreshold?: number | null
+    updatedBy?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrganizationPolicyUncheckedCreateWithoutOrganizationInput = {
+    id?: string
+    dailySpendLimitUsd?: Decimal | DecimalJsLike | number | string | null
+    allowedAssets?: string | null
+    requiresMultisig?: boolean
+    multisigThreshold?: number | null
+    updatedBy?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrganizationPolicyCreateOrConnectWithoutOrganizationInput = {
+    where: OrganizationPolicyWhereUniqueInput
+    create: XOR<OrganizationPolicyCreateWithoutOrganizationInput, OrganizationPolicyUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OrganizationPolicyCreateManyOrganizationInputEnvelope = {
+    data: OrganizationPolicyCreateManyOrganizationInput | OrganizationPolicyCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BillingRecordCreateWithoutOrganizationInput = {
+    id?: string
+    billingPeriod: string
+    streamsCreated?: number
+    disbursementsProcessed?: number
+    apiRequests?: number
+    volumeUsd?: Decimal | DecimalJsLike | number | string
+    chargeUsd?: Decimal | DecimalJsLike | number | string
+    plan?: string
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BillingRecordUncheckedCreateWithoutOrganizationInput = {
+    id?: string
+    billingPeriod: string
+    streamsCreated?: number
+    disbursementsProcessed?: number
+    apiRequests?: number
+    volumeUsd?: Decimal | DecimalJsLike | number | string
+    chargeUsd?: Decimal | DecimalJsLike | number | string
+    plan?: string
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BillingRecordCreateOrConnectWithoutOrganizationInput = {
+    where: BillingRecordWhereUniqueInput
+    create: XOR<BillingRecordCreateWithoutOrganizationInput, BillingRecordUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type BillingRecordCreateManyOrganizationInputEnvelope = {
+    data: BillingRecordCreateManyOrganizationInput | BillingRecordCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MultisigProposalCreateWithoutOrganizationInput = {
+    id?: string
+    proposalId: string
+    description?: string | null
+    transactionXdr: string
+    signatures?: JsonNullValueInput | InputJsonValue
+    requiredSigners: number
+    status?: string
+    submittedTxHash?: string | null
+    errorMessage?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    expiresAt: Date | string
+  }
+
+  export type MultisigProposalUncheckedCreateWithoutOrganizationInput = {
+    id?: string
+    proposalId: string
+    description?: string | null
+    transactionXdr: string
+    signatures?: JsonNullValueInput | InputJsonValue
+    requiredSigners: number
+    status?: string
+    submittedTxHash?: string | null
+    errorMessage?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    expiresAt: Date | string
+  }
+
+  export type MultisigProposalCreateOrConnectWithoutOrganizationInput = {
+    where: MultisigProposalWhereUniqueInput
+    create: XOR<MultisigProposalCreateWithoutOrganizationInput, MultisigProposalUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type MultisigProposalCreateManyOrganizationInputEnvelope = {
+    data: MultisigProposalCreateManyOrganizationInput | MultisigProposalCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AuditLogCreateWithoutOrganizationInput = {
+    id?: string
+    actionType: string
+    actor: string
+    resourceId: string
+    resourceType: string
+    changes?: NullableJsonNullValueInput | InputJsonValue
+    entryHash?: string | null
+    parentHash?: string | null
+    verified?: boolean
+    ipAddress?: string | null
+    userAgent?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AuditLogUncheckedCreateWithoutOrganizationInput = {
+    id?: string
+    actionType: string
+    actor: string
+    resourceId: string
+    resourceType: string
+    changes?: NullableJsonNullValueInput | InputJsonValue
+    entryHash?: string | null
+    parentHash?: string | null
+    verified?: boolean
+    ipAddress?: string | null
+    userAgent?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AuditLogCreateOrConnectWithoutOrganizationInput = {
+    where: AuditLogWhereUniqueInput
+    create: XOR<AuditLogCreateWithoutOrganizationInput, AuditLogUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type AuditLogCreateManyOrganizationInputEnvelope = {
+    data: AuditLogCreateManyOrganizationInput | AuditLogCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OrganizationMemberUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: OrganizationMemberWhereUniqueInput
+    update: XOR<OrganizationMemberUpdateWithoutOrganizationInput, OrganizationMemberUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<OrganizationMemberCreateWithoutOrganizationInput, OrganizationMemberUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OrganizationMemberUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: OrganizationMemberWhereUniqueInput
+    data: XOR<OrganizationMemberUpdateWithoutOrganizationInput, OrganizationMemberUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type OrganizationMemberUpdateManyWithWhereWithoutOrganizationInput = {
+    where: OrganizationMemberScalarWhereInput
+    data: XOR<OrganizationMemberUpdateManyMutationInput, OrganizationMemberUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type OrganizationMemberScalarWhereInput = {
+    AND?: OrganizationMemberScalarWhereInput | OrganizationMemberScalarWhereInput[]
+    OR?: OrganizationMemberScalarWhereInput[]
+    NOT?: OrganizationMemberScalarWhereInput | OrganizationMemberScalarWhereInput[]
+    id?: StringFilter<"OrganizationMember"> | string
+    organizationId?: StringFilter<"OrganizationMember"> | string
+    orgAddress?: StringFilter<"OrganizationMember"> | string
+    memberAddress?: StringFilter<"OrganizationMember"> | string
+    role?: EnumOrgRoleFilter<"OrganizationMember"> | $Enums.OrgRole
+    addedBy?: StringFilter<"OrganizationMember"> | string
+    isActive?: BoolFilter<"OrganizationMember"> | boolean
+    lastActivityAt?: DateTimeNullableFilter<"OrganizationMember"> | Date | string | null
+    createdAt?: DateTimeFilter<"OrganizationMember"> | Date | string
+    updatedAt?: DateTimeFilter<"OrganizationMember"> | Date | string
+  }
+
+  export type InvitationUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: InvitationWhereUniqueInput
+    update: XOR<InvitationUpdateWithoutOrganizationInput, InvitationUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<InvitationCreateWithoutOrganizationInput, InvitationUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type InvitationUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: InvitationWhereUniqueInput
+    data: XOR<InvitationUpdateWithoutOrganizationInput, InvitationUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type InvitationUpdateManyWithWhereWithoutOrganizationInput = {
+    where: InvitationScalarWhereInput
+    data: XOR<InvitationUpdateManyMutationInput, InvitationUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type InvitationScalarWhereInput = {
+    AND?: InvitationScalarWhereInput | InvitationScalarWhereInput[]
+    OR?: InvitationScalarWhereInput[]
+    NOT?: InvitationScalarWhereInput | InvitationScalarWhereInput[]
+    id?: StringFilter<"Invitation"> | string
+    organizationId?: StringFilter<"Invitation"> | string
+    inviteeEmail?: StringFilter<"Invitation"> | string
+    role?: EnumOrgRoleFilter<"Invitation"> | $Enums.OrgRole
+    tokenHash?: StringFilter<"Invitation"> | string
+    status?: StringFilter<"Invitation"> | string
+    expiresAt?: DateTimeFilter<"Invitation"> | Date | string
+    acceptedBy?: StringNullableFilter<"Invitation"> | string | null
+    acceptedAt?: DateTimeNullableFilter<"Invitation"> | Date | string | null
+    revokedBy?: StringNullableFilter<"Invitation"> | string | null
+    revokedAt?: DateTimeNullableFilter<"Invitation"> | Date | string | null
+    invitedBy?: StringFilter<"Invitation"> | string
+    createdAt?: DateTimeFilter<"Invitation"> | Date | string
+    updatedAt?: DateTimeFilter<"Invitation"> | Date | string
+  }
+
+  export type OrganizationPolicyUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: OrganizationPolicyWhereUniqueInput
+    update: XOR<OrganizationPolicyUpdateWithoutOrganizationInput, OrganizationPolicyUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<OrganizationPolicyCreateWithoutOrganizationInput, OrganizationPolicyUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type OrganizationPolicyUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: OrganizationPolicyWhereUniqueInput
+    data: XOR<OrganizationPolicyUpdateWithoutOrganizationInput, OrganizationPolicyUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type OrganizationPolicyUpdateManyWithWhereWithoutOrganizationInput = {
+    where: OrganizationPolicyScalarWhereInput
+    data: XOR<OrganizationPolicyUpdateManyMutationInput, OrganizationPolicyUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type OrganizationPolicyScalarWhereInput = {
+    AND?: OrganizationPolicyScalarWhereInput | OrganizationPolicyScalarWhereInput[]
+    OR?: OrganizationPolicyScalarWhereInput[]
+    NOT?: OrganizationPolicyScalarWhereInput | OrganizationPolicyScalarWhereInput[]
+    id?: StringFilter<"OrganizationPolicy"> | string
+    organizationId?: StringFilter<"OrganizationPolicy"> | string
+    dailySpendLimitUsd?: DecimalNullableFilter<"OrganizationPolicy"> | Decimal | DecimalJsLike | number | string | null
+    allowedAssets?: StringNullableFilter<"OrganizationPolicy"> | string | null
+    requiresMultisig?: BoolFilter<"OrganizationPolicy"> | boolean
+    multisigThreshold?: IntNullableFilter<"OrganizationPolicy"> | number | null
+    updatedBy?: StringNullableFilter<"OrganizationPolicy"> | string | null
+    createdAt?: DateTimeFilter<"OrganizationPolicy"> | Date | string
+    updatedAt?: DateTimeFilter<"OrganizationPolicy"> | Date | string
+  }
+
+  export type BillingRecordUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: BillingRecordWhereUniqueInput
+    update: XOR<BillingRecordUpdateWithoutOrganizationInput, BillingRecordUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<BillingRecordCreateWithoutOrganizationInput, BillingRecordUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type BillingRecordUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: BillingRecordWhereUniqueInput
+    data: XOR<BillingRecordUpdateWithoutOrganizationInput, BillingRecordUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type BillingRecordUpdateManyWithWhereWithoutOrganizationInput = {
+    where: BillingRecordScalarWhereInput
+    data: XOR<BillingRecordUpdateManyMutationInput, BillingRecordUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type BillingRecordScalarWhereInput = {
+    AND?: BillingRecordScalarWhereInput | BillingRecordScalarWhereInput[]
+    OR?: BillingRecordScalarWhereInput[]
+    NOT?: BillingRecordScalarWhereInput | BillingRecordScalarWhereInput[]
+    id?: StringFilter<"BillingRecord"> | string
+    organizationId?: StringFilter<"BillingRecord"> | string
+    billingPeriod?: StringFilter<"BillingRecord"> | string
+    streamsCreated?: IntFilter<"BillingRecord"> | number
+    disbursementsProcessed?: IntFilter<"BillingRecord"> | number
+    apiRequests?: IntFilter<"BillingRecord"> | number
+    volumeUsd?: DecimalFilter<"BillingRecord"> | Decimal | DecimalJsLike | number | string
+    chargeUsd?: DecimalFilter<"BillingRecord"> | Decimal | DecimalJsLike | number | string
+    plan?: StringFilter<"BillingRecord"> | string
+    status?: StringFilter<"BillingRecord"> | string
+    createdAt?: DateTimeFilter<"BillingRecord"> | Date | string
+    updatedAt?: DateTimeFilter<"BillingRecord"> | Date | string
+  }
+
+  export type MultisigProposalUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: MultisigProposalWhereUniqueInput
+    update: XOR<MultisigProposalUpdateWithoutOrganizationInput, MultisigProposalUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<MultisigProposalCreateWithoutOrganizationInput, MultisigProposalUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type MultisigProposalUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: MultisigProposalWhereUniqueInput
+    data: XOR<MultisigProposalUpdateWithoutOrganizationInput, MultisigProposalUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type MultisigProposalUpdateManyWithWhereWithoutOrganizationInput = {
+    where: MultisigProposalScalarWhereInput
+    data: XOR<MultisigProposalUpdateManyMutationInput, MultisigProposalUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type MultisigProposalScalarWhereInput = {
+    AND?: MultisigProposalScalarWhereInput | MultisigProposalScalarWhereInput[]
+    OR?: MultisigProposalScalarWhereInput[]
+    NOT?: MultisigProposalScalarWhereInput | MultisigProposalScalarWhereInput[]
+    id?: StringFilter<"MultisigProposal"> | string
+    proposalId?: StringFilter<"MultisigProposal"> | string
+    organizationId?: StringFilter<"MultisigProposal"> | string
+    description?: StringNullableFilter<"MultisigProposal"> | string | null
+    transactionXdr?: StringFilter<"MultisigProposal"> | string
+    signatures?: JsonFilter<"MultisigProposal">
+    requiredSigners?: IntFilter<"MultisigProposal"> | number
+    status?: StringFilter<"MultisigProposal"> | string
+    submittedTxHash?: StringNullableFilter<"MultisigProposal"> | string | null
+    errorMessage?: StringNullableFilter<"MultisigProposal"> | string | null
+    createdAt?: DateTimeFilter<"MultisigProposal"> | Date | string
+    updatedAt?: DateTimeFilter<"MultisigProposal"> | Date | string
+    expiresAt?: DateTimeFilter<"MultisigProposal"> | Date | string
+  }
+
+  export type AuditLogUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: AuditLogWhereUniqueInput
+    update: XOR<AuditLogUpdateWithoutOrganizationInput, AuditLogUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<AuditLogCreateWithoutOrganizationInput, AuditLogUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type AuditLogUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: AuditLogWhereUniqueInput
+    data: XOR<AuditLogUpdateWithoutOrganizationInput, AuditLogUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type AuditLogUpdateManyWithWhereWithoutOrganizationInput = {
+    where: AuditLogScalarWhereInput
+    data: XOR<AuditLogUpdateManyMutationInput, AuditLogUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type AuditLogScalarWhereInput = {
+    AND?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+    OR?: AuditLogScalarWhereInput[]
+    NOT?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+    id?: StringFilter<"AuditLog"> | string
+    organizationId?: StringFilter<"AuditLog"> | string
+    actionType?: StringFilter<"AuditLog"> | string
+    actor?: StringFilter<"AuditLog"> | string
+    resourceId?: StringFilter<"AuditLog"> | string
+    resourceType?: StringFilter<"AuditLog"> | string
+    changes?: JsonNullableFilter<"AuditLog">
+    entryHash?: StringNullableFilter<"AuditLog"> | string | null
+    parentHash?: StringNullableFilter<"AuditLog"> | string | null
+    verified?: BoolFilter<"AuditLog"> | boolean
+    ipAddress?: StringNullableFilter<"AuditLog"> | string | null
+    userAgent?: StringNullableFilter<"AuditLog"> | string | null
+    createdAt?: DateTimeFilter<"AuditLog"> | Date | string
+  }
+
+  export type OrganizationCreateWithoutMembersInput = {
+    id?: string
+    gAddress: string
+    name: string
+    description?: string | null
+    logoUrl?: string | null
+    customDomain?: string | null
+    contactEmail?: string | null
+    createdBy: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    invitations?: InvitationCreateNestedManyWithoutOrganizationInput
+    policies?: OrganizationPolicyCreateNestedManyWithoutOrganizationInput
+    billingRecords?: BillingRecordCreateNestedManyWithoutOrganizationInput
+    multisigProposals?: MultisigProposalCreateNestedManyWithoutOrganizationInput
+    auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateWithoutMembersInput = {
+    id?: string
+    gAddress: string
+    name: string
+    description?: string | null
+    logoUrl?: string | null
+    customDomain?: string | null
+    contactEmail?: string | null
+    createdBy: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    invitations?: InvitationUncheckedCreateNestedManyWithoutOrganizationInput
+    policies?: OrganizationPolicyUncheckedCreateNestedManyWithoutOrganizationInput
+    billingRecords?: BillingRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    multisigProposals?: MultisigProposalUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationCreateOrConnectWithoutMembersInput = {
+    where: OrganizationWhereUniqueInput
+    create: XOR<OrganizationCreateWithoutMembersInput, OrganizationUncheckedCreateWithoutMembersInput>
+  }
+
+  export type OrganizationUpsertWithoutMembersInput = {
+    update: XOR<OrganizationUpdateWithoutMembersInput, OrganizationUncheckedUpdateWithoutMembersInput>
+    create: XOR<OrganizationCreateWithoutMembersInput, OrganizationUncheckedCreateWithoutMembersInput>
+    where?: OrganizationWhereInput
+  }
+
+  export type OrganizationUpdateToOneWithWhereWithoutMembersInput = {
+    where?: OrganizationWhereInput
+    data: XOR<OrganizationUpdateWithoutMembersInput, OrganizationUncheckedUpdateWithoutMembersInput>
+  }
+
+  export type OrganizationUpdateWithoutMembersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gAddress?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invitations?: InvitationUpdateManyWithoutOrganizationNestedInput
+    policies?: OrganizationPolicyUpdateManyWithoutOrganizationNestedInput
+    billingRecords?: BillingRecordUpdateManyWithoutOrganizationNestedInput
+    multisigProposals?: MultisigProposalUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateWithoutMembersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gAddress?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invitations?: InvitationUncheckedUpdateManyWithoutOrganizationNestedInput
+    policies?: OrganizationPolicyUncheckedUpdateManyWithoutOrganizationNestedInput
+    billingRecords?: BillingRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    multisigProposals?: MultisigProposalUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationCreateWithoutInvitationsInput = {
+    id?: string
+    gAddress: string
+    name: string
+    description?: string | null
+    logoUrl?: string | null
+    customDomain?: string | null
+    contactEmail?: string | null
+    createdBy: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OrganizationMemberCreateNestedManyWithoutOrganizationInput
+    policies?: OrganizationPolicyCreateNestedManyWithoutOrganizationInput
+    billingRecords?: BillingRecordCreateNestedManyWithoutOrganizationInput
+    multisigProposals?: MultisigProposalCreateNestedManyWithoutOrganizationInput
+    auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateWithoutInvitationsInput = {
+    id?: string
+    gAddress: string
+    name: string
+    description?: string | null
+    logoUrl?: string | null
+    customDomain?: string | null
+    contactEmail?: string | null
+    createdBy: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    policies?: OrganizationPolicyUncheckedCreateNestedManyWithoutOrganizationInput
+    billingRecords?: BillingRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    multisigProposals?: MultisigProposalUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationCreateOrConnectWithoutInvitationsInput = {
+    where: OrganizationWhereUniqueInput
+    create: XOR<OrganizationCreateWithoutInvitationsInput, OrganizationUncheckedCreateWithoutInvitationsInput>
+  }
+
+  export type OrganizationUpsertWithoutInvitationsInput = {
+    update: XOR<OrganizationUpdateWithoutInvitationsInput, OrganizationUncheckedUpdateWithoutInvitationsInput>
+    create: XOR<OrganizationCreateWithoutInvitationsInput, OrganizationUncheckedCreateWithoutInvitationsInput>
+    where?: OrganizationWhereInput
+  }
+
+  export type OrganizationUpdateToOneWithWhereWithoutInvitationsInput = {
+    where?: OrganizationWhereInput
+    data: XOR<OrganizationUpdateWithoutInvitationsInput, OrganizationUncheckedUpdateWithoutInvitationsInput>
+  }
+
+  export type OrganizationUpdateWithoutInvitationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gAddress?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    policies?: OrganizationPolicyUpdateManyWithoutOrganizationNestedInput
+    billingRecords?: BillingRecordUpdateManyWithoutOrganizationNestedInput
+    multisigProposals?: MultisigProposalUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateWithoutInvitationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gAddress?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    policies?: OrganizationPolicyUncheckedUpdateManyWithoutOrganizationNestedInput
+    billingRecords?: BillingRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    multisigProposals?: MultisigProposalUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationCreateWithoutPoliciesInput = {
+    id?: string
+    gAddress: string
+    name: string
+    description?: string | null
+    logoUrl?: string | null
+    customDomain?: string | null
+    contactEmail?: string | null
+    createdBy: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OrganizationMemberCreateNestedManyWithoutOrganizationInput
+    invitations?: InvitationCreateNestedManyWithoutOrganizationInput
+    billingRecords?: BillingRecordCreateNestedManyWithoutOrganizationInput
+    multisigProposals?: MultisigProposalCreateNestedManyWithoutOrganizationInput
+    auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateWithoutPoliciesInput = {
+    id?: string
+    gAddress: string
+    name: string
+    description?: string | null
+    logoUrl?: string | null
+    customDomain?: string | null
+    contactEmail?: string | null
+    createdBy: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutOrganizationInput
+    billingRecords?: BillingRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    multisigProposals?: MultisigProposalUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationCreateOrConnectWithoutPoliciesInput = {
+    where: OrganizationWhereUniqueInput
+    create: XOR<OrganizationCreateWithoutPoliciesInput, OrganizationUncheckedCreateWithoutPoliciesInput>
+  }
+
+  export type OrganizationUpsertWithoutPoliciesInput = {
+    update: XOR<OrganizationUpdateWithoutPoliciesInput, OrganizationUncheckedUpdateWithoutPoliciesInput>
+    create: XOR<OrganizationCreateWithoutPoliciesInput, OrganizationUncheckedCreateWithoutPoliciesInput>
+    where?: OrganizationWhereInput
+  }
+
+  export type OrganizationUpdateToOneWithWhereWithoutPoliciesInput = {
+    where?: OrganizationWhereInput
+    data: XOR<OrganizationUpdateWithoutPoliciesInput, OrganizationUncheckedUpdateWithoutPoliciesInput>
+  }
+
+  export type OrganizationUpdateWithoutPoliciesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gAddress?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    invitations?: InvitationUpdateManyWithoutOrganizationNestedInput
+    billingRecords?: BillingRecordUpdateManyWithoutOrganizationNestedInput
+    multisigProposals?: MultisigProposalUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateWithoutPoliciesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gAddress?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutOrganizationNestedInput
+    billingRecords?: BillingRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    multisigProposals?: MultisigProposalUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationCreateWithoutBillingRecordsInput = {
+    id?: string
+    gAddress: string
+    name: string
+    description?: string | null
+    logoUrl?: string | null
+    customDomain?: string | null
+    contactEmail?: string | null
+    createdBy: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OrganizationMemberCreateNestedManyWithoutOrganizationInput
+    invitations?: InvitationCreateNestedManyWithoutOrganizationInput
+    policies?: OrganizationPolicyCreateNestedManyWithoutOrganizationInput
+    multisigProposals?: MultisigProposalCreateNestedManyWithoutOrganizationInput
+    auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateWithoutBillingRecordsInput = {
+    id?: string
+    gAddress: string
+    name: string
+    description?: string | null
+    logoUrl?: string | null
+    customDomain?: string | null
+    contactEmail?: string | null
+    createdBy: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutOrganizationInput
+    policies?: OrganizationPolicyUncheckedCreateNestedManyWithoutOrganizationInput
+    multisigProposals?: MultisigProposalUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationCreateOrConnectWithoutBillingRecordsInput = {
+    where: OrganizationWhereUniqueInput
+    create: XOR<OrganizationCreateWithoutBillingRecordsInput, OrganizationUncheckedCreateWithoutBillingRecordsInput>
+  }
+
+  export type OrganizationUpsertWithoutBillingRecordsInput = {
+    update: XOR<OrganizationUpdateWithoutBillingRecordsInput, OrganizationUncheckedUpdateWithoutBillingRecordsInput>
+    create: XOR<OrganizationCreateWithoutBillingRecordsInput, OrganizationUncheckedCreateWithoutBillingRecordsInput>
+    where?: OrganizationWhereInput
+  }
+
+  export type OrganizationUpdateToOneWithWhereWithoutBillingRecordsInput = {
+    where?: OrganizationWhereInput
+    data: XOR<OrganizationUpdateWithoutBillingRecordsInput, OrganizationUncheckedUpdateWithoutBillingRecordsInput>
+  }
+
+  export type OrganizationUpdateWithoutBillingRecordsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gAddress?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    invitations?: InvitationUpdateManyWithoutOrganizationNestedInput
+    policies?: OrganizationPolicyUpdateManyWithoutOrganizationNestedInput
+    multisigProposals?: MultisigProposalUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateWithoutBillingRecordsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gAddress?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutOrganizationNestedInput
+    policies?: OrganizationPolicyUncheckedUpdateManyWithoutOrganizationNestedInput
+    multisigProposals?: MultisigProposalUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type DisbursementDraftVersionCreateWithoutDraftInput = {
@@ -48476,6 +57228,522 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type OrganizationCreateWithoutMultisigProposalsInput = {
+    id?: string
+    gAddress: string
+    name: string
+    description?: string | null
+    logoUrl?: string | null
+    customDomain?: string | null
+    contactEmail?: string | null
+    createdBy: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OrganizationMemberCreateNestedManyWithoutOrganizationInput
+    invitations?: InvitationCreateNestedManyWithoutOrganizationInput
+    policies?: OrganizationPolicyCreateNestedManyWithoutOrganizationInput
+    billingRecords?: BillingRecordCreateNestedManyWithoutOrganizationInput
+    auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateWithoutMultisigProposalsInput = {
+    id?: string
+    gAddress: string
+    name: string
+    description?: string | null
+    logoUrl?: string | null
+    customDomain?: string | null
+    contactEmail?: string | null
+    createdBy: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutOrganizationInput
+    policies?: OrganizationPolicyUncheckedCreateNestedManyWithoutOrganizationInput
+    billingRecords?: BillingRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationCreateOrConnectWithoutMultisigProposalsInput = {
+    where: OrganizationWhereUniqueInput
+    create: XOR<OrganizationCreateWithoutMultisigProposalsInput, OrganizationUncheckedCreateWithoutMultisigProposalsInput>
+  }
+
+  export type OrganizationUpsertWithoutMultisigProposalsInput = {
+    update: XOR<OrganizationUpdateWithoutMultisigProposalsInput, OrganizationUncheckedUpdateWithoutMultisigProposalsInput>
+    create: XOR<OrganizationCreateWithoutMultisigProposalsInput, OrganizationUncheckedCreateWithoutMultisigProposalsInput>
+    where?: OrganizationWhereInput
+  }
+
+  export type OrganizationUpdateToOneWithWhereWithoutMultisigProposalsInput = {
+    where?: OrganizationWhereInput
+    data: XOR<OrganizationUpdateWithoutMultisigProposalsInput, OrganizationUncheckedUpdateWithoutMultisigProposalsInput>
+  }
+
+  export type OrganizationUpdateWithoutMultisigProposalsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gAddress?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    invitations?: InvitationUpdateManyWithoutOrganizationNestedInput
+    policies?: OrganizationPolicyUpdateManyWithoutOrganizationNestedInput
+    billingRecords?: BillingRecordUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateWithoutMultisigProposalsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gAddress?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutOrganizationNestedInput
+    policies?: OrganizationPolicyUncheckedUpdateManyWithoutOrganizationNestedInput
+    billingRecords?: BillingRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationCreateWithoutAuditLogsInput = {
+    id?: string
+    gAddress: string
+    name: string
+    description?: string | null
+    logoUrl?: string | null
+    customDomain?: string | null
+    contactEmail?: string | null
+    createdBy: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OrganizationMemberCreateNestedManyWithoutOrganizationInput
+    invitations?: InvitationCreateNestedManyWithoutOrganizationInput
+    policies?: OrganizationPolicyCreateNestedManyWithoutOrganizationInput
+    billingRecords?: BillingRecordCreateNestedManyWithoutOrganizationInput
+    multisigProposals?: MultisigProposalCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateWithoutAuditLogsInput = {
+    id?: string
+    gAddress: string
+    name: string
+    description?: string | null
+    logoUrl?: string | null
+    customDomain?: string | null
+    contactEmail?: string | null
+    createdBy: string
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: OrganizationMemberUncheckedCreateNestedManyWithoutOrganizationInput
+    invitations?: InvitationUncheckedCreateNestedManyWithoutOrganizationInput
+    policies?: OrganizationPolicyUncheckedCreateNestedManyWithoutOrganizationInput
+    billingRecords?: BillingRecordUncheckedCreateNestedManyWithoutOrganizationInput
+    multisigProposals?: MultisigProposalUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationCreateOrConnectWithoutAuditLogsInput = {
+    where: OrganizationWhereUniqueInput
+    create: XOR<OrganizationCreateWithoutAuditLogsInput, OrganizationUncheckedCreateWithoutAuditLogsInput>
+  }
+
+  export type OrganizationUpsertWithoutAuditLogsInput = {
+    update: XOR<OrganizationUpdateWithoutAuditLogsInput, OrganizationUncheckedUpdateWithoutAuditLogsInput>
+    create: XOR<OrganizationCreateWithoutAuditLogsInput, OrganizationUncheckedCreateWithoutAuditLogsInput>
+    where?: OrganizationWhereInput
+  }
+
+  export type OrganizationUpdateToOneWithWhereWithoutAuditLogsInput = {
+    where?: OrganizationWhereInput
+    data: XOR<OrganizationUpdateWithoutAuditLogsInput, OrganizationUncheckedUpdateWithoutAuditLogsInput>
+  }
+
+  export type OrganizationUpdateWithoutAuditLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gAddress?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OrganizationMemberUpdateManyWithoutOrganizationNestedInput
+    invitations?: InvitationUpdateManyWithoutOrganizationNestedInput
+    policies?: OrganizationPolicyUpdateManyWithoutOrganizationNestedInput
+    billingRecords?: BillingRecordUpdateManyWithoutOrganizationNestedInput
+    multisigProposals?: MultisigProposalUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateWithoutAuditLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    gAddress?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    customDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    contactEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: OrganizationMemberUncheckedUpdateManyWithoutOrganizationNestedInput
+    invitations?: InvitationUncheckedUpdateManyWithoutOrganizationNestedInput
+    policies?: OrganizationPolicyUncheckedUpdateManyWithoutOrganizationNestedInput
+    billingRecords?: BillingRecordUncheckedUpdateManyWithoutOrganizationNestedInput
+    multisigProposals?: MultisigProposalUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationMemberCreateManyOrganizationInput = {
+    id?: string
+    orgAddress: string
+    memberAddress: string
+    role: $Enums.OrgRole
+    addedBy: string
+    isActive?: boolean
+    lastActivityAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InvitationCreateManyOrganizationInput = {
+    id?: string
+    inviteeEmail: string
+    role: $Enums.OrgRole
+    tokenHash: string
+    status?: string
+    expiresAt: Date | string
+    acceptedBy?: string | null
+    acceptedAt?: Date | string | null
+    revokedBy?: string | null
+    revokedAt?: Date | string | null
+    invitedBy: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrganizationPolicyCreateManyOrganizationInput = {
+    id?: string
+    dailySpendLimitUsd?: Decimal | DecimalJsLike | number | string | null
+    allowedAssets?: string | null
+    requiresMultisig?: boolean
+    multisigThreshold?: number | null
+    updatedBy?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BillingRecordCreateManyOrganizationInput = {
+    id?: string
+    billingPeriod: string
+    streamsCreated?: number
+    disbursementsProcessed?: number
+    apiRequests?: number
+    volumeUsd?: Decimal | DecimalJsLike | number | string
+    chargeUsd?: Decimal | DecimalJsLike | number | string
+    plan?: string
+    status?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MultisigProposalCreateManyOrganizationInput = {
+    id?: string
+    proposalId: string
+    description?: string | null
+    transactionXdr: string
+    signatures?: JsonNullValueInput | InputJsonValue
+    requiredSigners: number
+    status?: string
+    submittedTxHash?: string | null
+    errorMessage?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    expiresAt: Date | string
+  }
+
+  export type AuditLogCreateManyOrganizationInput = {
+    id?: string
+    actionType: string
+    actor: string
+    resourceId: string
+    resourceType: string
+    changes?: NullableJsonNullValueInput | InputJsonValue
+    entryHash?: string | null
+    parentHash?: string | null
+    verified?: boolean
+    ipAddress?: string | null
+    userAgent?: string | null
+    createdAt?: Date | string
+  }
+
+  export type OrganizationMemberUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orgAddress?: StringFieldUpdateOperationsInput | string
+    memberAddress?: StringFieldUpdateOperationsInput | string
+    role?: EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+    addedBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastActivityAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrganizationMemberUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orgAddress?: StringFieldUpdateOperationsInput | string
+    memberAddress?: StringFieldUpdateOperationsInput | string
+    role?: EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+    addedBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastActivityAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrganizationMemberUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orgAddress?: StringFieldUpdateOperationsInput | string
+    memberAddress?: StringFieldUpdateOperationsInput | string
+    role?: EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+    addedBy?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    lastActivityAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvitationUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inviteeEmail?: StringFieldUpdateOperationsInput | string
+    role?: EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invitedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvitationUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inviteeEmail?: StringFieldUpdateOperationsInput | string
+    role?: EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invitedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InvitationUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    inviteeEmail?: StringFieldUpdateOperationsInput | string
+    role?: EnumOrgRoleFieldUpdateOperationsInput | $Enums.OrgRole
+    tokenHash?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    acceptedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    acceptedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    revokedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    revokedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invitedBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrganizationPolicyUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dailySpendLimitUsd?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    allowedAssets?: NullableStringFieldUpdateOperationsInput | string | null
+    requiresMultisig?: BoolFieldUpdateOperationsInput | boolean
+    multisigThreshold?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrganizationPolicyUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dailySpendLimitUsd?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    allowedAssets?: NullableStringFieldUpdateOperationsInput | string | null
+    requiresMultisig?: BoolFieldUpdateOperationsInput | boolean
+    multisigThreshold?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrganizationPolicyUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dailySpendLimitUsd?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    allowedAssets?: NullableStringFieldUpdateOperationsInput | string | null
+    requiresMultisig?: BoolFieldUpdateOperationsInput | boolean
+    multisigThreshold?: NullableIntFieldUpdateOperationsInput | number | null
+    updatedBy?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BillingRecordUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    billingPeriod?: StringFieldUpdateOperationsInput | string
+    streamsCreated?: IntFieldUpdateOperationsInput | number
+    disbursementsProcessed?: IntFieldUpdateOperationsInput | number
+    apiRequests?: IntFieldUpdateOperationsInput | number
+    volumeUsd?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    chargeUsd?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    plan?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BillingRecordUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    billingPeriod?: StringFieldUpdateOperationsInput | string
+    streamsCreated?: IntFieldUpdateOperationsInput | number
+    disbursementsProcessed?: IntFieldUpdateOperationsInput | number
+    apiRequests?: IntFieldUpdateOperationsInput | number
+    volumeUsd?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    chargeUsd?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    plan?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BillingRecordUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    billingPeriod?: StringFieldUpdateOperationsInput | string
+    streamsCreated?: IntFieldUpdateOperationsInput | number
+    disbursementsProcessed?: IntFieldUpdateOperationsInput | number
+    apiRequests?: IntFieldUpdateOperationsInput | number
+    volumeUsd?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    chargeUsd?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    plan?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MultisigProposalUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    proposalId?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionXdr?: StringFieldUpdateOperationsInput | string
+    signatures?: JsonNullValueInput | InputJsonValue
+    requiredSigners?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    submittedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MultisigProposalUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    proposalId?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionXdr?: StringFieldUpdateOperationsInput | string
+    signatures?: JsonNullValueInput | InputJsonValue
+    requiredSigners?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    submittedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MultisigProposalUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    proposalId?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    transactionXdr?: StringFieldUpdateOperationsInput | string
+    signatures?: JsonNullValueInput | InputJsonValue
+    requiredSigners?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    submittedTxHash?: NullableStringFieldUpdateOperationsInput | string | null
+    errorMessage?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditLogUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actionType?: StringFieldUpdateOperationsInput | string
+    actor?: StringFieldUpdateOperationsInput | string
+    resourceId?: StringFieldUpdateOperationsInput | string
+    resourceType?: StringFieldUpdateOperationsInput | string
+    changes?: NullableJsonNullValueInput | InputJsonValue
+    entryHash?: NullableStringFieldUpdateOperationsInput | string | null
+    parentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verified?: BoolFieldUpdateOperationsInput | boolean
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditLogUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actionType?: StringFieldUpdateOperationsInput | string
+    actor?: StringFieldUpdateOperationsInput | string
+    resourceId?: StringFieldUpdateOperationsInput | string
+    resourceType?: StringFieldUpdateOperationsInput | string
+    changes?: NullableJsonNullValueInput | InputJsonValue
+    entryHash?: NullableStringFieldUpdateOperationsInput | string | null
+    parentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verified?: BoolFieldUpdateOperationsInput | boolean
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AuditLogUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actionType?: StringFieldUpdateOperationsInput | string
+    actor?: StringFieldUpdateOperationsInput | string
+    resourceId?: StringFieldUpdateOperationsInput | string
+    resourceType?: StringFieldUpdateOperationsInput | string
+    changes?: NullableJsonNullValueInput | InputJsonValue
+    entryHash?: NullableStringFieldUpdateOperationsInput | string | null
+    parentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    verified?: BoolFieldUpdateOperationsInput | boolean
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type DisbursementDraftVersionCreateManyDraftInput = {
     id?: string
     version: number
@@ -48521,6 +57789,10 @@ export namespace Prisma {
   /**
    * Aliases for legacy arg types
    */
+    /**
+     * @deprecated Use OrganizationCountOutputTypeDefaultArgs instead
+     */
+    export type OrganizationCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OrganizationCountOutputTypeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use DisbursementDraftCountOutputTypeDefaultArgs instead
      */
@@ -48574,9 +57846,25 @@ export namespace Prisma {
      */
     export type EventArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = EventDefaultArgs<ExtArgs>
     /**
+     * @deprecated Use OrganizationDefaultArgs instead
+     */
+    export type OrganizationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OrganizationDefaultArgs<ExtArgs>
+    /**
      * @deprecated Use OrganizationMemberDefaultArgs instead
      */
     export type OrganizationMemberArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OrganizationMemberDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use InvitationDefaultArgs instead
+     */
+    export type InvitationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = InvitationDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use OrganizationPolicyDefaultArgs instead
+     */
+    export type OrganizationPolicyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OrganizationPolicyDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use BillingRecordDefaultArgs instead
+     */
+    export type BillingRecordArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = BillingRecordDefaultArgs<ExtArgs>
     /**
      * @deprecated Use ApiKeyDefaultArgs instead
      */
@@ -48661,6 +57949,10 @@ export namespace Prisma {
      * @deprecated Use MultisigProposalDefaultArgs instead
      */
     export type MultisigProposalArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = MultisigProposalDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use AuditLogDefaultArgs instead
+     */
+    export type AuditLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AuditLogDefaultArgs<ExtArgs>
     /**
      * @deprecated Use CachedAssetDefaultArgs instead
      */

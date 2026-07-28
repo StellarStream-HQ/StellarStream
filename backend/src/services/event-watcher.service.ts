@@ -6,7 +6,7 @@
  * with distributed locking for high availability.
  */
 
-import { SorobanRpc, scValToNative } from "@stellar/stellar-sdk";
+import { /* SorobanRpc, */ scValToNative } from "@stellar/stellar-sdk";
 import { PrismaClient } from "../generated/client/index.js";
 import { redis } from "../lib/redis.js";
 import { logger } from "../logger.js";

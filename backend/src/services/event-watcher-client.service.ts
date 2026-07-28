@@ -39,8 +39,8 @@ export class EventWatcherClient {
           try {
             this.latestStatus = JSON.parse(message);
             logger.debug("[EventWatcherClient] Status update received", {
-              status: this.latestStatus.status,
-              lastProcessedLedger: this.latestStatus.lastProcessedLedger,
+              status: this.latestStatus?.status,
+              lastProcessedLedger: this.latestStatus?.lastProcessedLedger,
             });
           } catch (error) {
             logger.error("[EventWatcherClient] Failed to parse status message", { error, message });

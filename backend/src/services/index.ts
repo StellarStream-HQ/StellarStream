@@ -69,3 +69,27 @@ export { BridgeObserverService, type BridgeTransferEvent } from "./bridge-observ
 
 // TTL archival monitoring
 export { TTLArchivalMonitorService, type StreamTTLStatus } from "./ttl-archival-monitor.service.js";
+
+// Organization management services
+export {
+  BillingService,
+  type BillingRecordDTO,
+} from "./billing.service.js";
+
+export {
+  MultisigService,
+  type MultisigProposalDTO,
+  type CreateMultisigInput,
+  type ProposalFilters,
+} from "./multisig.service.js";
+
+export {
+  OrganizationAuditLogService,
+  type AuditLogFilters,
+  type AuditLogEntry,
+} from "./organization-audit-log.service.js";
+
+export {
+  EmailService,
+  type InvitationEmailData,
+} from "./email.service.js";

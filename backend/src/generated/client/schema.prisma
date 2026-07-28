@@ -251,24 +251,118 @@ enum OrgRole {
   EXECUTOR // Can submit approved splits to the ledger
 }
 
+// Organization model - represents a team/business entity
+model Organization {
+  id           String   @id @default(cuid())
+  gAddress     String   @unique // Stellar group account (G-address)
+  name         String
+  description  String?
+  logoUrl      String?  @map("logo_url")
+  customDomain String?  @map("custom_domain")
+  contactEmail String?  @map("contact_email")
+  createdBy    String // Creator's Stellar address
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relationships
+  members           OrganizationMember[]
+  invitations       Invitation[]
+  policies          OrganizationPolicy[]
+  billingRecords    BillingRecord[]
+  multisigProposals MultisigProposal[]
+  auditLogs         AuditLog[]
+
+  @@index([gAddress])
+  @@index([createdBy])
+  @@index([isActive])
+}
+
 // Maps a Stellar address to a role within a shared G-address organisation
 model OrganizationMember {
-  id            String   @id @default(cuid())
-  /// The shared G-address that represents the organisation
-  orgAddress    String
-  /// The individual member's Stellar G-address
-  memberAddress String
-  role          OrgRole
-  /// Who granted this membership
-  addedBy       String
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  @@unique([orgAddress, memberAddress])
-  @@index([orgAddress])
+  /// The shared G-address that represents the organisation
+  orgAddress     String
+  /// The individual member's Stellar G-address
+  memberAddress  String
+  role           OrgRole
+  /// Who granted this membership
+  addedBy        String
+  isActive       Boolean   @default(true) @map("is_active")
+  lastActivityAt DateTime? @map("last_activity_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@unique([organizationId, memberAddress])
+  @@index([organizationId])
   @@index([memberAddress])
   @@index([role])
+}
+
+// Invitation model - token-based invitations for new members
+model Invitation {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  inviteeEmail String    @map("invitee_email")
+  role         OrgRole
+  tokenHash    String    @unique @map("token_hash") // SHA-256 hash of token (never store plaintext)
+  status       String    @default("PENDING") // PENDING, ACCEPTED, EXPIRED, REVOKED
+  expiresAt    DateTime  @map("expires_at")
+  acceptedBy   String?   @map("accepted_by")
+  acceptedAt   DateTime? @map("accepted_at")
+  revokedBy    String?   @map("revoked_by")
+  revokedAt    DateTime? @map("revoked_at")
+  invitedBy    String    @map("invited_by")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+// Organization Policy model - spending limits and asset controls
+model OrganizationPolicy {
+  id             String       @id @default(cuid())
+  organizationId String       @unique @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  dailySpendLimitUsd Decimal? @map("daily_spend_limit_usd") // NULL = unlimited
+  allowedAssets      String?  @map("allowed_assets") // JSON array of asset addresses; NULL = all allowed
+  requiresMultisig   Boolean  @default(false) @map("requires_multisig")
+  multisigThreshold  Int?     @map("multisig_threshold")
+  updatedBy          String?  @map("updated_by")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+}
+
+// Billing Record model - usage tracking and quotas
+model BillingRecord {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  billingPeriod          String   @map("billing_period") // YYYY-MM format
+  streamsCreated         Int      @default(0) @map("streams_created")
+  disbursementsProcessed Int      @default(0) @map("disbursements_processed")
+  apiRequests            Int      @default(0) @map("api_requests")
+  volumeUsd              Decimal  @default(0) @map("volume_usd")
+  chargeUsd              Decimal  @default(0) @map("charge_usd")
+  plan                   String   @default("FREE") // FREE, PRO, ENTERPRISE
+  status                 String   @default("ACTIVE") // ACTIVE, PAST_DUE, SUSPENDED
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+
+  @@unique([organizationId, billingPeriod])
+  @@index([organizationId])
+  @@index([billingPeriod])
 }
 
 // API keys for 3rd-party partner dApps with elevated rate limits
@@ -631,13 +725,16 @@ model DisbursementDraftVersion {
 
 // Multi-sig proposal store for collecting partial signatures (#954)
 model MultisigProposal {
-  id              String   @id @default(cuid())
-  proposalId      String   @unique @map("proposal_id")
-  organizationId  String   @map("organization_id")
+  id             String       @id @default(cuid())
+  proposalId     String       @unique @map("proposal_id")
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  description     String?
   transactionXdr  String   @map("transaction_xdr")
   signatures      Json     @default("[]") // Array of {signer: String, signature: String}
   requiredSigners Int      @map("required_signers")
-  status          String   @default("PENDING") // PENDING, SIGNED, SUBMITTED, FAILED
+  status          String   @default("PENDING") // PENDING, SIGNED, SUBMITTED, FAILED, EXPIRED
   submittedTxHash String?  @map("submitted_tx_hash")
   errorMessage    String?  @map("error_message")
   createdAt       DateTime @default(now()) @map("created_at")
@@ -646,8 +743,35 @@ model MultisigProposal {
 
   @@index([organizationId])
   @@index([status])
+  @@index([proposalId])
   @@index([createdAt])
   @@map("MultisigProposal")
+}
+
+// AuditLog model - immutable audit trail for organization actions
+model AuditLog {
+  id             String       @id @default(cuid())
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  actionType   String   @map("action_type") // create, update, delete, access, etc.
+  actor        String // Address of the member who performed the action
+  resourceId   String   @map("resource_id") // ID of affected resource
+  resourceType String   @map("resource_type") // organization, member, policy, etc.
+  changes      Json? // Pre/post state for updates
+  entryHash    String?  @map("entry_hash") // SHA-256 hash of this entry
+  parentHash   String?  @map("parent_hash") // SHA-256 hash of previous entry
+  verified     Boolean  @default(false) // Whether entry has been verified in chain
+  ipAddress    String?  @map("ip_address")
+  userAgent    String?  @map("user_agent")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([organizationId])
+  @@index([actionType])
+  @@index([actor])
+  @@index([createdAt, organizationId])
+  @@index([resourceId])
+  @@map("AuditLog")
 }
 
 // Cached Stellar asset metadata from Stellar-Expert (#955)

@@ -1,5 +1,5 @@
 import { syncCachedAssets } from '../api/v3/cached-assets.routes';
-import { logger } from '../logger';
+import { logger } from '../logger.js';
 
 /**
  * Daily cron job to sync Stellar-Expert asset metadata

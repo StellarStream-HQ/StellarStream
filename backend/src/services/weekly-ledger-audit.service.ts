@@ -13,7 +13,7 @@
  * mutates financial records. Remediation is a manual ops step.
  */
 
-import { SorobanRpc } from "@stellar/stellar-sdk";
+import { /* SorobanRpc */ } from "@stellar/stellar-sdk";
 import { prisma } from "../lib/db.js";
 import { logger } from "../logger.js";
 
@@ -41,14 +41,14 @@ export interface AuditReport {
 
 export class WeeklyLedgerAuditService {
   private readonly contractId: string;
-  private readonly rpcUrl: string;
+  private readonly _rpcUrl: string;
 
   constructor(
     contractId: string = process.env.SPLITTER_CONTRACT_ID ?? "",
     rpcUrl: string = process.env.SOROBAN_RPC_URL ?? "https://soroban-testnet.stellar.org",
   ) {
     this.contractId = contractId;
-    this.rpcUrl = rpcUrl;
+    this._rpcUrl = rpcUrl;
   }
 
   async runAudit(): Promise<AuditReport> {

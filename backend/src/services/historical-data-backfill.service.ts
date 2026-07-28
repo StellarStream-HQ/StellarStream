@@ -73,7 +73,7 @@ export class HistoricalDataBackfillService {
         try {
           // Upsert event into database using ContractEvent model
           await prisma.contractEvent.upsert({
-            where: { event_id: event.eventId },
+            where: { eventId: event.eventId },
             create: {
               eventId: event.eventId,
               contractId,
@@ -136,7 +136,7 @@ export class HistoricalDataBackfillService {
   /**
    * Fail a backfill job.
    */
-  async failBackfill(contractId: string, error: string): Promise<BackfillProgress | null> {
+  async failBackfill(contractId: string, _error: string): Promise<BackfillProgress | null> {
     const progressKey = `${BACKFILL_PROGRESS_KEY}${contractId}`;
     const lockKey = `${BACKFILL_LOCK_KEY}${contractId}`;
 

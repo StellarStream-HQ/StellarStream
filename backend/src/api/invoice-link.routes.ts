@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { invoiceLinkService } from "../services/invoice-link.service.js";
 import { requireWalletAuth } from "../middleware/requireWalletAuth.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import asyncHandler from "../utils/asyncHandler.js";
 
 const router = Router();
 
