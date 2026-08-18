@@ -221,4 +221,30 @@ describe("StellarStream SDK", () => {
     expect(parsed.contractId).toBe("CA12345");
     expect(parsed.ledger).toBe(123456);
   });
+
+  test("computes protocol health check and aggregate analytics metrics", () => {
+    const sdk = new StellarStreamSDK({ contractId: "CA..." });
+
+    const sActive: Stream = { ...dummyStream, id: 1n, state: StreamState.Active, totalAmount: 1000n, withdrawnAmount: 200n };
+    const sPaused: Stream = { ...dummyStream, id: 2n, state: StreamState.Paused, totalAmount: 500n, withdrawnAmount: 100n };
+    const sDone: Stream = { ...dummyStream, id: 3n, state: StreamState.Completed, totalAmount: 2000n, withdrawnAmount: 2000n };
+    const sCancelled: Stream = { ...dummyStream, id: 4n, state: StreamState.Cancelled, totalAmount: 1500n, withdrawnAmount: 500n };
+
+    const streams = [sActive, sPaused, sDone, sCancelled];
+
+    const health = sdk.computeHealthCheck(streams, false, 1700000000n);
+    expect(health.isPaused).toBe(false);
+    expect(health.activeStreams).toBe(1n);
+    expect(health.totalStreams).toBe(4n);
+    expect(health.lastActivityTime).toBe(1700000000n);
+    expect(health.version).toBe(1);
+
+    const metrics = sdk.computeMetrics(streams);
+    expect(metrics.totalStreams).toBe(4n);
+    expect(metrics.activeStreams).toBe(2n); // active + paused
+    expect(metrics.completedStreams).toBe(1n);
+    expect(metrics.cancelledStreams).toBe(1n);
+    expect(metrics.totalVolumeStreamed).toBe(5000n);
+    expect(metrics.totalWithdrawnVolume).toBe(2800n);
+  });
 });

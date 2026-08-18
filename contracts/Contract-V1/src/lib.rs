@@ -13,9 +13,10 @@ pub mod types;
 pub mod test;
 
 use soroban_sdk::{contract, contractimpl, token, Address, Env, Map, Vec};
-use crate::types::{Error, Stream, StreamFilter, StreamState};
+use crate::types::{ContractHealth, ContractMetrics, Error, Stream, StreamFilter, StreamState};
 
 pub const MAX_QUERY_LIMIT: u32 = 50;
+pub const PROTOCOL_VERSION: u32 = 1;
 
 #[contract]
 pub struct StellarStreamContract;
@@ -71,6 +72,7 @@ impl StellarStreamContract {
 
         storage::save_stream(&env, &stream);
         storage::add_token_tvl(&env, &token, total_amount);
+        storage::update_last_activity_time(&env);
 
         Ok(stream_id)
     }
@@ -100,6 +102,7 @@ impl StellarStreamContract {
         stream.state = StreamState::Paused;
         stream.last_paused_time = now;
         storage::save_stream(&env, &stream);
+        storage::update_last_activity_time(&env);
 
         Ok(())
     }
@@ -129,6 +132,7 @@ impl StellarStreamContract {
         stream.state = StreamState::Active;
         stream.last_paused_time = 0;
         storage::save_stream(&env, &stream);
+        storage::update_last_activity_time(&env);
 
         Ok(())
     }
@@ -169,6 +173,7 @@ impl StellarStreamContract {
 
         stream.state = StreamState::Cancelled;
         storage::save_stream(&env, &stream);
+        storage::update_last_activity_time(&env);
 
         Ok(())
     }
@@ -217,6 +222,7 @@ impl StellarStreamContract {
         }
 
         storage::save_stream(&env, &stream);
+        storage::update_last_activity_time(&env);
 
         Ok(to_withdraw)
     }
@@ -355,5 +361,65 @@ impl StellarStreamContract {
     /// Returns Total Value Locked (TVL) for all active tokens in the protocol.
     pub fn get_all_tokens_tvl(env: Env) -> Map<Address, i128> {
         storage::get_all_tokens_tvl(&env)
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Issue #1502 & #1500: Health Checks and Contract Metrics
+    // ─────────────────────────────────────────────────────────────────────────────
+
+    /// Lightweight, read-only health check returning protocol operational status.
+    pub fn health_check(env: Env) -> Result<ContractHealth, Error> {
+        let is_paused = storage::is_protocol_paused(&env);
+        let total_streams = storage::get_stream_count(&env);
+        let last_activity_time = storage::get_last_activity_time(&env);
+
+        let mut active_streams = 0u64;
+        for id in 1..=total_streams {
+            if let Ok(stream) = storage::get_stream(&env, id) {
+                if stream.state == StreamState::Active {
+                    active_streams += 1;
+                }
+            }
+        }
+
+        Ok(ContractHealth {
+            is_paused,
+            active_streams,
+            total_streams,
+            last_activity_time,
+            version: PROTOCOL_VERSION,
+        })
+    }
+
+    /// Real-time protocol metrics and analytics framework.
+    pub fn get_metrics(env: Env) -> Result<ContractMetrics, Error> {
+        let total_streams = storage::get_stream_count(&env);
+        let mut active_streams = 0u64;
+        let mut completed_streams = 0u64;
+        let mut cancelled_streams = 0u64;
+        let mut total_volume_streamed = 0i128;
+        let mut total_withdrawn_volume = 0i128;
+
+        for id in 1..=total_streams {
+            if let Ok(stream) = storage::get_stream(&env, id) {
+                match stream.state {
+                    StreamState::Active => active_streams += 1,
+                    StreamState::Paused => active_streams += 1,
+                    StreamState::Completed => completed_streams += 1,
+                    StreamState::Cancelled => cancelled_streams += 1,
+                }
+                total_volume_streamed = total_volume_streamed.saturating_add(stream.total_amount);
+                total_withdrawn_volume = total_withdrawn_volume.saturating_add(stream.withdrawn_amount);
+            }
+        }
+
+        Ok(ContractMetrics {
+            total_streams,
+            active_streams,
+            completed_streams,
+            cancelled_streams,
+            total_volume_streamed,
+            total_withdrawn_volume,
+        })
     }
 }

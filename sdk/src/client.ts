@@ -163,6 +163,55 @@ export class StellarStreamSDK {
   }
 
   /**
+   * Computes protocol health indicators across a set of streams.
+   */
+  public computeHealthCheck(streams: Stream[], isPaused: boolean = false, lastActivityTime: bigint = 0n): ContractHealth {
+    let activeStreams = 0n;
+    for (const s of streams) {
+      if (s.state === StreamState.Active) {
+        activeStreams++;
+      }
+    }
+
+    return {
+      isPaused,
+      activeStreams,
+      totalStreams: BigInt(streams.length),
+      lastActivityTime,
+      version: 1,
+    };
+  }
+
+  /**
+   * Aggregates real-time protocol metrics across all streams.
+   */
+  public computeMetrics(streams: Stream[]): ContractMetrics {
+    let activeStreams = 0n;
+    let completedStreams = 0n;
+    let cancelledStreams = 0n;
+    let totalVolumeStreamed = 0n;
+    let totalWithdrawnVolume = 0n;
+
+    for (const s of streams) {
+      if (s.state === StreamState.Active || s.state === StreamState.Paused) activeStreams++;
+      else if (s.state === StreamState.Completed) completedStreams++;
+      else if (s.state === StreamState.Cancelled) cancelledStreams++;
+
+      totalVolumeStreamed += s.totalAmount;
+      totalWithdrawnVolume += s.withdrawnAmount;
+    }
+
+    return {
+      totalStreams: BigInt(streams.length),
+      activeStreams,
+      completedStreams,
+      cancelledStreams,
+      totalVolumeStreamed,
+      totalWithdrawnVolume,
+    };
+  }
+
+  /**
    * Formats on-chain error code into typed exception.
    */
   public handleError(code: number): StellarStreamError {

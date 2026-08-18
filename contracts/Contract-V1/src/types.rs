@@ -56,6 +56,27 @@ pub struct StreamFilter {
 }
 
 #[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ContractHealth {
+    pub is_paused: bool,
+    pub active_streams: u64,
+    pub total_streams: u64,
+    pub last_activity_time: u64,
+    pub version: u32,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ContractMetrics {
+    pub total_streams: u64,
+    pub active_streams: u64,
+    pub completed_streams: u64,
+    pub cancelled_streams: u64,
+    pub total_volume_streamed: i128,
+    pub total_withdrawn_volume: i128,
+}
+
+#[contracttype]
 #[derive(Clone)]
 pub enum DataKey {
     Admin,
@@ -64,4 +85,6 @@ pub enum DataKey {
     StreamCount,
     TokenTvl(Address),
     TokensList,
+    ProtocolPaused,
+    LastActivityTime,
 }

@@ -108,3 +108,26 @@ pub fn get_all_tokens_tvl(env: &Env) -> Map<Address, i128> {
     }
     result
 }
+
+pub fn update_last_activity_time(env: &Env) {
+    let now = env.ledger().timestamp();
+    env.storage().persistent().set(&DataKey::LastActivityTime, &now);
+}
+
+pub fn get_last_activity_time(env: &Env) -> u64 {
+    env.storage()
+        .persistent()
+        .get(&DataKey::LastActivityTime)
+        .unwrap_or(0)
+}
+
+pub fn is_protocol_paused(env: &Env) -> bool {
+    env.storage()
+        .persistent()
+        .get(&DataKey::ProtocolPaused)
+        .unwrap_or(false)
+}
+
+pub fn set_protocol_paused(env: &Env, paused: bool) {
+    env.storage().persistent().set(&DataKey::ProtocolPaused, &paused);
+}

@@ -341,3 +341,63 @@ fn test_tvl_empty_protocol() {
     let all = client.get_all_tokens_tvl();
     assert_eq!(all.len(), 0);
 }
+
+#[test]
+fn test_health_check_empty_and_active_protocol() {
+    let (env, _admin, client, token, token_admin) = setup_test();
+    
+    // Initial health check on empty protocol
+    let health0 = client.health_check();
+    assert_eq!(health0.is_paused, false);
+    assert_eq!(health0.active_streams, 0);
+    assert_eq!(health0.total_streams, 0);
+    assert_eq!(health0.version, 1);
+
+    // Create active stream
+    let sender = Address::generate(&env);
+    let receiver = Address::generate(&env);
+    token_admin.mint(&sender, &10_000);
+    client.create_stream(&sender, &receiver, &token, &10_000, &0, &1000);
+
+    let health1 = client.health_check();
+    assert_eq!(health1.is_paused, false);
+    assert_eq!(health1.active_streams, 1);
+    assert_eq!(health1.total_streams, 1);
+}
+
+#[test]
+fn test_get_metrics_aggregation_across_lifecycles() {
+    let (env, _admin, client, token, token_admin) = setup_test();
+    let sender = Address::generate(&env);
+    let receiver = Address::generate(&env);
+
+    token_admin.mint(&sender, &50_000);
+
+    // 1. Create Stream 1 (will complete)
+    let s1 = client.create_stream(&sender, &receiver, &token, &10_000, &0, &1000);
+    // 2. Create Stream 2 (will cancel)
+    let s2 = client.create_stream(&sender, &receiver, &token, &20_000, &0, &1000);
+    // 3. Create Stream 3 (stays active)
+    let _s3 = client.create_stream(&sender, &receiver, &token, &15_000, &0, &1000);
+
+    let metrics_initial = client.get_metrics();
+    assert_eq!(metrics_initial.total_streams, 3);
+    assert_eq!(metrics_initial.active_streams, 3);
+    assert_eq!(metrics_initial.total_volume_streamed, 45_000);
+    assert_eq!(metrics_initial.total_withdrawn_volume, 0);
+
+    // Advance time and complete s1
+    env.ledger().set_timestamp(1000);
+    client.withdraw(&receiver, &s1, &None);
+
+    // Cancel s2 at time 1000 (all 20,000 vested & transferred to receiver)
+    client.cancel_stream(&sender, &s2);
+
+    let metrics_final = client.get_metrics();
+    assert_eq!(metrics_final.total_streams, 3);
+    assert_eq!(metrics_final.active_streams, 1);
+    assert_eq!(metrics_final.completed_streams, 1);
+    assert_eq!(metrics_final.cancelled_streams, 1);
+    assert_eq!(metrics_final.total_volume_streamed, 45_000);
+    assert_eq!(metrics_final.total_withdrawn_volume, 30_000);
+}

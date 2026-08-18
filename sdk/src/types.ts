@@ -59,6 +59,29 @@ export interface StreamingRates {
 }
 
 /**
+ * Protocol health check indicators.
+ */
+export interface ContractHealth {
+  isPaused: boolean;
+  activeStreams: bigint;
+  totalStreams: bigint;
+  lastActivityTime: bigint;
+  version: number;
+}
+
+/**
+ * Real-time protocol aggregate metrics and analytics.
+ */
+export interface ContractMetrics {
+  totalStreams: bigint;
+  activeStreams: bigint;
+  completedStreams: bigint;
+  cancelledStreams: bigint;
+  totalVolumeStreamed: bigint;
+  totalWithdrawnVolume: bigint;
+}
+
+/**
  * Network configuration options for connecting to Stellar and Soroban RPC.
  */
 export interface NetworkConfig {
