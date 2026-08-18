@@ -1,0 +1,30 @@
+{
+  "name": "@stellarstream/cli",
+  "version": "1.0.0",
+  "description": "Command-line interface for the StellarStream continuous asset streaming protocol on Stellar Soroban",
+  "main": "dist/cli.js",
+  "bin": {
+    "stellarstream": "bin/stellarstream.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "lint": "eslint src/**/*.ts"
+  },
+  "keywords": [
+    "stellar",
+    "soroban",
+    "cli",
+    "streaming",
+    "money-streaming",
+    "vesting"
+  ],
+  "author": "StellarStream Team",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  }
+}
