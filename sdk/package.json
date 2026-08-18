@@ -1,0 +1,38 @@
+{
+  "name": "@stellarstream/sdk",
+  "version": "1.0.0",
+  "description": "Official TypeScript SDK for StellarStream real-time asset streaming protocol on Stellar Soroban",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "lint": "eslint src/**/*.ts"
+  },
+  "keywords": [
+    "stellar",
+    "soroban",
+    "streaming",
+    "money-streaming",
+    "vesting",
+    "crypto",
+    "sdk",
+    "typescript"
+  ],
+  "author": "StellarStream Team",
+  "license": "MIT",
+  "dependencies": {
+    "@stellar/stellar-sdk": "^13.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  }
+}
