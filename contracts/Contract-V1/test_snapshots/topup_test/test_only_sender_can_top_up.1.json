@@ -99,43 +99,43 @@
                   }
                 },
                 {
-                  "map": [
-                    {
-                      "key": {
-                        "symbol": "cliff_time"
-                      },
-                      "val": {
-                        "u64": 100
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "end_time"
-                      },
-                      "val": {
-                        "u64": 200
-                      }
-                    },
-                    {
-                      "key": {
-                        "symbol": "start_time"
-                      },
-                      "val": {
-                        "u64": 100
-                      }
-                    }
-                  ]
+                  "u64": 100
+                },
+                {
+                  "u64": 100
+                },
+                {
+                  "u64": 200
                 },
                 {
                   "vec": []
                 },
                 {
-                  "u32": 0
-                },
-                {
-                  "bool": false
-                },
-                "void"
+                  "map": [
+                    {
+                      "key": {
+                        "symbol": "curve_type"
+                      },
+                      "val": {
+                        "u32": 0
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "is_soulbound"
+                      },
+                      "val": {
+                        "bool": false
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "vault_address"
+                      },
+                      "val": "void"
+                    }
+                  ]
+                }
               ]
             }
           },

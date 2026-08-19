@@ -1,0 +1,19 @@
+﻿   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling typenum v1.20.1
+   Compiling serde_core v1.0.229
+error: linker `link.exe` not found
+  |
+  = note: program not found
+System.Management.Automation.RemoteException
+note: the msvc targets depend on the msvc linker but `link.exe` was not found
+System.Management.Automation.RemoteException
+note: please ensure that Visual Studio 2017 or later, or Build Tools for Visual Studio were installed with the Visual C++ option
+System.Management.Automation.RemoteException
+note: VS Code is a different product, and is not sufficient
+System.Management.Automation.RemoteException
+error: could not compile `quote` (build script) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `proc-macro2` (build script) due to 1 previous error
+error: could not compile `serde_core` (build script) due to 1 previous error
+BUILD_EXIT:101

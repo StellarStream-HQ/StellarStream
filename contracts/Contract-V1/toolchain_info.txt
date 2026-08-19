@@ -1,0 +1,15 @@
+﻿=== rustup show ===
+Default host: x86_64-pc-windows-msvc
+rustup home:  C:\Users\USER\.rustup
+
+error: Missing manifest in toolchain 'stable-x86_64-pc-windows-gnu'
+=== rustup toolchain list ===
+stable-x86_64-pc-windows-gnu (active, default)
+stable-x86_64-pc-windows-msvc
+1.91.0-x86_64-pc-windows-msvc
+=== cargo version ===
+cargo 1.97.1 (c980f4866 2026-06-30)
+=== rustc version ===
+error: Missing manifest in toolchain 'stable-x86_64-pc-windows-gnu'
+=== cat rust-toolchain ===
+(no rust-toolchain file here)

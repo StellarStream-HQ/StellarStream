@@ -1,0 +1,25 @@
+﻿=== Test-Path C:\msys64\mingw64\bin\gcc.exe ===
+True
+=== Test-Path C:\msys64\mingw64\bin\ld.exe ===
+True
+=== ls msys64\mingw64\bin (first 10) ===
+addr2line.exe
+ar.exe
+as.exe
+c++.exe
+c++filt.exe
+cc.exe
+cpp.exe
+dlltool.exe
+dllwrap.exe
+elfedit.exe
+envsubst.exe
+g++.exe
+gcc-ar.exe
+gcc-nm.exe
+gcc-ranlib.exe
+gcc.exe
+gcov-tool.exe
+gcov.exe
+gettext.exe
+gprof.exe

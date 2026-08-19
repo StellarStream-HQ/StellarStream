@@ -1,0 +1,4 @@
+﻿stable-x86_64-pc-windows-gnu (active, default)
+stable-x86_64-pc-windows-msvc
+1.91.0-x86_64-pc-windows-msvc
+stable-x86_64-pc-windows-gnu (default)

@@ -1,0 +1,13 @@
+﻿=== where gcc ===
+=== where ld ===
+=== rustup component list --toolchain stable-msvc ===
+cargo-x86_64-pc-windows-msvc (installed)
+clippy-x86_64-pc-windows-msvc (installed)
+rust-docs-x86_64-pc-windows-msvc (installed)
+rust-std-wasm32-unknown-unknown (installed)
+rust-std-wasm32v1-none (installed)
+rust-std-x86_64-pc-windows-gnu (installed)
+rust-std-x86_64-pc-windows-msvc (installed)
+rustc-x86_64-pc-windows-msvc (installed)
+rustfmt-x86_64-pc-windows-msvc (installed)
+=== rustup component list --toolchain stable-gnu ===
