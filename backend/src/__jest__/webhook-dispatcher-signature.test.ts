@@ -6,27 +6,40 @@ describe("WebhookDispatcherService signatures", () => {
   it("sends StellarStream signature, timestamp, and nonce headers on webhook deliveries", async () => {
     const updateMock = jest.fn(async () => undefined);
 
+    const claimedDelivery = {
+      id: "delivery_1",
+      webhookId: "wh_1",
+      attempts: 0,
+      maxRetries: 5,
+      payload: {
+        eventType: "split.completed",
+        splitId: "42",
+        txHash: "tx_42",
+        timestamp: "2026-03-29T00:00:00.000Z",
+      },
+      webhook: {
+        id: "wh_1",
+        url: "https://example.com/webhook",
+        secretKey: "super-secret",
+      },
+    };
+
+    // processDeliveries claims rows before sending: stale-reclaim updateMany,
+    // candidate findMany, claiming updateMany, then a findMany for the rows won.
+    const findManyMock = jest
+      .fn()
+      .mockResolvedValueOnce([{ id: claimedDelivery.id }])
+      .mockResolvedValueOnce([claimedDelivery]);
+    const updateManyMock = jest
+      .fn()
+      .mockResolvedValueOnce({ count: 0 })
+      .mockResolvedValueOnce({ count: 1 });
+
     jest.doMock("../generated/client/index.js", () => ({
       PrismaClient: jest.fn().mockImplementation(() => ({
         webhookDelivery: {
-          findMany: jest.fn(async () => [
-            {
-              id: "delivery_1",
-              attempts: 0,
-              maxRetries: 5,
-              payload: {
-                eventType: "split.completed",
-                splitId: "42",
-                txHash: "tx_42",
-                timestamp: "2026-03-29T00:00:00.000Z",
-              },
-              webhook: {
-                id: "wh_1",
-                url: "https://example.com/webhook",
-                secretKey: "super-secret",
-              },
-            },
-          ]),
+          findMany: findManyMock,
+          updateMany: updateManyMock,
           update: updateMock,
         },
       })),
@@ -76,7 +89,15 @@ describe("WebhookDispatcherService signatures", () => {
     }
     expect(updateMock).toHaveBeenCalledWith({
       where: { id: "delivery_1" },
-      data: { status: "success", attempts: 1 },
+      data: expect.objectContaining({
+        status: "success",
+        attempts: 1,
+        lastStatusCode: 200,
+        lastError: null,
+        nextRetryAt: null,
+        lockedAt: null,
+        lockedBy: null,
+      }),
     });
   });
 

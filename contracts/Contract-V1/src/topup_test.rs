@@ -31,20 +31,21 @@ fn test_top_up_extends_duration() {
     token_admin_client.mint(&sender, &2000);
 
     let milestones = Vec::new(&env);
+    let options = crate::types::StreamOptions {
+        curve_type: crate::types::CurveType::Linear,
+        is_soulbound: false,
+        vault_address: None,
+    };
     let stream_id = client.create_stream_with_milestones(
         &sender,
         &receiver,
         &token_address,
         &1000,
-        &crate::types::StreamSchedule {
-            start_time: 100,
-            cliff_time: 100,
-            end_time: 200,
-        },
+        &100,
+        &100,
+        &200,
         &milestones,
-        &crate::types::CurveType::Linear,
-        &false,
-        &None,
+        &options,
     );
 
     let stream_before = client.get_stream(&stream_id);
@@ -79,20 +80,21 @@ fn test_only_sender_can_top_up() {
     token_admin_client.mint(&other, &500);
 
     let milestones = Vec::new(&env);
+    let options = crate::types::StreamOptions {
+        curve_type: crate::types::CurveType::Linear,
+        is_soulbound: false,
+        vault_address: None,
+    };
     let stream_id = client.create_stream_with_milestones(
         &sender,
         &receiver,
         &token_address,
         &1000,
-        &crate::types::StreamSchedule {
-            start_time: 100,
-            cliff_time: 100,
-            end_time: 200,
-        },
+        &100,
+        &100,
+        &200,
         &milestones,
-        &crate::types::CurveType::Linear,
-        &false,
-        &None,
+        &options,
     );
 
     client.top_up_stream(&stream_id, &other, &500);
@@ -117,20 +119,21 @@ fn test_cannot_top_up_cancelled_stream() {
     token_admin_client.mint(&sender, &2000);
 
     let milestones = Vec::new(&env);
+    let options = crate::types::StreamOptions {
+        curve_type: crate::types::CurveType::Linear,
+        is_soulbound: false,
+        vault_address: None,
+    };
     let stream_id = client.create_stream_with_milestones(
         &sender,
         &receiver,
         &token_address,
         &1000,
-        &crate::types::StreamSchedule {
-            start_time: 100,
-            cliff_time: 100,
-            end_time: 200,
-        },
+        &100,
+        &100,
+        &200,
         &milestones,
-        &crate::types::CurveType::Linear,
-        &false,
-        &None,
+        &options,
     );
 
     client.cancel(&stream_id, &sender);
@@ -155,20 +158,21 @@ fn test_top_up_multiple_times() {
     token_admin_client.mint(&sender, &3000);
 
     let milestones = Vec::new(&env);
+    let options = crate::types::StreamOptions {
+        curve_type: crate::types::CurveType::Linear,
+        is_soulbound: false,
+        vault_address: None,
+    };
     let stream_id = client.create_stream_with_milestones(
         &sender,
         &receiver,
         &token_address,
         &1000,
-        &crate::types::StreamSchedule {
-            start_time: 100,
-            cliff_time: 100,
-            end_time: 200,
-        },
+        &100,
+        &100,
+        &200,
         &milestones,
-        &crate::types::CurveType::Linear,
-        &false,
-        &None,
+        &options,
     );
 
     client.top_up_stream(&stream_id, &sender, &1000);

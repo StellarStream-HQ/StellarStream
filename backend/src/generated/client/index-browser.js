@@ -204,6 +204,14 @@ exports.Prisma.StreamScalarFieldEnum = {
   isDust: 'isDust',
   affiliateId: 'affiliateId',
   categoryId: 'categoryId',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  cliffTime: 'cliffTime',
+  isSoulbound: 'isSoulbound',
+  isFrozen: 'isFrozen',
+  pausedDuration: 'pausedDuration',
+  vaultAddress: 'vaultAddress',
+  vaultShares: 'vaultShares',
   createdAt: 'createdAt'
 };
 
@@ -251,6 +259,13 @@ exports.Prisma.WebhookDeliveryScalarFieldEnum = {
   maxRetries: 'maxRetries',
   nextRetryAt: 'nextRetryAt',
   lastError: 'lastError',
+  lastStatusCode: 'lastStatusCode',
+  lastAttemptAt: 'lastAttemptAt',
+  deliveredAt: 'deliveredAt',
+  deadLetteredAt: 'deadLetteredAt',
+  deadLetterReason: 'deadLetterReason',
+  lockedAt: 'lockedAt',
+  lockedBy: 'lockedBy',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -288,6 +303,32 @@ exports.Prisma.StreamSnapshotScalarFieldEnum = {
   status: 'status',
   snapshotMonth: 'snapshotMonth',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.ContractStateSnapshotScalarFieldEnum = {
+  id: 'id',
+  streamId: 'streamId',
+  contractId: 'contractId',
+  snapshotTime: 'snapshotTime',
+  snapshotHour: 'snapshotHour',
+  sender: 'sender',
+  receiver: 'receiver',
+  tokenAddress: 'tokenAddress',
+  totalAmount: 'totalAmount',
+  withdrawnAmount: 'withdrawnAmount',
+  cliffTime: 'cliffTime',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  state: 'state',
+  curveType: 'curveType',
+  isSoulbound: 'isSoulbound',
+  isFrozen: 'isFrozen',
+  pausedDuration: 'pausedDuration',
+  vaultAddress: 'vaultAddress',
+  vaultShares: 'vaultShares',
+  metadataHash: 'metadataHash',
+  compressedState: 'compressedState',
+  previousSnapshotId: 'previousSnapshotId'
 };
 
 exports.Prisma.StreamArchiveScalarFieldEnum = {
@@ -424,6 +465,36 @@ exports.Prisma.NotificationSubscriptionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.NotificationPreferenceScalarFieldEnum = {
+  id: 'id',
+  stellarAddress: 'stellarAddress',
+  email: 'email',
+  emailVerified: 'emailVerified',
+  platform: 'platform',
+  paymentConfirmations: 'paymentConfirmations',
+  streamStatusUpdates: 'streamStatusUpdates',
+  securityAlerts: 'securityAlerts',
+  weeklySummaries: 'weeklySummaries',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EmailDeliveryScalarFieldEnum = {
+  id: 'id',
+  stellarAddress: 'stellarAddress',
+  email: 'email',
+  template: 'template',
+  subject: 'subject',
+  status: 'status',
+  errorMessage: 'errorMessage',
+  metadata: 'metadata',
+  sentAt: 'sentAt',
+  deliveredAt: 'deliveredAt',
+  openedAt: 'openedAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.InvoiceLinkScalarFieldEnum = {
   id: 'id',
   slug: 'slug',
@@ -433,10 +504,13 @@ exports.Prisma.InvoiceLinkScalarFieldEnum = {
   tokenAddress: 'tokenAddress',
   duration: 'duration',
   description: 'description',
+  customMessage: 'customMessage',
   pdfUrl: 'pdfUrl',
   xdrParams: 'xdrParams',
   status: 'status',
   expiresAt: 'expiresAt',
+  viewCount: 'viewCount',
+  lastViewedAt: 'lastViewedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -740,7 +814,6 @@ exports.Prisma.AdminAuditLogScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
-<<<<<<< HEAD
 exports.Prisma.PaymentRoutingRuleScalarFieldEnum = {
   id: 'id',
   ownerAddress: 'ownerAddress',
@@ -749,7 +822,19 @@ exports.Prisma.PaymentRoutingRuleScalarFieldEnum = {
   route: 'route',
   priority: 'priority',
   isActive: 'isActive',
-=======
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PaymentRoutingConditionScalarFieldEnum = {
+  id: 'id',
+  ruleId: 'ruleId',
+  type: 'type',
+  operator: 'operator',
+  value: 'value',
+  value2: 'value2'
+};
+
 exports.Prisma.InvoiceScalarFieldEnum = {
   id: 'id',
   invoiceNumber: 'invoiceNumber',
@@ -769,20 +854,10 @@ exports.Prisma.InvoiceScalarFieldEnum = {
   txHash: 'txHash',
   issuedAt: 'issuedAt',
   dueAt: 'dueAt',
->>>>>>> 5551a02 (Feat: Add Payment Invoice Generation)
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
-<<<<<<< HEAD
-exports.Prisma.PaymentRoutingConditionScalarFieldEnum = {
-  id: 'id',
-  ruleId: 'ruleId',
-  type: 'type',
-  operator: 'operator',
-  value: 'value',
-  value2: 'value2'
-=======
 exports.Prisma.InvoiceTemplateScalarFieldEnum = {
   id: 'id',
   ownerAddress: 'ownerAddress',
@@ -800,7 +875,153 @@ exports.Prisma.InvoiceCounterScalarFieldEnum = {
   ownerAddress: 'ownerAddress',
   year: 'year',
   lastSeq: 'lastSeq'
->>>>>>> 5551a02 (Feat: Add Payment Invoice Generation)
+};
+
+exports.Prisma.GeoRestrictionScalarFieldEnum = {
+  id: 'id',
+  ownerAddress: 'ownerAddress',
+  region: 'region',
+  action: 'action',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.GeoAnalyticsEventScalarFieldEnum = {
+  id: 'id',
+  ipHash: 'ipHash',
+  countryCode: 'countryCode',
+  region: 'region',
+  city: 'city',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  userAgent: 'userAgent',
+  path: 'path',
+  method: 'method',
+  userId: 'userId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.DashboardLayoutScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  description: 'description',
+  isDefault: 'isDefault',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DashboardWidgetScalarFieldEnum = {
+  id: 'id',
+  layoutId: 'layoutId',
+  widgetType: 'widgetType',
+  position: 'position',
+  enabled: 'enabled',
+  size: 'size',
+  config: 'config',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ExportAuditLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  streamId: 'streamId',
+  format: 'format',
+  recordCount: 'recordCount',
+  fileSizeBytes: 'fileSizeBytes',
+  dateRange: 'dateRange',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  status: 'status',
+  errorMessage: 'errorMessage',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ReportScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  reportType: 'reportType',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  generatedAt: 'generatedAt',
+  generatedBy: 'generatedBy',
+  status: 'status',
+  fileUrls: 'fileUrls',
+  summary: 'summary',
+  reconciliationStatus: 'reconciliationStatus',
+  emailDeliveryStatus: 'emailDeliveryStatus',
+  auditLog: 'auditLog',
+  deletedAt: 'deletedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ReportConfigurationScalarFieldEnum = {
+  id: 'id',
+  organizationId: 'organizationId',
+  reportType: 'reportType',
+  enabled: 'enabled',
+  schedule: 'schedule',
+  exportFormats: 'exportFormats',
+  emailConfig: 'emailConfig',
+  storageConfig: 'storageConfig',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ReportAuditLogScalarFieldEnum = {
+  id: 'id',
+  reportId: 'reportId',
+  action: 'action',
+  actor: 'actor',
+  timestamp: 'timestamp',
+  details: 'details',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PaymentDisputeScalarFieldEnum = {
+  id: 'id',
+  disputeRef: 'disputeRef',
+  streamId: 'streamId',
+  txHash: 'txHash',
+  filerAddress: 'filerAddress',
+  respondentAddress: 'respondentAddress',
+  reason: 'reason',
+  description: 'description',
+  amount: 'amount',
+  tokenAddress: 'tokenAddress',
+  status: 'status',
+  decision: 'decision',
+  resolutionNotes: 'resolutionNotes',
+  resolvedBy: 'resolvedBy',
+  resolvedAt: 'resolvedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DisputeEvidenceScalarFieldEnum = {
+  id: 'id',
+  disputeId: 'disputeId',
+  uploaderAddress: 'uploaderAddress',
+  fileName: 'fileName',
+  fileUrl: 'fileUrl',
+  mimeType: 'mimeType',
+  fileSize: 'fileSize',
+  description: 'description',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.DisputeHistoryScalarFieldEnum = {
+  id: 'id',
+  disputeId: 'disputeId',
+  actorAddress: 'actorAddress',
+  action: 'action',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  comment: 'comment',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -856,7 +1077,16 @@ exports.OrgRole = exports.$Enums.OrgRole = {
 
 exports.NotificationPlatform = exports.$Enums.NotificationPlatform = {
   discord: 'discord',
-  telegram: 'telegram'
+  telegram: 'telegram',
+  email: 'email'
+};
+
+exports.EmailDeliveryStatus = exports.$Enums.EmailDeliveryStatus = {
+  SENT: 'SENT',
+  DELIVERED: 'DELIVERED',
+  OPENED: 'OPENED',
+  BOUNCED: 'BOUNCED',
+  FAILED: 'FAILED'
 };
 
 exports.DisbursementStatus = exports.$Enums.DisbursementStatus = {
@@ -883,6 +1113,36 @@ exports.InvoiceStatus = exports.$Enums.InvoiceStatus = {
   VOID: 'VOID'
 };
 
+exports.ReportType = exports.$Enums.ReportType = {
+  daily_summary: 'daily_summary',
+  monthly_statement: 'monthly_statement',
+  failed_payment: 'failed_payment',
+  fee_analysis: 'fee_analysis',
+  tax_report: 'tax_report'
+};
+
+exports.ReportStatus = exports.$Enums.ReportStatus = {
+  pending: 'pending',
+  generating: 'generating',
+  generated: 'generated',
+  failed: 'failed',
+  archived: 'archived'
+};
+
+exports.DisputeStatus = exports.$Enums.DisputeStatus = {
+  FILED: 'FILED',
+  EVIDENCE_REVIEW: 'EVIDENCE_REVIEW',
+  RESOLVED: 'RESOLVED',
+  REJECTED: 'REJECTED',
+  CLOSED: 'CLOSED'
+};
+
+exports.DisputeDecision = exports.$Enums.DisputeDecision = {
+  GRANTED: 'GRANTED',
+  DENIED: 'DENIED',
+  PARTIAL: 'PARTIAL'
+};
+
 exports.Prisma.ModelName = {
   PaymentCategory: 'PaymentCategory',
   PaymentMetadata: 'PaymentMetadata',
@@ -897,6 +1157,7 @@ exports.Prisma.ModelName = {
   SyncState: 'SyncState',
   EventLog: 'EventLog',
   StreamSnapshot: 'StreamSnapshot',
+  ContractStateSnapshot: 'ContractStateSnapshot',
   StreamArchive: 'StreamArchive',
   BridgeLog: 'BridgeLog',
   Proposal: 'Proposal',
@@ -909,6 +1170,8 @@ exports.Prisma.ModelName = {
   SyncMetadata: 'SyncMetadata',
   ClawbackHistory: 'ClawbackHistory',
   NotificationSubscription: 'NotificationSubscription',
+  NotificationPreference: 'NotificationPreference',
+  EmailDelivery: 'EmailDelivery',
   InvoiceLink: 'InvoiceLink',
   Affiliate: 'Affiliate',
   GlobalStats: 'GlobalStats',
@@ -933,14 +1196,22 @@ exports.Prisma.ModelName = {
   SplitLink: 'SplitLink',
   OfacAuditLog: 'OfacAuditLog',
   AdminAuditLog: 'AdminAuditLog',
-<<<<<<< HEAD
   PaymentRoutingRule: 'PaymentRoutingRule',
-  PaymentRoutingCondition: 'PaymentRoutingCondition'
-=======
+  PaymentRoutingCondition: 'PaymentRoutingCondition',
   Invoice: 'Invoice',
   InvoiceTemplate: 'InvoiceTemplate',
-  InvoiceCounter: 'InvoiceCounter'
->>>>>>> 5551a02 (Feat: Add Payment Invoice Generation)
+  InvoiceCounter: 'InvoiceCounter',
+  GeoRestriction: 'GeoRestriction',
+  GeoAnalyticsEvent: 'GeoAnalyticsEvent',
+  DashboardLayout: 'DashboardLayout',
+  DashboardWidget: 'DashboardWidget',
+  ExportAuditLog: 'ExportAuditLog',
+  Report: 'Report',
+  ReportConfiguration: 'ReportConfiguration',
+  ReportAuditLog: 'ReportAuditLog',
+  PaymentDispute: 'PaymentDispute',
+  DisputeEvidence: 'DisputeEvidence',
+  DisputeHistory: 'DisputeHistory'
 };
 
 /**

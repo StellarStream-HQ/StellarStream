@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Activity,
   ArrowRightLeft,
+  BarChart3,
   CirclePlus,
   ClipboardCheck,
   Coins,
@@ -144,6 +145,7 @@ useEffect(() => {
         label: "Overview",
         items: [
           { label: "Dashboard", href: "/dashboard", icon: Gauge },
+          { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
           { label: "Health", href: "/dashboard/health", icon: Activity },
           {
             label: "Transparency",

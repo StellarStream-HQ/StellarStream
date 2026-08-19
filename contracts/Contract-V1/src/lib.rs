@@ -9,6 +9,7 @@ mod oracle;
 mod rbac;
 mod storage;
 mod types;
+mod upgrade;
 mod vault;
 mod voting;
 
@@ -35,8 +36,22 @@ mod dispute_test;
 mod soulbound_test;
 #[cfg(test)]
 mod topup_test;
-#[cfg(all(test, feature = "vault_tests"))]
+
+// Advanced-feature integration test suites (issue #1480).
+// These exercise RBAC, multi-sig proposals, vault integration, OFAC
+// compliance, and multi-step cross-feature workflows against the current
+// contract implementation.
+#[cfg(test)]
+mod rbac_test;
+#[cfg(test)]
+mod proposal_test;
+#[cfg(test)]
 mod vault_test;
+#[cfg(test)]
+mod compliance_test;
+#[cfg(test)]
+mod advanced_test;
+
 #[cfg(all(test, feature = "voting_tests"))]
 mod voting_test;
 
@@ -61,8 +76,8 @@ use storage::{PROPOSAL_COUNT, RECEIPT, RESTRICTED_ADDRESSES, STREAM_COUNT};
 use types::{
     ContributorRequest, CurveType, DataKey, Milestone, ProposalApprovedEvent, ProposalCreatedEvent,
     ReceiptMetadata, RequestCreatedEvent, RequestExecutedEvent, RequestKey, RequestStatus, Role,
-    Stream, StreamCreatedEvent, StreamProposal, StreamReceipt, StreamRequest, StreamResumedEvent,
-    StreamState,
+    Stream, StreamCreatedEvent, StreamOptions, StreamProposal, StreamReceipt, StreamRequest,
+    StreamResumedEvent, StreamState,
 };
 
 #[contract]
@@ -276,47 +291,84 @@ impl StellarStreamContract {
         curve_type: CurveType,
         is_soulbound: bool,
     ) -> Result<u64, Error> {
+        sender.require_auth();
+
         let milestones = Vec::new(&env);
-        Self::create_stream_with_milestones(
+        let options = StreamOptions {
+            curve_type,
+            is_soulbound,
+            vault_address: None,
+        };
+        Self::create_stream_internal(
             env,
             sender,
             receiver,
             token,
             total_amount,
-            crate::types::StreamSchedule {
-                start_time,
-                cliff_time,
-                end_time,
-            },
+            start_time,
+            cliff_time,
+            end_time,
             milestones,
-            curve_type,
-            is_soulbound,
-            None, // No vault
+            options,
         )
     }
 
     /// Create a new stream with milestones and optional soulbound locking
     ///
     /// # Parameters
-    /// - `is_soulbound`: Set to true to permanently bind this stream to the receiver's address.
-    ///   Cannot be changed after stream creation. Irreversible.
+    /// - `milestones`: Optional vesting milestones.
+    /// - `options`: Bundled optional configuration (curve type, soulbound flag,
+    ///   and optional yield-bearing vault).
+    ///
+    /// `options` bundles the optional knobs together so this entry point stays
+    /// within Soroban's maximum contract function parameter count.
     pub fn create_stream_with_milestones(
         env: Env,
         sender: Address,
         receiver: Address,
         token: Address,
         total_amount: i128,
-        schedule: crate::types::StreamSchedule,
+        start_time: u64,
+        cliff_time: u64,
+        end_time: u64,
         milestones: Vec<Milestone>,
-        curve_type: CurveType,
-        is_soulbound: bool,
-        vault_address: Option<Address>,
+        options: StreamOptions,
     ) -> Result<u64, Error> {
-        let start_time = schedule.start_time;
-        let cliff_time = schedule.cliff_time;
-        let end_time = schedule.end_time;
-
         sender.require_auth();
+        Self::create_stream_internal(
+            env,
+            sender,
+            receiver,
+            token,
+            total_amount,
+            start_time,
+            cliff_time,
+            end_time,
+            milestones,
+            options,
+        )
+    }
+
+    /// Internal, non-authorizing stream creation shared by the public entry
+    /// points. Callers must authenticate `sender` exactly once per invocation
+    /// to avoid duplicate-authorization traps.
+    fn create_stream_internal(
+        env: Env,
+        sender: Address,
+        receiver: Address,
+        token: Address,
+        total_amount: i128,
+        start_time: u64,
+        cliff_time: u64,
+        end_time: u64,
+        milestones: Vec<Milestone>,
+        options: StreamOptions,
+    ) -> Result<u64, Error> {
+        let StreamOptions {
+            curve_type,
+            is_soulbound,
+            vault_address,
+        } = options;
 
         // Validate time range
         if start_time >= end_time {
@@ -461,21 +513,22 @@ impl StellarStreamContract {
 
         for req in requests.iter() {
             let milestones: Vec<Milestone> = Vec::new(&env);
-            let stream_id = Self::create_stream_with_milestones(
+            let options = StreamOptions {
+                curve_type: CurveType::Linear,
+                is_soulbound: false,
+                vault_address: req.vault_address,
+            };
+            let stream_id = Self::create_stream_internal(
                 env.clone(),
                 sender.clone(),
                 req.receiver,
                 token.clone(),
                 req.amount,
-                crate::types::StreamSchedule {
-                    start_time: req.start_time,
-                    cliff_time: req.cliff_time,
-                    end_time: req.end_time,
-                },
+                req.start_time,
+                req.cliff_time,
+                req.end_time,
                 milestones,
-                CurveType::Linear,
-                false,
-                req.vault_address,
+                options,
             )?;
             stream_ids.push_back(stream_id);
         }
@@ -504,13 +557,13 @@ impl StellarStreamContract {
 
     // ========== RBAC Functions ==========
 
-    /// Grant a role to an address (Admin only)
+    /// Grant a role to an address (SuperAdmin only)
     pub fn grant_role(env: Env, admin: Address, target: Address, role: Role) {
         admin.require_auth();
 
-        // Check if caller has Admin role
+        // Check if caller has SuperAdmin role
         if !Self::has_role(&env, &admin, Role::SuperAdmin) {
-            panic!("{}", Error::Unauthorized as u32);
+            soroban_sdk::panic_with_error!(&env, Error::Unauthorized);
         }
 
         // Grant the role
@@ -522,13 +575,13 @@ impl StellarStreamContract {
         env.events().publish((symbol_short!("grant"), target), role);
     }
 
-    /// Revoke a role from an address (Admin only)
+    /// Revoke a role from an address (SuperAdmin only)
     pub fn revoke_role(env: Env, admin: Address, target: Address, role: Role) {
         admin.require_auth();
 
-        // Check if caller has Admin role
+        // Check if caller has SuperAdmin role
         if !Self::has_role(&env, &admin, Role::SuperAdmin) {
-            return; // Error::Unauthorized;
+            soroban_sdk::panic_with_error!(&env, Error::Unauthorized);
         }
 
         // Revoke the role
@@ -1133,22 +1186,33 @@ impl StellarStreamContract {
         if request.status != RequestStatus::Pending {
             return Err(Error::AlreadyExecuted);
         }
-        request.status = RequestStatus::Approved;
-        env.storage()
-            .instance()
-            .set(&RequestKey::Request(request_id), &request);
-        let stream_id = Self::create_stream(
+
+        // Create the stream first (using the non-authorizing helper, since
+        // `admin` is already authenticated above) and only mark the request
+        // approved once the stream has been created successfully.
+        let milestones: Vec<Milestone> = Vec::new(&env);
+        let options = StreamOptions {
+            curve_type: CurveType::Linear,
+            is_soulbound: false,
+            vault_address: None,
+        };
+        let stream_id = Self::create_stream_internal(
             env.clone(),
             admin.clone(),
             request.receiver.clone(),
             request.token.clone(),
             request.total_amount,
             request.start_time,
-            request.start_time,
+            request.start_time, // cliff_time: no cliff
             request.start_time + request.duration,
-            CurveType::Linear,
-            false, // is_soulbound
+            milestones,
+            options,
         )?;
+
+        request.status = RequestStatus::Approved;
+        env.storage()
+            .instance()
+            .set(&RequestKey::Request(request_id), &request);
         env.events().publish(
             (
                 soroban_sdk::Symbol::new(&env, "RequestExecuted"),
@@ -1823,15 +1887,15 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &crate::types::StreamSchedule {
-                start_time: 0,
-                cliff_time: 0,
-                end_time: 360,
-            },
+            &0,
+            &0,
+            &360,
             &milestones,
-            &CurveType::Linear,
-            &false,
-            &None,
+            &crate::types::StreamOptions {
+                curve_type: CurveType::Linear,
+                is_soulbound: false,
+                vault_address: None,
+            },
         );
 
         env.ledger().with_mut(|li| li.timestamp = 45);
@@ -1875,15 +1939,15 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &crate::types::StreamSchedule {
-                start_time: 0,
-                cliff_time: 0,
-                end_time: 200,
-            },
+            &0,
+            &0,
+            &200,
             &milestones,
-            &CurveType::Linear,
-            &false,
-            &None,
+            &crate::types::StreamOptions {
+                curve_type: CurveType::Linear,
+                is_soulbound: false,
+                vault_address: None,
+            },
         );
 
         env.ledger().with_mut(|li| li.timestamp = 50);

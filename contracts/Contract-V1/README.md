@@ -615,6 +615,8 @@ pub fn get_version(env: Env) -> u32
 - [OFAC Compliance](./OFAC_COMPLIANCE.md)
 - [Interest Distribution](./INTEREST_DISTRIBUTION.md)
 - [Migration Framework](./MIGRATION_FRAMEWORK.md)
+- [Contract Migration Guide (V1 → V2)](./docs/MIGRATION_GUIDE.md)
+- [Migration Scripts](./scripts/migrate/README.md)
 
 ### Community
 - GitHub Issues: Bug reports and feature requests

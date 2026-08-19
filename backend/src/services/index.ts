@@ -14,6 +14,22 @@ export {
   ClawbackRecord,
   ClawbackExecuteInput,
 } from "./clawback.service.js";
+
+// Payment Dispute Resolution System (#DISPUTES)
+export {
+  DisputeService,
+  getDisputeService,
+  DisputeRecord,
+  DisputeStatus,
+  DisputeDecision,
+  DisputeAction,
+  FileDisputeInput,
+  AddEvidenceInput,
+  TransitionDisputeInput,
+  ResolveDisputeInput,
+  DisputeListFilters,
+} from "./dispute.service.js";
+
 export { LedgerVerificationService } from "./ledger-verification.service.js";
 export { AuditLogService } from "./audit-log.service.js";
 export { AuditChainVerificationService } from "./audit-chain-verification.service.js";

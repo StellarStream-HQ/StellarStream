@@ -5,6 +5,7 @@ import { createServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import swaggerUi from "swagger-ui-express";
 import { WebSocketService } from "./services/websocket.service.js";
+import { setWebSocketService } from "./services/websocket-registry.js";
 import { WarpService } from "./services/warp.service.js";
 import { BridgeObserverService } from "./services/bridge-observer.service.js";
 import { TTLArchivalMonitorService } from "./services/ttl-archival-monitor.service.js";
@@ -29,7 +30,7 @@ import { scheduleSnapshotMaintenance } from "./services/snapshot.scheduler.js";
 import { StaleStreamCleanupWorker } from "./stale-stream-cleanup.worker.js";
 import { DataIntegrityWorker } from "./data-integrity.worker.js";
 import { YieldAccrualWorker } from "./yield-accrual.worker.js";
-import { startWebhookWorker } from "./webhook-dispatcher.worker.js";
+import { startWebhookWorker, stopWebhookWorker } from "./webhook-dispatcher.worker.js";
 import { XlmBufferMonitorWorker } from "./xlm-buffer-monitor.worker.js";
 import { EventWatcherClient } from "./services/event-watcher-client.service.js";
 import { bigintSerializer } from "./middleware/bigintSerializer.js";
@@ -60,6 +61,7 @@ const io = new SocketIOServer(server, {
 
 const PORT = process.env.PORT ?? 3000;
 export const wsService = new WebSocketService(io);
+setWebSocketService(wsService);
 export const warpService = new WarpService(wsService);
 export const bridgeObserver = new BridgeObserverService(wsService);
 export const ttlMonitor = new TTLArchivalMonitorService(wsService);
@@ -317,6 +319,7 @@ function shutdown(signal: string): void {
   dataIntegrityWorker.stop();
   yieldAccrualWorker.stop();
   xlmBufferMonitor.stop();
+  stopWebhookWorker();
   bridgeObserver.stop();
   ttlMonitor.stop();
   eventWatcherClient.stopListening();

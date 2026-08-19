@@ -130,14 +130,19 @@ pub struct StreamRequest {
     pub metadata: Option<BytesN<32>>,
 }
 
-/// Vesting schedule parameters (start, cliff, and end timestamps) bundled into a
-/// single struct so contract entry points stay within Soroban's 10-parameter limit.
+/// Optional stream configuration bundled together to keep the
+/// `create_stream_with_milestones` entry point within Soroban's
+/// maximum contract function parameter limit.
+///
+/// Bundling these three optional knobs into a single struct allows the
+/// milestone-aware creation entry point to stay under the 10-parameter cap
+/// while preserving the full set of configuration options.
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct StreamSchedule {
-    pub start_time: u64,
-    pub cliff_time: u64,
-    pub end_time: u64,
+pub struct StreamOptions {
+    pub curve_type: CurveType,
+    pub is_soulbound: bool,
+    pub vault_address: Option<Address>,
 }
 
 #[contracttype]
@@ -159,13 +164,19 @@ pub enum DataKey {
     Treasury,
     IsPaused,
     ReentrancyLock,
-    ContractVersion,        // Tracks current contract version
-    MigrationExecuted(u32), // Tracks which migrations have been executed
-    Role(Address, Role),    // RBAC: stores role assignments
-    SoulboundStreams,       // Vec<u64> of all soulbound stream IDs
-    ApprovedVaults,         // Vec<Address> of approved lending vaults
-    VaultShares(u64),       // Vault shares for stream_id
-    VotingDelegate(u64),    // Voting delegate for stream_id
+    ContractVersion,         // Tracks current contract version
+    MigrationExecuted(u32),  // Tracks which migrations have been executed
+    Role(Address, Role),     // RBAC: stores role assignments
+    SoulboundStreams,        // Vec<u64> of all soulbound stream IDs
+    ApprovedVaults,          // Vec<Address> of approved lending vaults
+    VaultShares(u64),        // Vault shares for stream_id
+    VotingDelegate(u64),     // Voting delegate for stream_id
+    /// Upgrade proposal counter
+    UpgradeProposalCount,
+    /// Upgrade proposal by ID
+    UpgradeProposal(u64),
+    /// Upgrade history records (Vec<UpgradeRecord>)
+    UpgradeHistory,
 }
 
 #[contracttype]
@@ -364,5 +375,100 @@ pub struct RequestExecutedEvent {
     pub request_id: u64,
     pub stream_id: u64,
     pub executor: Address,
+    pub timestamp: u64,
+}
+
+// ========== Upgrade Proposal Types ==========
+
+/// Upgrade proposal status
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum UpgradeProposalStatus {
+    Pending,
+    Approved,
+    Executed,
+    Expired,
+    Rejected,
+}
+
+/// An upgrade proposal that requires multi-sig approval + timelock
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct UpgradeProposal {
+    /// Unique proposal ID
+    pub proposal_id: u64,
+    /// The new WASM hash to upgrade to
+    pub new_wasm_hash: BytesN<32>,
+    /// Addresses that have approved this proposal
+    pub approvers: Vec<Address>,
+    /// Number of approvals required to pass
+    pub required_approvals: u32,
+    /// When the proposal was created
+    pub created_at: u64,
+    /// When the timelock expires and upgrade can be executed
+    pub timelock_expiry: u64,
+    /// When the proposal expires (default 7 days after creation)
+    pub deadline: u64,
+    /// Current status
+    pub status: UpgradeProposalStatus,
+    /// Description/reason for the upgrade
+    pub description: soroban_sdk::String,
+}
+
+/// A record of a completed upgrade (for history tracking)
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct UpgradeRecord {
+    /// The WASM hash that was upgraded to
+    pub wasm_hash: BytesN<32>,
+    /// The version string of the new contract
+    pub version: u32,
+    /// Admin address that executed the upgrade
+    pub executed_by: Address,
+    /// Timestamp when upgrade was executed
+    pub executed_at: u64,
+}
+
+// ========== Upgrade Events ==========
+
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct UpgradeProposedEvent {
+    pub proposal_id: u64,
+    pub proposer: Address,
+    pub new_wasm_hash: BytesN<32>,
+    pub required_approvals: u32,
+    pub timelock_expiry: u64,
+    pub deadline: u64,
+    pub description: soroban_sdk::String,
+    pub timestamp: u64,
+}
+
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct UpgradeApprovedEvent {
+    pub proposal_id: u64,
+    pub approver: Address,
+    pub approval_count: u32,
+    pub required_approvals: u32,
+    pub timestamp: u64,
+}
+
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct UpgradeExecutedEvent {
+    pub proposal_id: u64,
+    pub new_wasm_hash: BytesN<32>,
+    pub executed_by: Address,
+    pub new_version: u32,
+    pub timestamp: u64,
+}
+
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct UpgradeCancelledEvent {
+    pub proposal_id: u64,
+    pub cancelled_by: Address,
+    pub reason: soroban_sdk::String,
     pub timestamp: u64,
 }

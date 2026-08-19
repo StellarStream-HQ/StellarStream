@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import NotificationPreferences from '@/components/settings/NotificationPreferences';
 
 /**
  * Settings Page
@@ -12,7 +13,7 @@ import { Input } from '@/components/ui/Input';
  * Organized into logical tabs/sections.
  */
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'billing'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'billing' | 'notifications'>('profile');
   const [formData, setFormData] = useState({
     email: '',
     name: '',
@@ -43,15 +44,14 @@ export default function SettingsPage() {
 
       {/* Tabs */}
       <div className="flex gap-4 border-b border-white/10 overflow-x-auto">
-        {(['profile', 'security', 'billing'] as const).map(tab => (
+        {(['profile', 'security', 'notifications', 'billing'] as const).map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-3 font-medium text-sm transition border-b-2 capitalize ${
-              activeTab === tab
+            className={`px-4 py-3 font-medium text-sm transition border-b-2 capitalize ${activeTab === tab
                 ? 'border-cyan-500 text-cyan-400'
                 : 'border-transparent text-white/60 hover:text-white/80'
-            }`}
+              }`}
           >
             {tab}
           </button>
@@ -189,6 +189,9 @@ export default function SettingsPage() {
           </Card>
         </div>
       )}
+
+      {/* Notifications Tab */}
+      {activeTab === 'notifications' && <NotificationPreferences />}
 
       {/* Billing Tab */}
       {activeTab === 'billing' && (
