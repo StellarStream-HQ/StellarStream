@@ -118,7 +118,7 @@ pub struct StreamProposal {
 }
 
 #[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone)]
 pub struct StreamRequest {
     pub receiver: Address,
     pub amount: i128,
@@ -128,6 +128,16 @@ pub struct StreamRequest {
     pub interest_strategy: u32,
     pub vault_address: Option<Address>,
     pub metadata: Option<BytesN<32>>,
+}
+
+/// Vesting schedule parameters (start, cliff, and end timestamps) bundled into a
+/// single struct so contract entry points stay within Soroban's 10-parameter limit.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct StreamSchedule {
+    pub start_time: u64,
+    pub cliff_time: u64,
+    pub end_time: u64,
 }
 
 #[contracttype]

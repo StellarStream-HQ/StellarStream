@@ -99,10 +99,32 @@
                   }
                 },
                 {
-                  "u64": 100
-                },
-                {
-                  "u64": 200
+                  "map": [
+                    {
+                      "key": {
+                        "symbol": "cliff_time"
+                      },
+                      "val": {
+                        "u64": 100
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "end_time"
+                      },
+                      "val": {
+                        "u64": 200
+                      }
+                    },
+                    {
+                      "key": {
+                        "symbol": "start_time"
+                      },
+                      "val": {
+                        "u64": 100
+                      }
+                    }
+                  ]
                 },
                 {
                   "vec": []
@@ -413,6 +435,14 @@
                               },
                               "val": {
                                 "bool": false
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "cliff_time"
+                              },
+                              "val": {
+                                "u64": 100
                               }
                             },
                             {

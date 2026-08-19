@@ -52,6 +52,9 @@ mod voting_test;
 #[cfg(test)]
 mod ttl_stress_test;
 
+#[cfg(test)]
+mod property_test;
+
 use errors::Error;
 use soroban_sdk::{contract, contractimpl, symbol_short, token, Address, Env, Vec};
 use storage::{PROPOSAL_COUNT, RECEIPT, RESTRICTED_ADDRESSES, STREAM_COUNT};
@@ -280,9 +283,11 @@ impl StellarStreamContract {
             receiver,
             token,
             total_amount,
-            start_time,
-            cliff_time,
-            end_time,
+            crate::types::StreamSchedule {
+                start_time,
+                cliff_time,
+                end_time,
+            },
             milestones,
             curve_type,
             is_soulbound,
@@ -301,14 +306,16 @@ impl StellarStreamContract {
         receiver: Address,
         token: Address,
         total_amount: i128,
-        start_time: u64,
-        cliff_time: u64,
-        end_time: u64,
+        schedule: crate::types::StreamSchedule,
         milestones: Vec<Milestone>,
         curve_type: CurveType,
         is_soulbound: bool,
         vault_address: Option<Address>,
     ) -> Result<u64, Error> {
+        let start_time = schedule.start_time;
+        let cliff_time = schedule.cliff_time;
+        let end_time = schedule.end_time;
+
         sender.require_auth();
 
         // Validate time range
@@ -460,9 +467,11 @@ impl StellarStreamContract {
                 req.receiver,
                 token.clone(),
                 req.amount,
-                req.start_time,
-                req.cliff_time,
-                req.end_time,
+                crate::types::StreamSchedule {
+                    start_time: req.start_time,
+                    cliff_time: req.cliff_time,
+                    end_time: req.end_time,
+                },
                 milestones,
                 CurveType::Linear,
                 false,
@@ -1134,6 +1143,7 @@ impl StellarStreamContract {
             request.receiver.clone(),
             request.token.clone(),
             request.total_amount,
+            request.start_time,
             request.start_time,
             request.start_time + request.duration,
             CurveType::Linear,
@@ -1813,13 +1823,15 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &0,
-            &360,
+            &crate::types::StreamSchedule {
+                start_time: 0,
+                cliff_time: 0,
+                end_time: 360,
+            },
             &milestones,
             &CurveType::Linear,
             &false,
             &None,
-            &false,
         );
 
         env.ledger().with_mut(|li| li.timestamp = 45);
@@ -1863,13 +1875,15 @@ mod test {
             &receiver,
             &token_id,
             &1000,
-            &0,
-            &200,
+            &crate::types::StreamSchedule {
+                start_time: 0,
+                cliff_time: 0,
+                end_time: 200,
+            },
             &milestones,
             &CurveType::Linear,
             &false,
             &None,
-            &false,
         );
 
         env.ledger().with_mut(|li| li.timestamp = 50);
