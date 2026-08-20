@@ -21,7 +21,7 @@ mod bench_test;
 
 use soroban_sdk::{
     contract, contractclient, contracterror, contractimpl, contracttype, Address, Env, Map,
-    Symbol, Vec, symbol_short,
+    String, Symbol, Vec, symbol_short,
 };
 
 // ---------------------------------------------------------------------------
@@ -37,6 +37,8 @@ const STREAMS: Symbol = symbol_short!("STREAMS");
 const USTREAMS: Symbol = symbol_short!("USTREAMS");
 const PROPOSALS: Symbol = symbol_short!("PROPOSALS");
 const NEXTPROPOSAL: Symbol = symbol_short!("NEXTPROP");
+const HISTORY: Symbol = symbol_short!("HISTORY");
+const METADATA: Symbol = symbol_short!("METADATA");
 
 // Stream state
 pub const STATE_ACTIVE: u32 = 0;
@@ -85,11 +87,34 @@ pub enum Error {
     AlreadyApproved = 30,
     ProposalAlreadyExecuted = 31,
     InvalidApprovalThreshold = 32,
+    StreamEnded = 33,
+    MetadataLabelTooLong = 34,
+    TooManyTags = 35,
+    TagTooLong = 36,
 }
 
 // ---------------------------------------------------------------------------
 // Data structures
 // ---------------------------------------------------------------------------
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum StreamAction {
+    Created,
+    Withdrawn(i128),
+    Paused,
+    Resumed,
+    ToppedUp(i128),
+    Cancelled,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct StreamEvent {
+    pub stream_id: u64,
+    pub action: StreamAction,
+    pub timestamp: u64,
+}
+
 #[contracttype]
 #[derive(Clone)]
 pub struct Stream {
@@ -106,10 +131,9 @@ pub struct Stream {
     pub is_soulbound: bool,
     pub paused_duration: u64,
     pub last_paused_at: u64,
-    pub stream_metadata: Option<StreamMetadata>,
 }
 
-Stream metadata for categorization (issue #1466)
+// Stream metadata for categorization (issue #1466)
 // ---------------------------------------------------------------------------
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -271,13 +295,6 @@ impl StellarStreamContract {
             total_amount,
             start_time,
             end_time,
-            withdrawn_amount: 0,
-            state: STATE_ACTIVE,
-            curve_type,
-            is_soulbound,
-            paused_duration: 0,
-            last_paused_at: 0,
-            stream_metadata: None,
             approvers: Vec::new(&env),
             required_approvals,
             deadline,
@@ -380,6 +397,8 @@ impl StellarStreamContract {
         }
         stream.state = STATE_CLOSED;
         save_stream(&env, &stream);
+        // Record history event
+        add_history(&env, stream_id, StreamAction::Cancelled);
         Ok(())
     }
 
@@ -399,6 +418,8 @@ impl StellarStreamContract {
         stream.state = STATE_PAUSED;
         stream.last_paused_at = env.ledger().timestamp();
         save_stream(&env, &stream);
+        // Record history event
+        add_history(&env, stream_id, StreamAction::Paused);
         Ok(())
     }
 
@@ -422,6 +443,8 @@ impl StellarStreamContract {
         stream.state = STATE_ACTIVE;
         stream.last_paused_at = 0;
         save_stream(&env, &stream);
+        // Record history event
+        add_history(&env, stream_id, StreamAction::Resumed);
         Ok(())
     }
 
@@ -573,8 +596,8 @@ impl StellarStreamContract {
         external_ref: Option<String>,
     ) -> Result<(), Error> {
         sender.require_auth();
-        let mut streams = get_streams(&env);
-        let mut stream = streams.get(stream_id).ok_or(Error::StreamNotFound)?;
+        let streams = get_streams(&env);
+        let stream = streams.get(stream_id).ok_or(Error::StreamNotFound)?;
         if stream.sender != sender { return Err(Error::Unauthorized); }
         if stream.state == STATE_CLOSED { return Err(Error::StreamEnded); }
         if label.len() > 64 { return Err(Error::MetadataLabelTooLong); }
@@ -584,9 +607,13 @@ impl StellarStreamContract {
                 if tag.len() > 32 { return Err(Error::TagTooLong); }
             }
         }
-        stream.stream_metadata = Some(StreamMetadata { label, tags, external_ref });
-        streams.set(stream_id, stream);
-        env.storage().persistent().set(&STREAMS, &streams);
+        let mut metadata_map: Map<u64, StreamMetadata> = env
+            .storage()
+            .persistent()
+            .get(&METADATA)
+            .unwrap_or(Map::new(&env));
+        metadata_map.set(stream_id, StreamMetadata { label, tags, external_ref });
+        env.storage().persistent().set(&METADATA, &metadata_map);
         env.events().publish(
             (symbol_short!("meta_upd"), sender.clone()),
             StreamMetadataUpdatedEvent { stream_id, sender, timestamp: env.ledger().timestamp() },
@@ -595,6 +622,89 @@ impl StellarStreamContract {
     }
 pub fn next_stream_id(env: Env) -> u64 {
         env.storage().instance().get::<_, u64>(&NEXTID).unwrap_or(1)
+    }
+
+    // ------------------------- Count Queries -------------------------
+
+    pub fn get_active_streams_count(env: Env) -> u64 {
+        let streams = get_streams(&env);
+        let mut count = 0u64;
+        for (_, stream) in streams.iter() {
+            if stream.state == STATE_ACTIVE {
+                count += 1;
+            }
+        }
+        count
+    }
+
+    pub fn get_user_active_streams_count(env: Env, user: Address) -> u64 {
+        let streams = get_streams(&env);
+        let mut count = 0u64;
+        for (_, stream) in streams.iter() {
+            if stream.state == STATE_ACTIVE && (stream.sender == user || stream.receiver == user) {
+                count += 1;
+            }
+        }
+        count
+    }
+
+    pub fn get_total_streams_count(env: Env) -> u64 {
+        let next_id = env.storage().instance().get::<_, u64>(&NEXTID).unwrap_or(1);
+        next_id - 1
+    }
+
+    pub fn get_user_total_streams_count(env: Env, user: Address) -> u64 {
+        get_user_streams(&env, &user).len() as u64
+    }
+
+    pub fn get_paused_streams_count(env: Env) -> u64 {
+        let streams = get_streams(&env);
+        let mut count = 0u64;
+        for (_, stream) in streams.iter() {
+            if stream.state == STATE_PAUSED {
+                count += 1;
+            }
+        }
+        count
+    }
+
+    pub fn get_user_paused_streams_count(env: Env, user: Address) -> u64 {
+        let streams = get_streams(&env);
+        let mut count = 0u64;
+        for (_, stream) in streams.iter() {
+            if stream.state == STATE_PAUSED && (stream.sender == user || stream.receiver == user) {
+                count += 1;
+            }
+        }
+        count
+    }
+
+    pub fn get_closed_streams_count(env: Env) -> u64 {
+        let streams = get_streams(&env);
+        let mut count = 0u64;
+        for (_, stream) in streams.iter() {
+            if stream.state == STATE_CLOSED {
+                count += 1;
+            }
+        }
+        count
+    }
+
+    pub fn get_user_closed_streams_count(env: Env, user: Address) -> u64 {
+        let streams = get_streams(&env);
+        let mut count = 0u64;
+        for (_, stream) in streams.iter() {
+            if stream.state == STATE_CLOSED && (stream.sender == user || stream.receiver == user) {
+                count += 1;
+            }
+        }
+        count
+    }
+
+    // ------------------------- History Queries -------------------------
+
+    pub fn get_stream_history(env: Env, stream_id: u64) -> Vec<StreamEvent> {
+        get_history(&env).get(stream_id).unwrap_or(Vec::new(&env))
     }
 }
 
@@ -629,6 +739,9 @@ fn withdraw_inner(env: &Env, stream_id: u64, receiver: &Address) -> Result<i128,
     // External token transfer (best-effort; a malicious token cannot double-spend
     // because state above is already committed).
     TokenClient::new(env, &stream.token).transfer(&stream.sender, receiver, &withdrawable);
+
+    // Record history event
+    add_history(env, stream_id, StreamAction::Withdrawn(withdrawable));
 
     Ok(withdrawable)
 }
@@ -769,6 +882,10 @@ fn create_stream_internal(
     add_user_stream(env, receiver, id);
 
     env.storage().instance().set(&NEXTID, &next);
+
+    // Record history event
+    add_history(env, id, StreamAction::Created);
+
     Ok(id)
 }
 
@@ -814,6 +931,25 @@ fn add_user_stream(env: &Env, user: &Address, id: u64) {
 
 fn is_contract_paused(env: &Env) -> bool {
     env.storage().instance().get(&PAUSED).unwrap_or(false)
+}
+
+fn get_history(env: &Env) -> Map<u64, Vec<StreamEvent>> {
+    env.storage()
+        .persistent()
+        .get(&HISTORY)
+        .unwrap_or(Map::new(env))
+}
+
+fn add_history(env: &Env, stream_id: u64, action: StreamAction) {
+    let mut history = get_history(env);
+    let mut events = history.get(stream_id).unwrap_or(Vec::new(env));
+    events.push_back(StreamEvent {
+        stream_id,
+        action,
+        timestamp: env.ledger().timestamp(),
+    });
+    history.set(stream_id, events);
+    env.storage().persistent().set(&HISTORY, &history);
 }
 
 fn is_restricted(env: &Env, target: &Address) -> bool {
