@@ -21,7 +21,7 @@ mod bench_test;
 
 use soroban_sdk::{
     contract, contractclient, contracterror, contractimpl, contracttype, Address, Env, Map,
-    Symbol, Vec, symbol_short,
+    String, Symbol, Vec, symbol_short,
 };
 
 // ---------------------------------------------------------------------------
@@ -37,6 +37,7 @@ const STREAMS: Symbol = symbol_short!("STREAMS");
 const USTREAMS: Symbol = symbol_short!("USTREAMS");
 const PROPOSALS: Symbol = symbol_short!("PROPOSALS");
 const NEXTPROPOSAL: Symbol = symbol_short!("NEXTPROP");
+const METADATA: Symbol = symbol_short!("METADATA");
 
 // Stream state
 pub const STATE_ACTIVE: u32 = 0;
@@ -46,6 +47,9 @@ pub const STATE_CLOSED: u32 = 2;
 // Vesting curve
 pub const CURVE_LINEAR: u32 = 0;
 pub const CURVE_EXP: u32 = 1;
+
+// Maximum number of streams allowed in a single batch creation call.
+pub const MAX_BATCH_SIZE: u32 = 20;
 
 // Roles
 pub const ROLE_ADMIN: u32 = 0;
@@ -85,11 +89,34 @@ pub enum Error {
     AlreadyApproved = 30,
     ProposalAlreadyExecuted = 31,
     InvalidApprovalThreshold = 32,
+    BatchSizeExceeded = 33,
+    StreamEnded = 34,
+    MetadataLabelTooLong = 35,
+    TooManyTags = 36,
+    TagTooLong = 37,
 }
 
 // ---------------------------------------------------------------------------
 // Data structures
 // ---------------------------------------------------------------------------
+
+// Stream metadata for categorization (issue #1466)
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct StreamMetadata {
+    pub label: String,
+    pub tags: Vec<String>,
+    pub external_ref: Option<String>,
+}
+
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct StreamMetadataUpdatedEvent {
+    pub stream_id: u64,
+    pub sender: Address,
+    pub timestamp: u64,
+}
+
 #[contracttype]
 #[derive(Clone)]
 pub struct Stream {
@@ -106,25 +133,22 @@ pub struct Stream {
     pub is_soulbound: bool,
     pub paused_duration: u64,
     pub last_paused_at: u64,
-    pub stream_metadata: Option<StreamMetadata>,
 }
 
-Stream metadata for categorization (issue #1466)
-// ---------------------------------------------------------------------------
+/// Parameters for a single stream within a `batch_create_streams` call.
+///
+/// Mirrors the arguments of `create_stream` (minus the shared `sender`, which is
+/// passed once for the whole batch). `curve_type` uses the `CURVE_*` constants.
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct StreamMetadata {
-    pub label: String,
-    pub tags: Vec<String>,
-    pub external_ref: Option<String>,
-}
-
-#[contracttype]
-#[derive(Clone, Debug)]
-pub struct StreamMetadataUpdatedEvent {
-    pub stream_id: u64,
-    pub sender: Address,
-    pub timestamp: u64,
+pub struct StreamParams {
+    pub receiver: Address,
+    pub token: Address,
+    pub total_amount: i128,
+    pub start_time: u64,
+    pub end_time: u64,
+    pub curve_type: u32,
+    pub is_soulbound: bool,
 }
 
 // // Minimal token interface used by `withdraw`.
@@ -213,6 +237,25 @@ impl StellarStreamContract {
         )
     }
 
+    /// Create multiple streams atomically in a single transaction for gas efficiency.
+    ///
+    /// All streams in the batch share the same `sender`, which is authenticated
+    /// exactly once. Every parameter is validated before any state is written, so
+    /// the operation is all-or-nothing: either the entire batch is created or none
+    /// of it is. Returns the newly allocated stream ids in the same order as `params`.
+    ///
+    /// Compared to calling `create_stream` repeatedly, this saves gas by requiring
+    /// a single authentication, a single read/write of the `NEXTID` counter, and a
+    /// single read/write of the stream map and user profiles.
+    pub fn batch_create_streams(
+        env: Env,
+        sender: Address,
+        params: Vec<StreamParams>,
+    ) -> Result<Vec<u64>, Error> {
+        sender.require_auth();
+        batch_create_streams_internal(&env, &sender, &params)
+    }
+
     /// Create a multi-signature proposal for a stream.
     ///
     /// The stream is not created immediately. Instead a proposal is stored
@@ -271,13 +314,6 @@ impl StellarStreamContract {
             total_amount,
             start_time,
             end_time,
-            withdrawn_amount: 0,
-            state: STATE_ACTIVE,
-            curve_type,
-            is_soulbound,
-            paused_duration: 0,
-            last_paused_at: 0,
-            stream_metadata: None,
             approvers: Vec::new(&env),
             required_approvals,
             deadline,
@@ -375,6 +411,9 @@ impl StellarStreamContract {
     pub fn cancel_stream(env: Env, stream_id: u64, sender: Address) -> Result<(), Error> {
         sender.require_auth();
         let mut stream = get_stream(&env, stream_id)?;
+        if stream.sender != sender {
+            return Err(Error::Unauthorized);
+        }
         if stream.state == STATE_CLOSED {
             return Err(Error::AlreadyCancelled);
         }
@@ -428,6 +467,12 @@ impl StellarStreamContract {
     /// Query a stream by id.
     pub fn get_stream(env: Env, stream_id: u64) -> Result<Stream, Error> {
         get_stream(&env, stream_id)
+    }
+
+    /// Query the metadata attached to a stream. Returns `None` when no metadata
+    /// has been set for the stream.
+    pub fn get_stream_metadata(env: Env, stream_id: u64) -> Option<StreamMetadata> {
+        get_metadata(&env).get(stream_id)
     }
 
     /// Calculate the total unlocked amount for a stream at the current ledger time.
@@ -601,6 +646,8 @@ impl StellarStreamContract {
             }
         }
         Ok(amounts)
+    }
+
     /// Update the metadata for a stream. Only the sender may update metadata.
     pub fn update_stream_metadata(
         env: Env,
@@ -611,8 +658,7 @@ impl StellarStreamContract {
         external_ref: Option<String>,
     ) -> Result<(), Error> {
         sender.require_auth();
-        let mut streams = get_streams(&env);
-        let mut stream = streams.get(stream_id).ok_or(Error::StreamNotFound)?;
+        let stream = get_stream(&env, stream_id)?;
         if stream.sender != sender { return Err(Error::Unauthorized); }
         if stream.state == STATE_CLOSED { return Err(Error::StreamEnded); }
         if label.len() > 64 { return Err(Error::MetadataLabelTooLong); }
@@ -622,9 +668,9 @@ impl StellarStreamContract {
                 if tag.len() > 32 { return Err(Error::TagTooLong); }
             }
         }
-        stream.stream_metadata = Some(StreamMetadata { label, tags, external_ref });
-        streams.set(stream_id, stream);
-        env.storage().persistent().set(&STREAMS, &streams);
+        let mut metadata = get_metadata(&env);
+        metadata.set(stream_id, StreamMetadata { label, tags, external_ref });
+        env.storage().persistent().set(&METADATA, &metadata);
         env.events().publish(
             (symbol_short!("meta_upd"), sender.clone()),
             StreamMetadataUpdatedEvent { stream_id, sender, timestamp: env.ledger().timestamp() },
@@ -734,6 +780,13 @@ fn get_streams(env: &Env) -> Map<u64, Stream> {
         .unwrap_or(Map::new(env))
 }
 
+fn get_metadata(env: &Env) -> Map<u64, StreamMetadata> {
+    env.storage()
+        .persistent()
+        .get(&METADATA)
+        .unwrap_or(Map::new(env))
+}
+
 fn get_stream(env: &Env, stream_id: u64) -> Result<Stream, Error> {
     get_streams(env)
         .get(stream_id)
@@ -808,6 +861,103 @@ fn create_stream_internal(
 
     env.storage().instance().set(&NEXTID, &next);
     Ok(id)
+}
+
+/// Shared batch-creation path for `batch_create_streams`.
+///
+/// Validates the entire batch up-front (before any state mutation) and then
+/// persists every stream in a single pass. Returns the allocated ids in order.
+fn batch_create_streams_internal(
+    env: &Env,
+    sender: &Address,
+    params: &Vec<StreamParams>,
+) -> Result<Vec<u64>, Error> {
+    if params.is_empty() {
+        return Err(Error::InvalidAmount);
+    }
+    if params.len() > MAX_BATCH_SIZE {
+        return Err(Error::BatchSizeExceeded);
+    }
+    if is_contract_paused(env) {
+        return Err(Error::ContractPaused);
+    }
+    if env.storage().instance().get::<_, Address>(&ADMIN).is_none() {
+        return Err(Error::Unauthorized);
+    }
+
+    // Validate every parameter and accumulate the combined total (overflow guard)
+    // BEFORE mutating any state, so a single bad entry rolls back the whole batch.
+    let mut total: i128 = 0;
+    for i in 0..params.len() {
+        let p = params.get(i).unwrap();
+        if p.curve_type != CURVE_LINEAR && p.curve_type != CURVE_EXP {
+            return Err(Error::InvalidCurve);
+        }
+        if p.total_amount <= 0 {
+            return Err(Error::InvalidAmount);
+        }
+        if p.start_time >= p.end_time {
+            return Err(Error::InvalidTimeRange);
+        }
+        if is_restricted(env, sender) || is_restricted(env, &p.receiver) {
+            return Err(Error::AddressRestricted);
+        }
+        total = total.checked_add(p.total_amount).ok_or(Error::Overflow)?;
+    }
+
+    // Allocate ids and build the streams in one pass, then persist once.
+    let mut next = env.storage().instance().get::<_, u64>(&NEXTID).unwrap_or(1);
+    let mut ids: Vec<u64> = Vec::new(env);
+    let mut streams = get_streams(env);
+
+    for i in 0..params.len() {
+        let p = params.get(i).unwrap();
+        let id = next;
+        next = next.checked_add(1).ok_or(Error::Overflow)?;
+
+        let stream = Stream {
+            id,
+            sender: sender.clone(),
+            receiver: p.receiver.clone(),
+            token: p.token.clone(),
+            total_amount: p.total_amount,
+            start_time: p.start_time,
+            end_time: p.end_time,
+            withdrawn_amount: 0,
+            state: STATE_ACTIVE,
+            curve_type: p.curve_type,
+            is_soulbound: p.is_soulbound,
+            paused_duration: 0,
+            last_paused_at: 0,
+        };
+        streams.set(id, stream);
+        ids.push_back(id);
+    }
+    env.storage().persistent().set(&STREAMS, &streams);
+
+    // Update sender + receiver profiles in a single read/write of the map.
+    let mut profiles: Map<Address, Vec<u64>> = env
+        .storage()
+        .persistent()
+        .get(&USTREAMS)
+        .unwrap_or(Map::new(env));
+    for i in 0..params.len() {
+        let id = ids.get(i).unwrap();
+        push_stream_id(env, &mut profiles, sender, id);
+        let p = params.get(i).unwrap();
+        push_stream_id(env, &mut profiles, &p.receiver, id);
+    }
+    env.storage().persistent().set(&USTREAMS, &profiles);
+
+    env.storage().instance().set(&NEXTID, &next);
+    Ok(ids)
+}
+
+/// Append `id` to `user`'s stream list inside the in-memory profiles map.
+fn push_stream_id(env: &Env, profiles: &mut Map<Address, Vec<u64>>, user: &Address, id: u64) {
+    let mut list = profiles.get(user.clone()).unwrap_or(Vec::new(env));
+    list.push_back(id);
+    profiles.set(user.clone(), list);
 }
 
 fn get_proposals(env: &Env) -> Map<u64, StreamProposal> {
@@ -938,3 +1088,6 @@ mod stress_test;
 
 #[cfg(test)]
 mod security_test;
+
+#[cfg(test)]
+mod batch_test;

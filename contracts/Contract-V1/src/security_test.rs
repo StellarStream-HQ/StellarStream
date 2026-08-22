@@ -27,8 +27,9 @@ impl MaliciousToken {
     pub fn transfer(env: Env, _from: Address, to: Address, _amount: i128) {
         let (contract, id): (Address, u64) =
             env.storage().instance().get(&symbol_short!("CB")).unwrap();
-        // Attempt to re-enter the stream contract as the receiver.
-        let _ = StellarStreamContractClient::new(&env, &contract).withdraw(&id, &to);
+        // Attempt to re-enter the stream contract as the receiver. Use the `try_`
+        // variant so the host's re-entry rejection is caught (not panicked).
+        let _ = StellarStreamContractClient::new(&env, &contract).try_withdraw(&id, &to);
     }
 }
 
@@ -341,14 +342,15 @@ fn test_initialize_twice_rejected() {
 fn test_pause_resume_restores_vesting() {
     let f = setup();
     let id = make_stream(&f);
-    // Pause at t=250 (unlocked 250k), resume at t=500.
+    // Pause at t=250 (unlocked 250k), resume at t=750 (paused 500 time-units).
     f.env.ledger().set_timestamp(250);
     client(&f.env, &f.contract).pause_stream(&id, &f.sender);
     f.env.ledger().set_timestamp(750);
     client(&f.env, &f.contract).resume_stream(&id, &f.sender);
-    // Paused 500 time-units, so effective elapsed = 750 - 250(pause) = 500 -> 500k.
+    // Pausing extends the vesting schedule by the pause duration, so the effective
+    // elapsed time is 750 - 500 (pause) = 250 -> 250k (unchanged since the pause).
     let w = client(&f.env, &f.contract).withdraw(&id, &f.receiver);
-    assert_eq!(w, 500_000i128);
+    assert_eq!(w, 250_000i128);
 }
 
 // ----------------------------- Storage / identity -----------------------------
