@@ -22,6 +22,9 @@
 
 #![allow(dead_code)]
 
+use crate::Milestone;
+use soroban_sdk::Vec;
+
 /// Basis points denominator (10,000 bps = 100.00%)
 pub const BPS_DENOMINATOR: i128 = 10_000;
 
@@ -275,6 +278,57 @@ pub fn calculate_split_share(total_amount: i128, share_bps: u32, total_bps: u32)
     } else {
         (total_amount * share_bps as i128) / total_bps as i128
     }
+}
+
+/// Calculates the unlocked amount for milestone-based vesting.
+///
+/// Milestone vesting unlocks tokens in discrete steps at fixed timestamps
+/// rather than continuously over time. Each [`Milestone`] carries a
+/// **cumulative** basis-point percentage of `total_amount` that becomes
+/// unlocked once its `timestamp` is reached (e.g. 2,500 / 5,000 / 10,000 bps
+/// at 3 / 6 / 12 months — not 2,500 / 2,500 / 5,000 incremental slices).
+/// Between two milestones, the most recently reached milestone's percentage
+/// holds; nothing unlocks gradually in between.
+///
+/// Milestones are assumed to already be validated (ascending timestamps,
+/// ascending percentages, final percentage equal to [`BPS_DENOMINATOR`]) by
+/// the caller at stream-creation time; this function does not re-validate the
+/// schedule and simply walks it.
+///
+/// # Optimizations
+/// - **Empty/zero fast-path**: Returns `0` immediately for a non-positive
+///   `total_amount` or an empty milestone schedule.
+/// - **Full-unlock fast-path**: Returns `total_amount` directly once the
+///   reached percentage equals `BPS_DENOMINATOR`, avoiding a multiply/divide.
+/// - **Single pass**: Walks the schedule once, stopping at the first
+///   not-yet-reached milestone.
+#[inline(always)]
+pub fn calculate_unlocked_milestone(
+    total_amount: i128,
+    current_time: u64,
+    milestones: &Vec<Milestone>,
+) -> i128 {
+    if total_amount <= 0 || milestones.is_empty() {
+        return 0;
+    }
+
+    let mut reached_bps: u32 = 0;
+    for i in 0..milestones.len() {
+        let milestone = milestones.get(i).unwrap();
+        if current_time < milestone.timestamp {
+            break;
+        }
+        reached_bps = milestone.percentage;
+    }
+
+    if reached_bps == 0 {
+        return 0;
+    }
+    if reached_bps as i128 == BPS_DENOMINATOR {
+        return total_amount;
+    }
+
+    (total_amount * reached_bps as i128) / BPS_DENOMINATOR
 }
 
 /// Calculates token flow rate per second for a stream.

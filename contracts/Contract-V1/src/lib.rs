@@ -47,6 +47,7 @@ pub const STATE_CLOSED: u32 = 2;
 // Vesting curve
 pub const CURVE_LINEAR: u32 = 0;
 pub const CURVE_EXP: u32 = 1;
+pub const CURVE_MILESTONE: u32 = 2;
 
 // Maximum number of streams allowed in a single batch creation call.
 pub const MAX_BATCH_SIZE: u32 = 20;
@@ -222,6 +223,7 @@ impl StellarStreamContract {
         end_time: u64,
         curve_type: u32,
         is_soulbound: bool,
+        milestones: Option<Vec<Milestone>>,
     ) -> Result<u64, Error> {
         sender.require_auth();
         create_stream_internal(
@@ -234,6 +236,7 @@ impl StellarStreamContract {
             end_time,
             curve_type,
             is_soulbound,
+            milestones,
         )
     }
 
@@ -372,6 +375,7 @@ impl StellarStreamContract {
                 proposal.end_time,
                 CURVE_LINEAR,
                 false,
+                None,
             )?;
             proposal.executed = true;
             save_proposal(&env, proposal_id, &proposal);
@@ -606,8 +610,6 @@ impl StellarStreamContract {
         is_restricted(&env, &target)
     }
 
-    /// Return the next stream id that will be allocated (for testing/inspection).
-    
     /// Withdraw from multiple streams atomically. All-or-nothing semantics. (issue #1472)
     pub fn batch_withdraw(
         env: Env,
@@ -677,8 +679,87 @@ impl StellarStreamContract {
         );
         Ok(())
     }
-pub fn next_stream_id(env: Env) -> u64 {
+
+    /// Return the next stream id that will be allocated (for testing/inspection).
+    pub fn next_stream_id(env: Env) -> u64 {
         env.storage().instance().get::<_, u64>(&NEXTID).unwrap_or(1)
+    }
+
+    // ------------------------- Count Queries -------------------------
+
+    pub fn get_active_streams_count(env: Env) -> u64 {
+        let streams = get_streams(&env);
+        let mut count = 0u64;
+        for (_, stream) in streams.iter() {
+            if stream.state == STATE_ACTIVE {
+                count += 1;
+            }
+        }
+        count
+    }
+
+    pub fn get_user_active_streams_count(env: Env, user: Address) -> u64 {
+        let streams = get_streams(&env);
+        let mut count = 0u64;
+        for (_, stream) in streams.iter() {
+            if stream.state == STATE_ACTIVE && (stream.sender == user || stream.receiver == user) {
+                count += 1;
+            }
+        }
+        count
+    }
+
+    pub fn get_total_streams_count(env: Env) -> u64 {
+        let next_id = env.storage().instance().get::<_, u64>(&NEXTID).unwrap_or(1);
+        next_id - 1
+    }
+
+    pub fn get_user_total_streams_count(env: Env, user: Address) -> u64 {
+        get_user_streams(&env, &user).len() as u64
+    }
+
+    pub fn get_paused_streams_count(env: Env) -> u64 {
+        let streams = get_streams(&env);
+        let mut count = 0u64;
+        for (_, stream) in streams.iter() {
+            if stream.state == STATE_PAUSED {
+                count += 1;
+            }
+        }
+        count
+    }
+
+    pub fn get_user_paused_streams_count(env: Env, user: Address) -> u64 {
+        let streams = get_streams(&env);
+        let mut count = 0u64;
+        for (_, stream) in streams.iter() {
+            if stream.state == STATE_PAUSED && (stream.sender == user || stream.receiver == user) {
+                count += 1;
+            }
+        }
+        count
+    }
+
+    pub fn get_closed_streams_count(env: Env) -> u64 {
+        let streams = get_streams(&env);
+        let mut count = 0u64;
+        for (_, stream) in streams.iter() {
+            if stream.state == STATE_CLOSED {
+                count += 1;
+            }
+        }
+        count
+    }
+
+    pub fn get_user_closed_streams_count(env: Env, user: Address) -> u64 {
+        let streams = get_streams(&env);
+        let mut count = 0u64;
+        for (_, stream) in streams.iter() {
+            if stream.state == STATE_CLOSED && (stream.sender == user || stream.receiver == user) {
+                count += 1;
+            }
+        }
+        count
     }
 }
 
@@ -754,6 +835,14 @@ fn unlocked_amount(env: &Env, stream: &Stream) -> i128 {
                 _ => 0,
             }
         }
+        CURVE_MILESTONE => match &stream.milestones {
+            // Milestones are keyed to absolute ledger timestamps, not
+            // pause-adjusted elapsed time, so `now` is passed directly.
+            Some(milestones) => {
+                math::calculate_unlocked_milestone(stream.total_amount, now, milestones)
+            }
+            None => 0,
+        },
         _ => 0,
     };
     if unlocked < 0 {
@@ -812,6 +901,7 @@ fn create_stream_internal(
     end_time: u64,
     curve_type: u32,
     is_soulbound: bool,
+    milestones: Option<Vec<Milestone>>,
 ) -> Result<u64, Error> {
     if is_contract_paused(env) {
         return Err(Error::ContractPaused);
@@ -819,7 +909,7 @@ fn create_stream_internal(
     if env.storage().instance().get::<_, Address>(&ADMIN).is_none() {
         return Err(Error::Unauthorized);
     }
-    if curve_type != CURVE_LINEAR && curve_type != CURVE_EXP {
+    if curve_type != CURVE_LINEAR && curve_type != CURVE_EXP && curve_type != CURVE_MILESTONE {
         return Err(Error::InvalidCurve);
     }
     if total_amount <= 0 {
@@ -830,6 +920,11 @@ fn create_stream_internal(
     }
     if is_restricted(env, sender) || is_restricted(env, receiver) {
         return Err(Error::AddressRestricted);
+    }
+    if curve_type == CURVE_MILESTONE {
+        validate_milestones(&milestones, end_time)?;
+    } else if milestones.is_some() {
+        return Err(Error::InvalidMilestones);
     }
 
     let mut next = env.storage().instance().get::<_, u64>(&NEXTID).unwrap_or(1);
@@ -850,6 +945,8 @@ fn create_stream_internal(
         is_soulbound,
         paused_duration: 0,
         last_paused_at: 0,
+        stream_metadata: None,
+        milestones,
     };
 
     let mut streams = get_streams(env);
