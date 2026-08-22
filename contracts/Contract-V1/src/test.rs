@@ -383,6 +383,14 @@ fn test_proposal_approval_events_emitted() {
     assert_eq!(f.env.events().all().len(), 1);
 }
 
+// Stream history tests (issue #1468)
+// ---------------------------------------------------------------------------
+
+#[test]
+fn test_stream_history_created() {
+    let f = setup();
+    let c = client(&f.env, &f.contract);
+
 // Count query tests (issue #1474)
 // ---------------------------------------------------------------------------
 
@@ -431,6 +439,16 @@ fn test_milestone_simple_schedule() {
         &CURVE_LINEAR,
         &false,
     );
+
+    let history = c.get_stream_history(&id);
+    assert_eq!(history.len(), 1);
+    assert_eq!(history.get(0).unwrap().action, StreamAction::Created);
+}
+
+#[test]
+fn test_stream_history_pause_resume() {
+    let f = setup();
+    let c = client(&f.env, &f.contract);
 
     assert_eq!(c.get_active_streams_count(), 1);
 
@@ -513,6 +531,21 @@ fn test_milestone_at_milestone_returns_cumulative_percentage() {
         &false,
     );
 
+    c.pause_stream(&id, &f.sender);
+    c.resume_stream(&id, &f.sender);
+
+    let history = c.get_stream_history(&id);
+    assert_eq!(history.len(), 3);
+    assert_eq!(history.get(0).unwrap().action, StreamAction::Created);
+    assert_eq!(history.get(1).unwrap().action, StreamAction::Paused);
+    assert_eq!(history.get(2).unwrap().action, StreamAction::Resumed);
+}
+
+#[test]
+fn test_stream_history_cancel() {
+    let f = setup();
+    let c = client(&f.env, &f.contract);
+
     assert_eq!(c.get_user_active_streams_count(&f.sender), 1);
     assert_eq!(c.get_user_active_streams_count(&f.receiver), 1);
 
@@ -570,6 +603,23 @@ fn test_milestone_between_milestones_holds_previous_percentage() {
         &CURVE_LINEAR,
         &false,
     );
+
+    c.cancel_stream(&id, &f.sender);
+
+    let history = c.get_stream_history(&id);
+    assert_eq!(history.len(), 2);
+    assert_eq!(history.get(0).unwrap().action, StreamAction::Created);
+    assert_eq!(history.get(1).unwrap().action, StreamAction::Cancelled);
+}
+
+#[test]
+fn test_stream_history_withdraw() {
+    let f = setup();
+    let c = client(&f.env, &f.contract);
+
+    f.env.ledger().with_mut(|li| {
+        li.timestamp = 100;
+    });
 
     assert_eq!(c.get_total_streams_count(), 1);
 
@@ -738,11 +788,37 @@ fn test_milestone_withdrawal() {
         &f.receiver,
         &f.token,
         &1_000_000i128,
+        &100u64,
+        &1_100u64,
         &0u64,
         &1_000u64,
         &CURVE_LINEAR,
         &false,
     );
+
+    f.env.ledger().with_mut(|li| {
+        li.timestamp = 600;
+    });
+
+    c.withdraw(&id, &f.receiver);
+
+    let history = c.get_stream_history(&id);
+    assert_eq!(history.len(), 2);
+    assert_eq!(history.get(0).unwrap().action, StreamAction::Created);
+    assert!(matches!(
+        history.get(1).unwrap().action,
+        StreamAction::Withdrawn(_)
+    ));
+}
+
+#[test]
+fn test_stream_history_ordered_by_timestamp() {
+    let f = setup();
+    let c = client(&f.env, &f.contract);
+
+    f.env.ledger().with_mut(|li| {
+        li.timestamp = 100;
+    });
 
     assert_eq!(c.get_paused_streams_count(), 0);
 
@@ -793,12 +869,49 @@ fn test_milestone_cancellation() {
         &f.receiver,
         &f.token,
         &1_000_000i128,
+        &100u64,
+        &1_100u64,
         &0u64,
         &1_000u64,
         &CURVE_LINEAR,
         &false,
     );
 
+    f.env.ledger().with_mut(|li| {
+        li.timestamp = 200;
+    });
+    c.pause_stream(&id, &f.sender);
+
+    f.env.ledger().with_mut(|li| {
+        li.timestamp = 300;
+    });
+    c.resume_stream(&id, &f.sender);
+
+    f.env.ledger().with_mut(|li| {
+        li.timestamp = 400;
+    });
+    c.cancel_stream(&id, &f.sender);
+
+    let history = c.get_stream_history(&id);
+    assert_eq!(history.len(), 4);
+
+    // Check timestamps are in order
+    let ts0 = history.get(0).unwrap().timestamp;
+    let ts1 = history.get(1).unwrap().timestamp;
+    let ts2 = history.get(2).unwrap().timestamp;
+    let ts3 = history.get(3).unwrap().timestamp;
+    assert!(ts0 <= ts1);
+    assert!(ts1 <= ts2);
+    assert!(ts2 <= ts3);
+}
+
+#[test]
+fn test_stream_history_nonexistent_stream() {
+    let f = setup();
+    let c = client(&f.env, &f.contract);
+
+    let history = c.get_stream_history(&999);
+    assert_eq!(history.len(), 0);
     assert_eq!(c.get_user_paused_streams_count(&f.sender), 0);
     assert_eq!(c.get_user_paused_streams_count(&f.receiver), 0);
 
