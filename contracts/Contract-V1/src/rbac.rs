@@ -11,8 +11,11 @@ use soroban_sdk::{contracterror, contracttype, panic_with_error, Address, Env, V
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 #[contracttype]
 pub enum Role {
+    /// Authority to upgrade contract code and manage role assignments.
     SuperAdmin,
+    /// Authority to manage fees and other financial parameters.
     FinancialOperator,
+    /// Authority to pause, unpause, or freeze contract operations during emergencies.
     Guardian,
 }
 
@@ -23,9 +26,13 @@ pub enum Role {
 #[derive(Clone)]
 #[contracttype]
 pub enum StorageKey {
+    /// Membership list (`Vec<Address>`) for a given role.
     RoleMembers(Role),
+    /// Configured fee amount.
     Fee,
+    /// Whether contract operations are currently paused.
     Paused,
+    /// Whether the contract is in an emergency-frozen state.
     Frozen,
 }
 

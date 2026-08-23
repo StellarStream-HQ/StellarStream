@@ -1,0 +1,1453 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider   = "prisma-client-js"
+  output     = "../src/generated/client"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User-defined payment categories for organizing streams and disbursements
+model PaymentCategory {
+  id           String   @id @default(cuid())
+  name         String
+  description  String?
+  color        String   @default("#6366f1") // hex color for UI
+  icon         String? // optional icon identifier
+  ownerAddress String // Stellar address of the creator
+  isDefault    Boolean  @default(false) // system-level default categories
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  rules         PaymentCategoryRule[]
+  streams       Stream[]
+  disbursements Disbursement[]
+
+  @@unique([ownerAddress, name])
+  @@index([ownerAddress])
+}
+
+// Flexible key-value metadata for streams, disbursements, and categories (#1385)
+model PaymentMetadata {
+  id           String   @id @default(cuid())
+  entityType   String // 'stream' | 'disbursement' | 'category'
+  entityId     String
+  key          String
+  value        String
+  ownerAddress String // Stellar address of the creator (for scoping + search)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([entityType, entityId, key]) // one value per key per entity
+  @@index([ownerAddress])
+  @@index([entityType, entityId])
+  @@index([key])
+  @@index([ownerAddress, key, value]) // supports search-by-metadata
+}
+
+// Payment pre-authorization: hold funds against a payer, then capture
+// (fully or partially) or release the hold within a bounded hold period (#1373)
+model PaymentAuthorization {
+  id             String              @id @default(cuid())
+  payerAddress   String // Stellar address placing the hold
+  payeeAddress   String // Stellar address the hold will be captured to
+  tokenAddress   String
+  amount         BigInt // total amount authorized (stroops / smallest unit)
+  capturedAmount BigInt              @default(0) // sum of all captures so far
+  status         AuthorizationStatus @default(AUTHORIZED)
+  holdPeriodSecs Int // length of the hold window from authorizedAt
+  authorizedAt   DateTime            @default(now())
+  expiresAt      DateTime // authorizedAt + holdPeriodSecs; capture must occur before this
+  releasedAt     DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  captures PaymentCapture[]
+
+  @@index([payerAddress])
+  @@index([payeeAddress])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+enum AuthorizationStatus {
+  AUTHORIZED // hold is active, awaiting capture or release
+  PARTIALLY_CAPTURED // some but not all of the amount has been captured
+  CAPTURED // fully captured, terminal
+  RELEASED // hold (or remainder) released back to payer, terminal
+  EXPIRED // hold period elapsed before full capture, terminal
+}
+
+// A single capture event against a PaymentAuthorization; captures accumulate
+// until the full authorized amount is captured or the remainder is released.
+model PaymentCapture {
+  id              String               @id @default(cuid())
+  authorizationId String
+  authorization   PaymentAuthorization @relation(fields: [authorizationId], references: [id], onDelete: Cascade)
+  amount          BigInt
+  txHash          String?
+  createdAt       DateTime             @default(now())
+
+  @@index([authorizationId])
+}
+
+// Auto-categorization rules attached to a PaymentCategory
+model PaymentCategoryRule {
+  id         String          @id @default(cuid())
+  categoryId String
+  category   PaymentCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  // field: 'sender' | 'receiver' | 'tokenAddress' | 'amountMin' | 'amountMax'
+  field      String
+  // operator: 'equals' | 'contains' | 'startsWith' | 'gte' | 'lte'
+  operator   String
+  value      String
+  priority   Int             @default(0)
+  createdAt  DateTime        @default(now())
+
+  @@index([categoryId])
+}
+
+// Mirrors the Stream state from the Soroban smart contract
+model Stream {
+  id                 String           @id @default(cuid())
+  streamId           String?          @unique // Contract-level Stream ID
+  txHash             String           @unique
+  version            Int              @default(1)
+  sender             String
+  receiver           String
+  contractId         String?          @map("contract_id")
+  tokenAddress       String?
+  amount             String // Store as string to handle large numbers safely
+  duration           Int?
+  status             StreamStatus     @default(ACTIVE)
+  withdrawn          String?          @default("0")
+  legacy             Boolean          @default(false) // true = originated from V1 contract
+  migrated           Boolean          @default(false) // true = V1 stream superseded by V2
+  isPrivate          Boolean          @default(false)
+  yieldEnabled       Boolean          @default(false) @map("yield_enabled")
+  vaultContractId    String?
+  vaultShareBalance  String?
+  vaultRatioScale    String?
+  accruedInterest    String           @default("0")
+  lastYieldAccrualAt DateTime?
+  isDust             Boolean          @default(false) // true = below MIN_VALUE_USD threshold
+  affiliateId        String? // Affiliate who referred this stream (0.5% commission)
+  categoryId         String? // Optional payment category
+  category           PaymentCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  // Additional fields for contract state snapshots
+  startTime          DateTime?        @map("start_time")
+  endTime            DateTime?        @map("end_time")
+  cliffTime          Int?             @map("cliff_time")
+  isSoulbound        Boolean          @default(false) @map("is_soulbound")
+  isFrozen           Boolean          @default(false) @map("is_frozen")
+  pausedDuration     Int?             @map("paused_duration")
+  vaultAddress       String?          @map("vault_address")
+  vaultShares        String?          @map("vault_shares")
+  createdAt          DateTime         @default(now())
+
+  @@index([sender])
+  @@index([receiver])
+  @@index([status])
+  @@index([streamId])
+  @@index([contractId])
+  @@index([legacy])
+  @@index([yieldEnabled, status])
+  @@index([isDust])
+  @@index([affiliateId])
+  @@index([categoryId])
+  // #1148 — owner dashboard: latest streams for a user filtered by status
+  @@index([sender, status, createdAt(sort: Desc)])
+}
+
+model ContractEvent {
+  id             String   @id @default(cuid())
+  eventId        String   @unique @map("event_id")
+  contractId     String   @map("contract_id")
+  txHash         String   @map("tx_hash")
+  eventType      String   @map("event_type")
+  eventIndex     Int      @default(0) @map("event_index")
+  ledgerSequence Int      @map("ledger_sequence")
+  ledgerClosedAt String?  @map("ledger_closed_at")
+  topicXdr       String[] @default([]) @map("topic_xdr")
+  valueXdr       String   @map("value_xdr")
+  decodedJson    Json     @map("decoded_json")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@unique([txHash, eventIndex])
+  // #1148 — newest-first event scans per contract (ledger DESC)
+  @@index([contractId, ledgerSequence(sort: Desc)])
+  @@index([eventType])
+  @@index([txHash])
+}
+
+// Token prices for leaderboard volume calculations
+model TokenPrice {
+  tokenAddress String   @id
+  symbol       String
+  decimals     Int      @default(7)
+  priceUsd     Float    @default(0)
+  updatedAt    DateTime @updatedAt
+}
+
+// Registered Webhooks for external notifications
+model Webhook {
+  id          String   @id @default(cuid())
+  url         String   @unique
+  description String?
+  eventType   String   @default("*") // "*" = all events, or specific: create_stream, withdraw, cancel
+  secretKey   String // HMAC secret for signing payloads
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  deliveries WebhookDelivery[]
+
+  @@index([eventType])
+  @@index([isActive])
+}
+
+// Webhook delivery attempts for retry logic
+model WebhookDelivery {
+  id               String    @id @default(cuid())
+  webhookId        String
+  eventType        String
+  payload          Json
+  // pending | delivering | success | dead_letter
+  status           String    @default("pending")
+  attempts         Int       @default(0)
+  maxRetries       Int       @default(5)
+  nextRetryAt      DateTime?
+  lastError        String?
+  lastStatusCode   Int?
+  lastAttemptAt    DateTime?
+  deliveredAt      DateTime?
+  // Set when the delivery lands in the dead letter queue, either by exhausting
+  // maxRetries or by receiving a non-retryable response.
+  deadLetteredAt   DateTime?
+  deadLetterReason String?
+  // Claim fields — a worker marks rows `delivering` before sending so that
+  // concurrent workers never dispatch the same delivery twice.
+  lockedAt         DateTime?
+  lockedBy         String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  webhook Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([webhookId, status])
+  @@index([nextRetryAt])
+  @@index([createdAt])
+  @@index([status, nextRetryAt])
+  @@index([status, lockedAt])
+}
+
+// Tracks the last synced blockchain ledger sequence
+model SyncState {
+  id                 Int @id @default(1)
+  lastLedgerSequence Int @default(0)
+}
+
+// Audit log for all protocol events
+model EventLog {
+  id             String   @id @default(cuid())
+  eventType      String // create, withdraw, cancel
+  streamId       String
+  txHash         String
+  eventIndex     Int      @default(0) // Position of event within the transaction
+  ledger         Int
+  ledgerClosedAt String
+  sender         String?
+  receiver       String?
+  amount         BigInt?
+  metadata       String? // JSON string
+  parentHash     String?  @map("parent_hash") // SHA-256 hash of the previous log entry
+  entryHash      String?  @map("entry_hash") // SHA-256(canonical(this_entry) + parentHash)
+  createdAt      DateTime @default(now())
+
+  @@unique([txHash, eventIndex])
+  @@index([streamId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@index([ledger])
+  // #1148 — audit trail for a stream, newest entries first
+  @@index([streamId, createdAt(sort: Desc)])
+}
+
+// Monthly snapshots of stream states
+model StreamSnapshot {
+  id              String       @id @default(cuid())
+  streamId        String
+  sender          String
+  receiver        String
+  tokenAddress    String
+  amountPerSecond BigInt
+  totalAmount     BigInt
+  status          StreamStatus
+  snapshotMonth   String // YYYY-MM
+  createdAt       DateTime     @default(now())
+
+  @@unique([streamId, snapshotMonth])
+  @@index([streamId])
+  @@index([snapshotMonth])
+}
+
+// ── Hourly snapshots of contract states for historical analysis ───────────────────
+model ContractStateSnapshot {
+  id                 String       @id @default(cuid())
+  streamId           String
+  contractId         String? // Contract address for cross-contract snapshots
+  snapshotTime       DateTime // Exact timestamp of snapshot
+  snapshotHour       String // YYYY-MM-DD-HH for efficient hourly queries (indexed)
+  sender             String
+  receiver           String
+  tokenAddress       String
+  totalAmount        BigInt
+  withdrawnAmount    BigInt
+  cliffTime          BigInt
+  startTime          DateTime
+  endTime            DateTime
+  state              StreamStatus
+  curveType          Int // 0 = Linear, 1 = Exponential
+  isSoulbound        Boolean      @default(false)
+  isFrozen           Boolean      @default(false)
+  pausedDuration     BigInt       @default(0)
+  vaultAddress       String?
+  vaultShares        BigInt?
+  metadataHash       String? // Hash of full metadata for integrity
+  compressedState    String? // GZIP-compressed delta from previous snapshot
+  previousSnapshotId String?      @map("previous_snapshot_id") // Link to previous for chain
+
+  @@unique([streamId, snapshotHour])
+  @@index([streamId, snapshotTime(sort: Desc)])
+  @@index([snapshotHour])
+  @@index([contractId, snapshotTime(sort: Desc)])
+  @@index([sender, snapshotTime(sort: Desc)])
+}
+
+// Archived event logs (older than 3 months)
+model StreamArchive {
+  id             String   @id @default(cuid())
+  eventType      String
+  streamId       String
+  txHash         String
+  ledger         Int
+  ledgerClosedAt String
+  sender         String?
+  receiver       String?
+  amount         BigInt?
+  metadata       String?
+  createdAt      DateTime
+  archivedAt     DateTime @default(now())
+
+  @@index([streamId])
+  @@index([createdAt])
+}
+
+// Generic bridge activity log for cross-chain operations
+model BridgeLog {
+  id          String    @id @default(cuid())
+  bridge      String
+  eventType   String
+  sourceChain String
+  targetChain String
+  sourceAsset String
+  targetAsset String?
+  amount      String
+  sender      String?
+  recipient   String
+  txHash      String    @unique
+  status      String
+  payload     String? // Raw bridge payload (JSON)
+  landedAt    DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([eventType])
+  @@index([targetChain])
+  @@index([recipient])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Governance proposal state indexed from DAO contract events
+model Proposal {
+  id           String   @id // Contract-level proposal ID
+  creator      String
+  description  String
+  quorum       Int
+  votesFor     Int      @default(0)
+  votesAgainst Int      @default(0)
+  txHash       String   @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([creator])
+  @@index([createdAt])
+}
+
+// Event sourcing table for immutable audit trail
+model Event {
+  id           String   @id @default(cuid())
+  eventId      String   @unique // Global unique event identifier
+  streamId     String // Reference to the stream this event relates to
+  eventType    String // CREATE, WITHDRAW, CANCEL, PAUSE, RESUME
+  payload      Json // Complete event data as JSON
+  timestamp    DateTime @default(now())
+  hash         String // SHA-256 hash of this event
+  previousHash String? // Hash of the previous event in the chain
+
+  @@index([streamId])
+  @@index([eventType])
+  @@index([timestamp])
+}
+
+// A named bookmark into a stream's event log to replay from (#1375)
+model ReplayCheckpoint {
+  id        String   @id @default(cuid())
+  streamId  String
+  eventId   String // Event.eventId this checkpoint pins to (inclusive baseline)
+  label     String?
+  createdAt DateTime @default(now())
+
+  @@unique([streamId, eventId])
+  @@index([streamId])
+}
+
+// Audit trail of replay/verification runs — records what was replayed and
+// whether the reconstructed state matched the live Stream row (#1375)
+model ReplayRun {
+  id                     String   @id @default(cuid())
+  streamId               String
+  fromEventId            String? // checkpoint eventId replay resumed after (null = from genesis)
+  toEventId              String? // last event applied (null = no events applied)
+  eventCount             Int
+  reconstructedStatus    String?
+  reconstructedWithdrawn String?
+  matchesLive            Boolean? // null when not compared against the live Stream row
+  differences            Json?
+  durationMs             Int
+  createdAt              DateTime @default(now())
+
+  @@index([streamId])
+  @@index([createdAt])
+}
+
+enum StreamStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELED
+  ARCHIVED // V1 stream successfully migrated to V2 — hidden from active UI
+}
+
+// RBAC roles for shared G-address organisations
+enum OrgRole {
+  DRAFTER // Can create and edit draft splits
+  APPROVER // Can approve or reject pending splits
+  EXECUTOR // Can submit approved splits to the ledger
+}
+
+// Maps a Stellar address to a role within a shared G-address organisation
+model OrganizationMember {
+  id            String   @id @default(cuid())
+  /// The shared G-address that represents the organisation
+  orgAddress    String
+  /// The individual member's Stellar G-address
+  memberAddress String
+  role          OrgRole
+  /// Who granted this membership
+  addedBy       String
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([orgAddress, memberAddress])
+  @@index([orgAddress])
+  @@index([memberAddress])
+  @@index([role])
+}
+
+// API keys for 3rd-party partner dApps with elevated rate limits
+model ApiKey {
+  id         String    @id @default(cuid())
+  keyHash    String    @unique // SHA-256 hash of the raw key (never store plaintext)
+  name       String // Human-readable label, e.g. "Acme dApp"
+  owner      String // Stellar address or contact identifier
+  rateLimit  Int       @default(1000) // requests per minute
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  lastUsedAt DateTime?
+
+  @@index([keyHash])
+  @@index([owner])
+}
+
+// Stores ledger hashes for integrity verification
+model LedgerHash {
+  sequence  Int      @id
+  hash      String
+  createdAt DateTime @default(now())
+}
+
+model SyncMetadata {
+  id                 String @id
+  lastLedgerSequence Int
+}
+
+model ClawbackHistory {
+  id         String   @id @default(uuid())
+  streamId   String
+  amount     String // clawback amount as string for high precision
+  reason     String   @default("")
+  createdAt  DateTime @default(now())
+  executedAt DateTime @default(now())
+  txHash     String? // optional tx hash if executed on-chain
+  status     String   @default("executed") // executed | pending | failed
+}
+
+// Notification subscriptions — maps a Stellar address to a Discord/Telegram endpoint
+model NotificationSubscription {
+  id             String               @id @default(cuid())
+  stellarAddress String // Receiver address to watch
+  platform       NotificationPlatform // discord | telegram
+  webhookUrl     String? // Discord: full webhook URL
+  chatId         String? // Telegram: chat/user ID
+  isActive       Boolean              @default(true)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  @@unique([stellarAddress, platform])
+  @@index([stellarAddress])
+  @@index([platform])
+}
+
+enum NotificationPlatform {
+  discord
+  telegram
+  email
+}
+
+// User notification preferences — granular control over which notifications
+// are delivered via which channels (#1004)
+model NotificationPreference {
+  id                   String               @id @default(cuid())
+  stellarAddress       String // Stellar address of the user
+  email                String? // Email address for email notifications
+  emailVerified        Boolean              @default(false) // Whether email has been verified
+  platform             NotificationPlatform // discord | telegram | email
+  // Notification type toggles
+  paymentConfirmations Boolean              @default(true) // Payment confirmation emails
+  streamStatusUpdates  Boolean              @default(true) // Stream created/paused/cancelled
+  securityAlerts       Boolean              @default(true) // Login alerts, permission changes
+  weeklySummaries      Boolean              @default(false) // Weekly summary of activity
+  isActive             Boolean              @default(true)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  @@unique([stellarAddress, platform])
+  @@index([stellarAddress])
+  @@index([platform])
+}
+
+// Email delivery tracking — records every email sent with its status
+model EmailDelivery {
+  id             String              @id @default(cuid())
+  stellarAddress String // Recipient Stellar address
+  email          String // Recipient email address
+  template       String // payment_confirmation | stream_status | security_alert | weekly_summary
+  subject        String // Email subject line
+  status         EmailDeliveryStatus @default(SENT) // sent | delivered | opened | bounced | failed
+  errorMessage   String? // Error message if failed
+  metadata       Json? // Template-specific data (txHash, streamId, etc.)
+  sentAt         DateTime            @default(now())
+  deliveredAt    DateTime?
+  openedAt       DateTime?
+  createdAt      DateTime            @default(now())
+
+  @@index([stellarAddress])
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+  @@index([sentAt])
+}
+
+enum EmailDeliveryStatus {
+  SENT
+  DELIVERED
+  OPENED
+  BOUNCED
+  FAILED
+}
+
+// Invoice links for Nebula-Pay payment link generator (#1377)
+model InvoiceLink {
+  id            String    @id @default(cuid())
+  slug          String    @unique // Short UUID for shareable URL
+  sender        String
+  receiver      String
+  amount        String // Total amount to stream (amount lock)
+  tokenAddress  String
+  duration      Int // Duration in seconds
+  description   String? // Optional invoice description / custom message
+  customMessage String?   @map("custom_message") // Custom message for the payment link recipient
+  pdfUrl        String? // Optional PDF invoice URL
+  xdrParams     String // Encoded XDR parameters for contract call
+  status        String    @default("DRAFT") // DRAFT, SIGNED, COMPLETED, EXPIRED
+  expiresAt     DateTime? // Optional expiration time
+  viewCount     Int       @default(0) @map("view_count") // Link analytics: total views
+  lastViewedAt  DateTime? @map("last_viewed_at") // Link analytics: last view timestamp
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([slug])
+  @@index([sender])
+  @@index([status])
+  @@index([createdAt])
+  @@index([viewCount])
+}
+
+// Affiliate earnings tracker for 0.5% commission on stream creation
+model Affiliate {
+  id             String    @id @default(cuid())
+  stellarAddress String    @unique
+  pendingClaim   String    @default("0") // Total unclaimed earnings in stroops
+  totalEarned    String    @default("0") // Lifetime earnings
+  claimedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([stellarAddress])
+}
+
+// Global protocol statistics for landing page
+model GlobalStats {
+  id            String   @id @default("global")
+  tvlUsd        String   @default("0") // Total Value Locked in USD
+  volume24hUsd  String   @default("0") // 24h volume in USD
+  activeStreams Int      @default(0)
+  totalStreams  Int      @default(0)
+  updatedAt     DateTime @updatedAt
+}
+
+// V3 Splitter protocol statistics (#649)
+model GlobalStats_V3 {
+  id              String   @id @default("v3_global")
+  totalVolumeUsd  String   @default("0") // Cumulative USD volume through V3 splitter
+  dailyVolumeUsd  String   @default("0") // Last 24h volume
+  totalSplits     Int      @default(0) // Total disbursements
+  totalRecipients Int      @default(0) // Total unique recipients
+  updatedAt       DateTime @updatedAt
+
+  @@map("GlobalStats_V3")
+}
+
+// Daily TVL snapshots for growth charts
+model TvlSnapshot {
+  id        String   @id @default(cuid())
+  tvlUsd    String // Total Value Locked in USD on this day
+  date      DateTime @unique // Midnight UTC
+  createdAt DateTime @default(now())
+
+  @@index([date])
+}
+
+// Asset metadata from stellar.toml
+model Asset {
+  id                    String    @id @default(cuid())
+  tokenAddress          String    @unique
+  homeDomain            String?
+  name                  String?
+  symbol                String?
+  imageUrl              String?
+  decimals              Int       @default(7)
+  isVerified            Boolean   @default(false)
+  stellarExpertVerified Boolean   @default(false) @map("stellar_expert_verified")
+  tomlUrl               String?
+  orgVerified           Boolean   @default(false) @map("org_verified")
+  orgHomeDomain         String?   @map("org_home_domain")
+  lastFetchedAt         DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([tokenAddress])
+  @@index([stellarExpertVerified])
+  @@index([orgVerified])
+}
+
+// Autopilot periodic split schedules
+model AutopilotSchedule {
+  id              String    @id @default(cuid())
+  name            String
+  frequency       String // cron expression, e.g. "0 9 * * 1" (every Monday 9am)
+  splitConfigId   String    @map("split_config_id")
+  operatorAddress String    @map("operator_address")
+  minGasTankXlm   Float     @default(1.0) @map("min_gas_tank_xlm")
+  isActive        Boolean   @default(true) @map("is_active")
+  lastRun         DateTime? @map("last_run")
+  lastTxHash      String?   @map("last_tx_hash")
+  lastError       String?   @map("last_error")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@index([isActive])
+  @@index([lastRun])
+  @@map("AutopilotSchedule")
+}
+
+// Whitelisted assets visible in the StellarStream UI
+model AssetConfig {
+  id           String   @id @default(cuid())
+  assetId      String   @unique // Stellar asset identifier (e.g. "USDC:GABC...")
+  symbol       String
+  name         String
+  decimals     Int      @default(7)
+  isVerified   Boolean  @default(false)
+  isVisible    Boolean  @default(true)
+  yieldEnabled Boolean  @default(false) @map("yield_enabled")
+  iconUrl      String?  @map("icon_url")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([isVerified])
+  @@index([isVisible])
+}
+
+// Cold storage for disbursements older than 18 months
+model ArchivedDisbursement {
+  id             String   @id @default(cuid())
+  streamId       String
+  txHash         String
+  sender         String
+  receiver       String
+  amount         BigInt
+  tokenAddress   String
+  status         String
+  completedAt    DateTime
+  archivedAt     DateTime @default(now())
+  originalLedger Int
+
+  @@index([streamId])
+  @@index([completedAt])
+  @@index([archivedAt])
+  @@index([sender])
+  @@index([receiver])
+}
+
+// Active disbursements table (keeps primary table lean)
+model Disbursement {
+  id           String               @id @default(cuid())
+  streamId     String
+  txHash       String               @unique
+  sender       String
+  receiver     String
+  amount       BigInt
+  tokenAddress String
+  status       DisbursementStatus   @default(PENDING)
+  createdAt    DateTime             @default(now())
+  completedAt  DateTime?
+  ledger       Int
+  batchId      String?              @map("batch_id") // #1148 — groups disbursements processed in one batch (#1202)
+  categoryId   String? // Optional payment category
+  category     PaymentCategory?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  statusEvents PaymentStatusEvent[]
+  invoices     Invoice[]
+
+  @@index([streamId])
+  @@index([sender])
+  @@index([receiver])
+  @@index([status])
+  @@index([createdAt])
+  // #1148 — batch progress/status lookups for the batch processing engine
+  @@index([batchId, status])
+  @@index([categoryId])
+}
+
+enum DisbursementStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// ── Payment Status Tracking (#1369) ───────────────────────────────────────────
+
+// Fine-grained payment lifecycle status, distinct from DisbursementStatus (which
+// drives the batch-processing engine). Tracks the full timeline a payment goes
+// through from creation to settlement, including refunds.
+enum PaymentTrackingStatus {
+  INITIATED
+  PENDING
+  PROCESSING
+  CONFIRMED
+  FAILED
+  REFUNDED
+}
+
+// Append-only timeline of status transitions for a Disbursement. Each row is one
+// transition; the current status is the most recent row (by createdAt) for a
+// given disbursementId.
+model PaymentStatusEvent {
+  id             String                 @id @default(cuid())
+  disbursementId String
+  status         PaymentTrackingStatus
+  previousStatus PaymentTrackingStatus?
+  note           String?
+  createdAt      DateTime               @default(now())
+
+  disbursement Disbursement @relation(fields: [disbursementId], references: [id], onDelete: Cascade)
+
+  @@index([disbursementId, createdAt])
+  @@index([status])
+}
+
+// ── V3 Fund-Split Tables ──────────────────────────────────────────────────────
+
+enum PayoutStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+// Unified registry mapping Stellar Asset IDs to their source-chain equivalents
+model AssetMapping {
+  id             String   @id @default(cuid())
+  stellarAssetId String   @unique // "SYMBOL:ISSUER" or contract address
+  symbol         String
+  sourceChain    String // "stellar" | "ethereum" | "polygon" | etc.
+  sourceContract String? // Origin-chain contract address (null for native Stellar)
+  label          String // Human-readable e.g. "USDC (Circle/Stellar)"
+  bridgeProtocol String? // "wormhole" | "squid" | null for native
+  decimals       Int      @default(7)
+  isNative       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([symbol])
+  @@index([sourceChain])
+}
+
+// Time-series price history for tax and reporting purposes
+model PriceHistory {
+  id         String   @id @default(cuid())
+  asset      String // Asset identifier e.g. "native" or "USDC:ISSUER"
+  symbol     String // Human-readable symbol e.g. "XLM", "USDC"
+  priceUsd   Float // USD price at the time of recording
+  source     String // "coingecko" | "dex"
+  recordedAt DateTime @default(now())
+
+  @@index([asset, recordedAt])
+  @@index([recordedAt])
+}
+
+// Aggregated dust-loss report per asset across all protocol versions (Issue #179)
+model ProtocolInefficiencyReport {
+  id              String   @id @default(cuid())
+  asset           String // Token address / asset identifier
+  protocolVersion Int      @map("protocol_version") // 1, 2, 3…
+  totalDustAmount String   @map("total_dust_amount") // Cumulative dust (stroops)
+  eventCount      Int      @default(0) @map("event_count")
+  firstSeenLedger Int?     @map("first_seen_ledger")
+  lastSeenLedger  Int?     @map("last_seen_ledger")
+  generatedAt     DateTime @default(now()) @map("generated_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@unique([asset, protocolVersion])
+  @@index([asset])
+  @@index([protocolVersion])
+  @@map("protocol_inefficiency_report")
+}
+
+// Log of payment splits with linked USD price at time of split
+model SplitLog {
+  id              String    @id @default(cuid())
+  streamId        String
+  asset           String
+  amount          String
+  sender          String
+  receiver        String
+  txHash          String    @unique
+  priceUsd        Float? // USD price at time of split
+  priceSource     String? // Where the price came from
+  priceRecordedAt DateTime? // When the price was recorded
+  executedAt      DateTime  @default(now())
+
+  @@index([streamId])
+  @@index([executedAt])
+  @@index([txHash])
+}
+
+model MonitoredTransaction {
+  id            String    @id @default(cuid())
+  txHash        String    @unique @map("tx_hash")
+  txXdr         String    @map("tx_xdr")
+  sourceAddress String    @map("source_address")
+  originalFeeSt String    @map("original_fee_stroops")
+  currentFeeSt  String    @map("current_fee_stroops")
+  bumpCount     Int       @default(0) @map("bump_count")
+  maxBumps      Int       @default(3) @map("max_bumps")
+  status        String    @default("PENDING")
+  submittedAt   DateTime  @default(now()) @map("submitted_at")
+  confirmedAt   DateTime? @map("confirmed_at")
+  lastBumpAt    DateTime? @map("last_bump_at")
+  errorMessage  String?   @map("error_message")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([submittedAt])
+  @@map("MonitoredTransaction")
+}
+
+// Split-draft version control (#961)
+// Header record for a draft that can have multiple versions
+model DisbursementDraft {
+  id             String   @id @default(cuid())
+  senderAddress  String   @map("sender_address")
+  name           String?
+  asset          String
+  currentVersion Int      @default(1) @map("current_version")
+  status         String   @default("DRAFT")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  versions DisbursementDraftVersion[]
+
+  @@index([senderAddress])
+  @@index([status])
+  @@map("DisbursementDraft")
+}
+
+// Individual version snapshot of a draft
+model DisbursementDraftVersion {
+  id          String   @id @default(cuid())
+  draftId     String   @map("draft_id")
+  version     Int
+  totalAmount String   @map("total_amount")
+  recipients  Json
+  changeNote  String?  @map("change_note")
+  changedBy   String   @map("changed_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  draft DisbursementDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+
+  @@unique([draftId, version])
+  @@index([draftId])
+  @@map("DisbursementDraftVersion")
+}
+
+// Multi-sig proposal store for collecting partial signatures (#954)
+model MultisigProposal {
+  id              String   @id @default(cuid())
+  proposalId      String   @unique @map("proposal_id")
+  organizationId  String   @map("organization_id")
+  transactionXdr  String   @map("transaction_xdr")
+  signatures      Json     @default("[]") // Array of {signer: String, signature: String}
+  requiredSigners Int      @map("required_signers")
+  status          String   @default("PENDING") // PENDING, SIGNED, SUBMITTED, FAILED
+  submittedTxHash String?  @map("submitted_tx_hash")
+  errorMessage    String?  @map("error_message")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  expiresAt       DateTime @map("expires_at")
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("MultisigProposal")
+}
+
+// Cached Stellar asset metadata from Stellar-Expert (#955)
+model CachedAsset {
+  id           String   @id @default(cuid())
+  tokenAddress String   @unique @map("token_address")
+  code         String
+  issuer       String
+  name         String?
+  description  String?
+  imageUrl     String?  @map("image_url")
+  isVerified   Boolean  @default(false) @map("is_verified")
+  decimals     Int      @default(7)
+  lastSyncedAt DateTime @map("last_synced_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([tokenAddress])
+  @@index([isVerified])
+  @@index([lastSyncedAt])
+  @@map("CachedAsset")
+}
+
+// StreamTemplate for reusable stream configurations (#1185)
+model StreamTemplate {
+  id               String   @id @default(cuid())
+  name             String
+  asset            String
+  recipientAddress String   @map("recipient_address")
+  splitEnabled     Boolean  @default(false) @map("split_enabled")
+  splitAddress     String?  @map("split_address")
+  splitPercent     Int      @default(0) @map("split_percent")
+  totalAmount      String   @map("total_amount")
+  rateType         String   @map("rate_type")
+  durationPreset   String   @map("duration_preset")
+  usageCount       Int      @default(0) @map("usage_count")
+  createdBy        String   @map("created_by")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@index([createdBy])
+  @@index([usageCount])
+  @@map("stream_templates")
+}
+
+// Split-link shortened URLs (#957)
+model SplitLink {
+  id             String    @id @default(cuid())
+  slug           String    @unique
+  fullUrl        String    @map("full_url")
+  payloadHash    String    @unique @map("payload_hash")
+  creatorAddress String    @map("creator_address")
+  passwordHash   String?   @map("password_hash") // SHA-256 of the password; null = no protection
+  clickCount     Int       @default(0) @map("click_count")
+  lastClickedAt  DateTime? @map("last_clicked_at")
+  expiresAt      DateTime? @map("expires_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  @@index([slug])
+  @@index([creatorAddress])
+  @@index([createdAt])
+  @@map("SplitLink")
+}
+
+// OFAC compliance audit log (#1186)
+model OfacAuditLog {
+  id           String   @id @default(cuid())
+  address      String
+  isSanctioned Boolean  @map("is_sanctioned")
+  checkedAt    DateTime @map("checked_at")
+  source       String
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([address])
+  @@index([isSanctioned])
+  @@index([checkedAt])
+  @@map("OfacAuditLog")
+}
+
+// Admin audit log for comprehensive compliance tracking (#HIGH_COMPLIANCE)
+model AdminAuditLog {
+  id              String   @id @default(cuid())
+  timestamp       DateTime @default(now())
+  userId          String?
+  userEmail       String?
+  method          String // GET, POST, PUT, DELETE, PATCH
+  path            String
+  statusCode      Int
+  executionTimeMs Float
+  clientIp        String?
+  userAgent       String?
+  requestBody     String? // JSON string of request body (sanitized)
+  responseBody    String? // JSON string of response (truncated for large responses)
+  beforeSnapshot  String? // JSON snapshot of data before change
+  afterSnapshot   String? // JSON snapshot of data after change
+  error           String? // Error message if operation failed
+  changesSummary  String? // Human-readable summary of changes made
+  createdAt       DateTime @default(now())
+
+  @@index([timestamp(sort: Desc)])
+  @@index([userId])
+  @@index([method])
+  @@index([path])
+  @@index([statusCode])
+  @@index([userId, timestamp(sort: Desc)])
+  @@index([path, timestamp(sort: Desc)])
+  @@map("admin_audit_log")
+}
+
+// Payment routing rules — decide which route/gateway a payment is sent through
+// based on amount, asset, geography, or time-of-day conditions (#1361)
+model PaymentRoutingRule {
+  id           String   @id @default(cuid())
+  ownerAddress String // Stellar address of the creator
+  name         String
+  description  String?
+  route        String // destination route/gateway identifier
+  priority     Int      @default(0) // higher priority evaluated first
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  conditions PaymentRoutingCondition[]
+
+  @@unique([ownerAddress, name])
+  @@index([ownerAddress])
+  @@index([ownerAddress, isActive, priority])
+}
+
+// A single condition within a routing rule. All conditions on a rule
+// must match (AND semantics) for the rule's route to apply.
+model PaymentRoutingCondition {
+  id       String             @id @default(cuid())
+  ruleId   String
+  rule     PaymentRoutingRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  // type: 'amount' | 'asset' | 'geography' | 'time'
+  type     String
+  // operator: 'gte' | 'lte' | 'between' | 'equals' | 'in'
+  operator String
+  value    String
+  value2   String? // upper bound for 'between'
+
+  @@index([ruleId])
+}
+
+// ── Payment Invoice Generation ────────────────────────────────────────────────
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PAID
+  VOID
+}
+
+// A generated, numbered invoice for a payment/disbursement. Distinct from
+// InvoiceLink (a shareable pre-payment draft link) — this represents the
+// finished, professional invoice document issued for a payment.
+model Invoice {
+  id             String           @id @default(cuid())
+  invoiceNumber  String           @unique // e.g. INV-2026-000042, sequential per ownerAddress+year
+  ownerAddress   String // Stellar address of the org/creator (scoping)
+  disbursementId String?
+  disbursement   Disbursement?    @relation(fields: [disbursementId], references: [id], onDelete: SetNull)
+  templateId     String?
+  template       InvoiceTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  status         InvoiceStatus    @default(DRAFT)
+  language       String           @default("en") // en | ar | fr | es
+  sender         String
+  asset          String
+  recipients     Json // [{ address, amount, label? }]
+  subtotal       String // decimal string, sum of recipient amounts
+  taxRate        Float            @default(0) // percent, 0-100
+  taxAmount      String           @default("0")
+  totalAmount    String
+  note           String?
+  txHash         String?
+  issuedAt       DateTime?
+  dueAt          DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([ownerAddress])
+  @@index([status])
+  @@index([disbursementId])
+  @@index([ownerAddress, createdAt])
+}
+
+// A reusable, customizable invoice presentation template (branding + locale).
+model InvoiceTemplate {
+  id           String   @id @default(cuid())
+  ownerAddress String
+  name         String
+  language     String   @default("en")
+  isDefault    Boolean  @default(false)
+  accentColor  String   @default("#00f5ff")
+  logoBase64   String?
+  footerText   String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  invoices Invoice[]
+
+  @@unique([ownerAddress, name])
+  @@index([ownerAddress])
+}
+
+// Atomic per-owner, per-year sequence backing Invoice.invoiceNumber generation.
+model InvoiceCounter {
+  ownerAddress String
+  year         Int
+  lastSeq      Int    @default(0)
+
+  @@id([ownerAddress, year])
+}
+
+// └─ Geolocation & Geographic Compliance ────────────────────────────────────────────
+
+// Geographic restrictions for compliance (block/allow by region)
+model GeoRestriction {
+  id           String   @id @default(cuid())
+  ownerAddress String // Stellar address that owns this restriction
+  region       String // ISO 3166-1 alpha-2 country code (US, EU, etc.) or region (NA, EU, AS)
+  action       String // "block" or "allow"
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([ownerAddress, region])
+  @@index([ownerAddress])
+  @@index([region])
+  @@index([isActive])
+}
+
+// Geographic analytics events (aggregated per-distinct IP, purged after 30 days)
+model GeoAnalyticsEvent {
+  id          String   @id @default(cuid())
+  ipHash      String // SHA-256 hash of IP for privacy (PII not stored)
+  countryCode String // ISO 3166-1 alpha-2
+  region      String? // Region if country not available
+  city        String?
+  latitude    Float?
+  longitude   Float?
+  userAgent   String?
+  path        String // API endpoint accessed
+  method      String // GET, POST, etc.
+  userId      String? // Linked Stellar address if authenticated
+  createdAt   DateTime @default(now())
+
+  @@index([ipHash])
+  @@index([countryCode])
+  @@index([createdAt])
+  @@index([userId])
+}
+
+// ── Dashboard Customization ────────────────────────────────────────────
+
+// Stores user's custom dashboard layouts
+model DashboardLayout {
+  id          String            @id @default(cuid())
+  userId      String            @map("user_id")
+  name        String
+  description String?
+  isDefault   Boolean           @default(false)
+  widgets     DashboardWidget[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@index([isDefault])
+}
+
+// Stores individual widget configuration within a layout
+model DashboardWidget {
+  id         String          @id @default(cuid())
+  layoutId   String          @map("layout_id")
+  widgetType String
+  position   Int
+  enabled    Boolean         @default(true)
+  size       String          @default("medium") // 'small' | 'medium' | 'large'
+  config     String? // JSON string with widget-specific config
+  layout     DashboardLayout @relation(fields: [layoutId], references: [id], onDelete: Cascade)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  @@index([layoutId])
+  @@index([widgetType])
+}
+
+// ── Export Audit Logging ────────────────────────────────────────────
+
+// Logs export operations for audit trail and rate limiting
+model ExportAuditLog {
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  streamId      String   @map("stream_id")
+  format        String // 'json' | 'csv' | 'xlsx' | 'pdf' | 'qif' | 'ofx'
+  recordCount   Int
+  fileSizeBytes BigInt
+  dateRange     String? // 'from,to' for filtered exports
+  ipAddress     String?
+  userAgent     String?
+  status        String   @default("success") // 'success' | 'failed'
+  errorMessage  String?
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([streamId])
+  @@index([format])
+  @@index([createdAt])
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+// ── Reconciliation Reports ────────────────────────────────────────────────────
+
+enum ReportType {
+  daily_summary
+  monthly_statement
+  failed_payment
+  fee_analysis
+  tax_report
+}
+
+enum ReportStatus {
+  pending
+  generating
+  generated
+  failed
+  archived
+}
+
+// Main report entity storing report metadata, statistics, and reconciliation data
+model Report {
+  id                   String       @id @default(cuid())
+  organizationId       String       @map("organizationId")
+  reportType           ReportType   @map("reportType")
+  periodStart          DateTime     @map("periodStart")
+  periodEnd            DateTime     @map("periodEnd")
+  generatedAt          DateTime     @map("generatedAt")
+  generatedBy          String       @map("generatedBy")
+  status               ReportStatus @default(pending)
+  // fileUrls: { pdf?, xlsx?, json?, csv? }
+  fileUrls             Json         @default("{}")
+  // summary: { transactionCount, totalVolume, failureCount?, feeTotal? }
+  summary              Json
+  // reconciliationStatus: { totalExpected, totalActual, variance, discrepanciesFound, explanations? }
+  reconciliationStatus Json         @map("reconciliationStatus")
+  // emailDeliveryStatus: { sent, sentAt?, recipients[], failureReason? }
+  emailDeliveryStatus  Json?        @map("emailDeliveryStatus")
+  // auditLog: embedded JSON audit trail (array of audit entries)
+  auditLog             Json         @default("[]")
+  // Soft delete timestamp (null = active, not null = deleted)
+  deletedAt            DateTime?    @map("deletedAt")
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+
+  auditLogs ReportAuditLog[]
+
+  @@index([organizationId, createdAt(sort: Desc)])
+  @@index([reportType, organizationId])
+  @@index([status])
+  @@index([organizationId])
+  @@map("Report")
+}
+
+// Configuration for report generation schedules and preferences per organization
+model ReportConfiguration {
+  id             String     @id @default(cuid())
+  organizationId String     @map("organizationId")
+  reportType     ReportType @map("reportType")
+  enabled        Boolean    @default(true)
+  // schedule: { frequency, timeUtc?, dayOfMonth? }
+  schedule       Json
+  // exportFormats: array of formats (pdf, xlsx, json, csv)
+  exportFormats  String[]   @default(["pdf", "xlsx"])
+  // emailConfig: { enabled, recipients, includePreview, attachmentFormats }
+  emailConfig    Json?      @map("emailConfig")
+  // storageConfig: { provider, bucket, retentionDays }
+  storageConfig  Json
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@unique([organizationId, reportType])
+  @@index([organizationId, reportType])
+  @@index([organizationId])
+  @@index([enabled])
+  @@map("ReportConfiguration")
+}
+
+// Immutable audit trail of report operations for compliance and debugging
+model ReportAuditLog {
+  id        String   @id @default(cuid())
+  reportId  String
+  report    Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  action    String // generated, failed, emailed, deleted, verified
+  actor     String // user ID or 'system'
+  timestamp DateTime @default(now())
+  // details: operation-specific context as JSON
+  details   Json?
+  createdAt DateTime @default(now())
+
+  @@index([reportId, timestamp(sort: Desc)])
+  @@index([timestamp(sort: Desc)])
+  @@index([action])
+  @@map("ReportAuditLog")
+}
+
+// ── Payment Dispute Resolution System (#DISPUTES) ─────────────────────────────
+
+// Status lifecycle: FILED → EVIDENCE_REVIEW → RESOLVED | REJECTED → CLOSED
+enum DisputeStatus {
+  FILED
+  EVIDENCE_REVIEW
+  RESOLVED
+  REJECTED
+  CLOSED
+}
+
+// The decision reached when a dispute is resolved
+enum DisputeDecision {
+  GRANTED // dispute upheld, funds/relief granted
+  DENIED // dispute rejected, no action
+  PARTIAL // partial grant / partial refund
+}
+
+// A payment dispute filed against a stream or on-chain transaction
+model PaymentDispute {
+  id                String           @id @default(cuid())
+  disputeRef        String           @unique // Human-readable reference e.g. DSP-2026-XXXXXX
+  streamId          String? // Reference to the payment stream
+  txHash            String? // Reference to the on-chain transaction
+  filerAddress      String // Address that filed the dispute
+  respondentAddress String // Counterparty address
+  reason            String // Dispute category/reason
+  description       String? // Detailed description
+  amount            String // Disputed amount in stroops
+  tokenAddress      String? // Token/asset involved
+  status            DisputeStatus    @default(FILED)
+  decision          DisputeDecision? // Resolution decision (null until resolved)
+  resolutionNotes   String? // Notes explaining the resolution
+  resolvedBy        String? // Address that resolved the dispute
+  resolvedAt        DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  evidence DisputeEvidence[]
+  history  DisputeHistory[]
+
+  @@index([filerAddress])
+  @@index([respondentAddress])
+  @@index([streamId])
+  @@index([txHash])
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@map("PaymentDispute")
+}
+
+// Evidence uploaded for a dispute (receipts, logs, screenshots)
+model DisputeEvidence {
+  id              String         @id @default(cuid())
+  disputeId       String
+  dispute         PaymentDispute @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  uploaderAddress String // Address that uploaded the evidence
+  fileName        String // Original file name
+  fileUrl         String // Storage URL / key
+  mimeType        String? // e.g. application/pdf, image/png
+  fileSize        Int            @default(0)
+  description     String? // Optional note about the evidence
+  createdAt       DateTime       @default(now())
+
+  @@index([disputeId])
+  @@index([uploaderAddress])
+  @@map("DisputeEvidence")
+}
+
+// Immutable timeline of actions on a dispute
+model DisputeHistory {
+  id           String         @id @default(cuid())
+  disputeId    String
+  dispute      PaymentDispute @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  actorAddress String // Address that performed the action
+  action       String // FILED | EVIDENCE_ADDED | STATUS_CHANGED | RESOLVED | REJECTED | CLOSED | NOTE_ADDED
+  fromStatus   String? // Previous status (null for initial)
+  toStatus     String? // New status (null for notes)
+  comment      String? // Optional comment
+  createdAt    DateTime       @default(now())
+
+  @@index([disputeId])
+  @@index([createdAt])
+  @@map("DisputeHistory")
+}

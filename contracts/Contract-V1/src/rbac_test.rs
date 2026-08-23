@@ -1,287 +1,272 @@
 #![cfg(test)]
+//! Integration tests for StellarStream role-based access control (RBAC).
+//!
+//! These tests exercise the three roles exposed by the stream contract:
+//!
+//! - `SuperAdmin` — manages role assignments and the OFAC restricted-address list.
+//! - `Guardian` — reserved for emergency pause/freeze controls.
+//! - `FinancialOperator` — reserved for fee/treasury parameter controls.
+//!
+//! # Scenarios covered
+//!
+//! - Initialization grants the deploying admin every role.
+//! - Only `SuperAdmin` accounts may grant or revoke roles. Accounts holding only
+//!   `Guardian` or `FinancialOperator` (and complete strangers) are rejected.
+//! - Role membership is independent, idempotent and revocable.
+//! - Multiple addresses may share a role and a single address may hold several.
+//! - Role changes emit events and are reflected by `check_role` queries.
 
-use crate::{Role, StellarStream, StellarStreamClient};
-use soroban_sdk::{testutils::Address as _, Address, Env};
+use crate::rbac::Role;
+use crate::{StellarStreamContract, StellarStreamContractClient};
+use soroban_sdk::testutils::{Address as _, Events};
+use soroban_sdk::{Address, Env};
 
-fn setup_test() -> (Env, Address, StellarStreamClient<'static>) {
+/// Deploy the contract and initialize it with a freshly generated admin that
+/// receives every role.
+fn setup() -> (Env, Address, StellarStreamContractClient<'static>) {
     let env = Env::default();
     env.mock_all_auths();
 
     let admin = Address::generate(&env);
-
-    // Deploy contract
-    let contract_id = env.register(StellarStream, ());
-    let client = StellarStreamClient::new(&env, &contract_id);
-
-    // Initialize with admin (grants all roles)
+    let contract_id = env.register(StellarStreamContract, ());
+    let client = StellarStreamContractClient::new(&env, &contract_id);
     client.initialize(&admin);
 
     (env, admin, client)
 }
 
 #[test]
-fn test_initialize_grants_all_roles() {
-    let (env, admin, client) = setup_test();
+fn test_initialize_grants_admin_all_roles() {
+    let (_env, admin, client) = setup();
 
-    // Verify admin has all roles
-    assert!(client.check_role(&admin, &Role::Admin));
-    assert!(client.check_role(&admin, &Role::Pauser));
-    assert!(client.check_role(&admin, &Role::TreasuryManager));
+    assert!(client.check_role(&admin, &Role::SuperAdmin));
+    assert!(client.check_role(&admin, &Role::Guardian));
+    assert!(client.check_role(&admin, &Role::FinancialOperator));
 }
 
 #[test]
-fn test_admin_can_grant_roles() {
-    let (env, admin, client) = setup_test();
+fn test_initialize_records_admin_address() {
+    let (_env, admin, client) = setup();
 
-    let pauser = Address::generate(&env);
-    let treasury_manager = Address::generate(&env);
-
-    // Admin grants roles
-    client.grant_role(&admin, &pauser, &Role::Pauser);
-    client.grant_role(&admin, &treasury_manager, &Role::TreasuryManager);
-
-    // Verify roles were granted
-    assert!(client.check_role(&pauser, &Role::Pauser));
-    assert!(client.check_role(&treasury_manager, &Role::TreasuryManager));
-
-    // Verify they don't have other roles
-    assert!(!client.check_role(&pauser, &Role::Admin));
-    assert!(!client.check_role(&treasury_manager, &Role::Admin));
+    assert_eq!(client.get_admin(), admin);
 }
 
 #[test]
-fn test_admin_can_revoke_roles() {
-    let (env, admin, client) = setup_test();
+fn test_admin_can_grant_super_admin() {
+    let (env, admin, client) = setup();
+    let target = Address::generate(&env);
 
-    let pauser = Address::generate(&env);
+    client.grant_role(&admin, &target, &Role::SuperAdmin);
 
-    // Grant then revoke
-    client.grant_role(&admin, &pauser, &Role::Pauser);
-    assert!(client.check_role(&pauser, &Role::Pauser));
-
-    client.revoke_role(&admin, &pauser, &Role::Pauser);
-    assert!(!client.check_role(&pauser, &Role::Pauser));
+    assert!(client.check_role(&target, &Role::SuperAdmin));
 }
 
 #[test]
-#[should_panic(expected = "Unauthorized: Only Admin can grant roles")]
-fn test_non_admin_cannot_grant_roles() {
-    let (env, admin, client) = setup_test();
+fn test_admin_can_grant_guardian() {
+    let (env, admin, client) = setup();
+    let target = Address::generate(&env);
 
+    client.grant_role(&admin, &target, &Role::Guardian);
+
+    assert!(client.check_role(&target, &Role::Guardian));
+}
+
+#[test]
+fn test_admin_can_grant_financial_operator() {
+    let (env, admin, client) = setup();
+    let target = Address::generate(&env);
+
+    client.grant_role(&admin, &target, &Role::FinancialOperator);
+
+    assert!(client.check_role(&target, &Role::FinancialOperator));
+}
+
+#[test]
+fn test_admin_can_revoke_role() {
+    let (env, admin, client) = setup();
+    let target = Address::generate(&env);
+
+    client.grant_role(&admin, &target, &Role::Guardian);
+    assert!(client.check_role(&target, &Role::Guardian));
+
+    client.revoke_role(&admin, &target, &Role::Guardian);
+
+    assert!(!client.check_role(&target, &Role::Guardian));
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #5)")]
+fn test_non_admin_cannot_grant_role() {
+    let (env, _admin, client) = setup();
     let non_admin = Address::generate(&env);
     let target = Address::generate(&env);
 
-    // Non-admin tries to grant role - should fail
-    client.grant_role(&non_admin, &target, &Role::Pauser);
+    client.grant_role(&non_admin, &target, &Role::Guardian);
 }
 
 #[test]
-#[should_panic(expected = "Unauthorized: Only Admin can revoke roles")]
-fn test_non_admin_cannot_revoke_roles() {
-    let (env, admin, client) = setup_test();
-
+#[should_panic(expected = "Error(Contract, #5)")]
+fn test_non_admin_cannot_revoke_role() {
+    let (env, admin, client) = setup();
     let non_admin = Address::generate(&env);
-    let pauser = Address::generate(&env);
+    let target = Address::generate(&env);
 
-    // Admin grants role first
-    client.grant_role(&admin, &pauser, &Role::Pauser);
-
-    // Non-admin tries to revoke - should fail
-    client.revoke_role(&non_admin, &pauser, &Role::Pauser);
+    client.grant_role(&admin, &target, &Role::Guardian);
+    client.revoke_role(&non_admin, &target, &Role::Guardian);
 }
 
 #[test]
-fn test_pauser_can_pause() {
-    let (env, admin, client) = setup_test();
+#[should_panic(expected = "Error(Contract, #5)")]
+fn test_guardian_cannot_grant_roles() {
+    let (env, admin, client) = setup();
+    let guardian = Address::generate(&env);
+    let target = Address::generate(&env);
 
-    let pauser = Address::generate(&env);
-    client.grant_role(&admin, &pauser, &Role::Pauser);
-
-    // Pauser can pause
-    client.set_pause(&pauser, &true);
-
-    // Pauser can unpause
-    client.set_pause(&pauser, &false);
+    client.grant_role(&admin, &guardian, &Role::Guardian);
+    client.grant_role(&guardian, &target, &Role::SuperAdmin);
 }
 
 #[test]
-#[should_panic(expected = "Unauthorized: Only Pauser can pause/unpause")]
-fn test_non_pauser_cannot_pause() {
-    let (env, admin, client) = setup_test();
+#[should_panic(expected = "Error(Contract, #5)")]
+fn test_financial_operator_cannot_grant_roles() {
+    let (env, admin, client) = setup();
+    let operator = Address::generate(&env);
+    let target = Address::generate(&env);
 
-    let non_pauser = Address::generate(&env);
-
-    // Non-pauser tries to pause - should fail
-    client.set_pause(&non_pauser, &true);
+    client.grant_role(&admin, &operator, &Role::FinancialOperator);
+    client.grant_role(&operator, &target, &Role::Guardian);
 }
 
 #[test]
-fn test_treasury_manager_can_update_fee() {
-    let (env, admin, client) = setup_test();
+fn test_address_can_hold_multiple_roles() {
+    let (env, admin, client) = setup();
+    let multi = Address::generate(&env);
 
-    let treasury_manager = Address::generate(&env);
-    client.grant_role(&admin, &treasury_manager, &Role::TreasuryManager);
+    client.grant_role(&admin, &multi, &Role::Guardian);
+    client.grant_role(&admin, &multi, &Role::FinancialOperator);
 
-    // Treasury manager can update fee
-    client.update_fee(&treasury_manager, &200);
+    assert!(client.check_role(&multi, &Role::Guardian));
+    assert!(client.check_role(&multi, &Role::FinancialOperator));
+    assert!(!client.check_role(&multi, &Role::SuperAdmin));
 }
 
 #[test]
-#[should_panic(expected = "Unauthorized: Only TreasuryManager can update fee")]
-fn test_non_treasury_manager_cannot_update_fee() {
-    let (env, admin, client) = setup_test();
+fn test_multiple_addresses_can_hold_same_role() {
+    let (env, admin, client) = setup();
+    let a = Address::generate(&env);
+    let b = Address::generate(&env);
 
-    let non_manager = Address::generate(&env);
+    client.grant_role(&admin, &a, &Role::Guardian);
+    client.grant_role(&admin, &b, &Role::Guardian);
 
-    // Non-manager tries to update fee - should fail
-    client.update_fee(&non_manager, &200);
+    assert!(client.check_role(&a, &Role::Guardian));
+    assert!(client.check_role(&b, &Role::Guardian));
 }
 
 #[test]
-fn test_treasury_manager_can_update_treasury() {
-    let (env, admin, client) = setup_test();
+fn test_roles_are_independent() {
+    let (env, admin, client) = setup();
+    let guardian = Address::generate(&env);
+    let operator = Address::generate(&env);
 
-    let treasury_manager = Address::generate(&env);
-    let new_treasury = Address::generate(&env);
+    client.grant_role(&admin, &guardian, &Role::Guardian);
+    client.grant_role(&admin, &operator, &Role::FinancialOperator);
 
-    client.grant_role(&admin, &treasury_manager, &Role::TreasuryManager);
+    assert!(client.check_role(&guardian, &Role::Guardian));
+    assert!(!client.check_role(&guardian, &Role::FinancialOperator));
+    assert!(!client.check_role(&guardian, &Role::SuperAdmin));
 
-    // Treasury manager can update treasury address
-    client.update_treasury(&treasury_manager, &new_treasury);
+    assert!(client.check_role(&operator, &Role::FinancialOperator));
+    assert!(!client.check_role(&operator, &Role::Guardian));
 }
 
 #[test]
-#[should_panic(expected = "Unauthorized: Only TreasuryManager can update treasury")]
-fn test_non_treasury_manager_cannot_update_treasury() {
-    let (env, admin, client) = setup_test();
+fn test_check_role_unknown_address_returns_false() {
+    let (env, _admin, client) = setup();
+    let stranger = Address::generate(&env);
 
-    let non_manager = Address::generate(&env);
-    let new_treasury = Address::generate(&env);
-
-    // Non-manager tries to update treasury - should fail
-    client.update_treasury(&non_manager, &new_treasury);
+    assert!(!client.check_role(&stranger, &Role::SuperAdmin));
+    assert!(!client.check_role(&stranger, &Role::Guardian));
+    assert!(!client.check_role(&stranger, &Role::FinancialOperator));
 }
 
 #[test]
-#[should_panic(expected = "Unauthorized: Only TreasuryManager can update fee")]
-fn test_pauser_cannot_update_fees() {
-    let (env, admin, client) = setup_test();
+fn test_check_role_wrong_role_returns_false() {
+    let (env, admin, client) = setup();
+    let guardian = Address::generate(&env);
 
-    let pauser = Address::generate(&env);
-    client.grant_role(&admin, &pauser, &Role::Pauser);
+    client.grant_role(&admin, &guardian, &Role::Guardian);
 
-    // Pauser can pause
-    client.set_pause(&pauser, &true);
-
-    // But pauser cannot update fees (should panic)
-    client.update_fee(&pauser, &200);
+    assert!(client.check_role(&guardian, &Role::Guardian));
+    assert!(!client.check_role(&guardian, &Role::SuperAdmin));
+    assert!(!client.check_role(&guardian, &Role::FinancialOperator));
 }
 
 #[test]
-#[should_panic(expected = "Unauthorized: Only Pauser can pause/unpause")]
-fn test_treasury_manager_cannot_pause() {
-    let (env, admin, client) = setup_test();
+fn test_revoked_role_no_longer_reports() {
+    let (env, admin, client) = setup();
+    let target = Address::generate(&env);
 
-    let treasury_manager = Address::generate(&env);
-    client.grant_role(&admin, &treasury_manager, &Role::TreasuryManager);
+    client.grant_role(&admin, &target, &Role::Guardian);
+    client.revoke_role(&admin, &target, &Role::Guardian);
 
-    // Treasury manager can update fees
-    client.update_fee(&treasury_manager, &200);
-
-    // But cannot pause (should panic)
-    client.set_pause(&treasury_manager, &true);
+    assert!(!client.check_role(&target, &Role::Guardian));
 }
 
 #[test]
-fn test_multiple_addresses_can_have_same_role() {
-    let (env, admin, client) = setup_test();
+fn test_grant_role_is_idempotent() {
+    let (env, admin, client) = setup();
+    let target = Address::generate(&env);
 
-    let pauser1 = Address::generate(&env);
-    let pauser2 = Address::generate(&env);
+    client.grant_role(&admin, &target, &Role::Guardian);
+    client.grant_role(&admin, &target, &Role::Guardian);
 
-    // Grant Pauser role to multiple addresses
-    client.grant_role(&admin, &pauser1, &Role::Pauser);
-    client.grant_role(&admin, &pauser2, &Role::Pauser);
-
-    // Both should have the role
-    assert!(client.check_role(&pauser1, &Role::Pauser));
-    assert!(client.check_role(&pauser2, &Role::Pauser));
-
-    // Both can pause
-    client.set_pause(&pauser1, &true);
-    client.set_pause(&pauser2, &false);
+    assert!(client.check_role(&target, &Role::Guardian));
 }
 
 #[test]
-fn test_address_can_have_multiple_roles() {
-    let (env, admin, client) = setup_test();
-
-    let multi_role = Address::generate(&env);
-
-    // Grant multiple roles to one address
-    client.grant_role(&admin, &multi_role, &Role::Pauser);
-    client.grant_role(&admin, &multi_role, &Role::TreasuryManager);
-
-    // Verify both roles
-    assert!(client.check_role(&multi_role, &Role::Pauser));
-    assert!(client.check_role(&multi_role, &Role::TreasuryManager));
-
-    // Can perform both actions
-    client.set_pause(&multi_role, &true);
-    client.update_fee(&multi_role, &150);
-}
-
-#[test]
-fn test_role_separation() {
-    let (env, admin, client) = setup_test();
-
-    let pauser = Address::generate(&env);
-    let treasury_manager = Address::generate(&env);
-
-    client.grant_role(&admin, &pauser, &Role::Pauser);
-    client.grant_role(&admin, &treasury_manager, &Role::TreasuryManager);
-
-    // Pauser can pause but not manage treasury
-    client.set_pause(&pauser, &true);
-
-    // Treasury manager can manage fees but not pause
-    client.update_fee(&treasury_manager, &250);
-
-    // Verify role separation
-    assert!(client.check_role(&pauser, &Role::Pauser));
-    assert!(!client.check_role(&pauser, &Role::TreasuryManager));
-    assert!(client.check_role(&treasury_manager, &Role::TreasuryManager));
-    assert!(!client.check_role(&treasury_manager, &Role::Pauser));
-}
-
-#[test]
-fn test_admin_retains_all_permissions() {
-    let (env, admin, client) = setup_test();
-
-    // Admin can do everything
-    client.set_pause(&admin, &true);
-    client.update_fee(&admin, &300);
-
+fn test_new_super_admin_can_manage_roles() {
+    let (env, admin, client) = setup();
     let new_admin = Address::generate(&env);
-    client.grant_role(&admin, &new_admin, &Role::Admin);
+    let target = Address::generate(&env);
 
-    // All should succeed
+    client.grant_role(&admin, &new_admin, &Role::SuperAdmin);
+    client.grant_role(&new_admin, &target, &Role::Guardian);
+
+    assert!(client.check_role(&target, &Role::Guardian));
 }
 
 #[test]
-#[should_panic(expected = "Unauthorized: Only Pauser can pause/unpause")]
-fn test_revoked_role_loses_permissions() {
-    let (env, admin, client) = setup_test();
+fn test_revoke_does_not_affect_other_roles() {
+    let (env, admin, client) = setup();
+    let multi = Address::generate(&env);
 
-    let pauser = Address::generate(&env);
-    client.grant_role(&admin, &pauser, &Role::Pauser);
+    client.grant_role(&admin, &multi, &Role::Guardian);
+    client.grant_role(&admin, &multi, &Role::FinancialOperator);
 
-    // Can pause
-    client.set_pause(&pauser, &true);
+    client.revoke_role(&admin, &multi, &Role::Guardian);
 
-    // Revoke role
-    client.revoke_role(&admin, &pauser, &Role::Pauser);
+    assert!(!client.check_role(&multi, &Role::Guardian));
+    assert!(client.check_role(&multi, &Role::FinancialOperator));
+}
 
-    // Cannot pause anymore (should panic)
-    client.set_pause(&pauser, &false);
+#[test]
+fn test_grant_role_emits_event() {
+    let (env, admin, client) = setup();
+    let target = Address::generate(&env);
+
+    client.grant_role(&admin, &target, &Role::Guardian);
+
+    assert!(!env.events().all().is_empty());
+}
+
+#[test]
+fn test_revoke_role_emits_event() {
+    let (env, admin, client) = setup();
+    let target = Address::generate(&env);
+
+    client.grant_role(&admin, &target, &Role::Guardian);
+    client.revoke_role(&admin, &target, &Role::Guardian);
+
+    assert!(!env.events().all().is_empty());
 }

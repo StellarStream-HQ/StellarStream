@@ -1,6 +1,22 @@
+//! Price oracle integration used for USD-denominated stream calculations.
+
 use soroban_sdk::{Address, Env};
 
-/// Fetch price from oracle with staleness check
+/// Fetches the latest price from an external oracle contract, rejecting stale or
+/// non-positive readings.
+///
+/// # Arguments
+/// * `env` - The contract execution environment
+/// * `oracle` - Address of the oracle contract to query; must expose a `price()`
+///   function returning `(price: i128, timestamp: u64)`
+/// * `max_staleness` - Maximum allowed age, in seconds, of the oracle's reported price
+///
+/// # Returns
+/// The current price (7 decimals) on success.
+///
+/// # Errors
+/// Returns `Err(())` if the reported price is older than `max_staleness` or if the
+/// price is zero or negative.
 #[allow(dead_code)]
 pub fn get_price(env: &Env, oracle: &Address, max_staleness: u64) -> Result<i128, ()> {
     // Call oracle contract to get latest price
@@ -29,10 +45,17 @@ pub fn get_price(env: &Env, oracle: &Address, max_staleness: u64) -> Result<i128
     Ok(price)
 }
 
-/// Calculate token amount based on USD value and current price
-/// usd_amount: USD value with 7 decimals
-/// price: Token price in USD with 7 decimals
-/// Returns: Token amount with 7 decimals
+/// Converts a USD amount into a token amount at a given price.
+///
+/// # Arguments
+/// * `usd_amount` - USD value, with 7 decimals
+/// * `price` - Token price in USD, with 7 decimals (as returned by [`get_price`])
+///
+/// # Returns
+/// The equivalent token amount, with 7 decimals.
+///
+/// # Errors
+/// Returns `Err(())` if `price` is zero or negative, or if `usd_amount * 10^7` overflows.
 #[allow(dead_code)]
 pub fn calculate_token_amount(usd_amount: i128, price: i128) -> Result<i128, ()> {
     if price <= 0 {

@@ -61,6 +61,18 @@ export interface NotificationPayload {
   timestamp: string;
 }
 
+export interface DisputeUpdatePayload {
+  id: string;
+  disputeRef: string;
+  status: string;
+  decision: string | null;
+  action: string;
+  filerAddress: string;
+  respondentAddress: string;
+  amount: string;
+  timestamp: string;
+}
+
 export class WebSocketService {
   private io: SocketIOServer;
   private userRooms: Map<string, Set<string>> = new Map();
@@ -224,6 +236,17 @@ export class WebSocketService {
   broadcastActiveUserCount(): void {
     const count = this.userRooms.size;
     this.io.emit('active-users', { count, timestamp: new Date().toISOString() });
+  }
+
+  /**
+   * Emit a dispute update to both the filer and respondent rooms
+   */
+  emitDisputeUpdate(payload: DisputeUpdatePayload): void {
+    const filerRoom = `stream-${payload.filerAddress}`;
+    const respondentRoom = `stream-${payload.respondentAddress}`;
+    this.io.to(filerRoom).emit('dispute-update', payload);
+    this.io.to(respondentRoom).emit('dispute-update', payload);
+    console.log(`⚖️  Emitted DISPUTE_UPDATE to ${filerRoom} and ${respondentRoom}:`, payload);
   }
 
   /**

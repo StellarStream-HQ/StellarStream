@@ -105,82 +105,90 @@ export function auditLogMiddleware(req: Request, res: Response, next: NextFuncti
   const startTime = performance.now();
   const entryId = randomUUID();
 
-  // Initialize audit context
-  req.auditLog = { entryId };
+  // Preserve any existing audit context while adding the current request id.
+  req.auditLog = {
+    ...(req.auditLog ?? {}),
+    entryId,
+  };
 
-  // Capture original response methods
   const originalJson = res.json.bind(res);
   const originalSend = res.send.bind(res);
 
   let responseBody: unknown = null;
   let responseStarted = false;
+  let auditLogged = false;
 
-  // Override res.json
-  res.json = function (data: unknown) {
-    responseBody = data;
-    return originalJson(data);
-  };
-
-  // Override res.send
-  res.send = function (data: unknown) {
-    responseBody = data;
-    return originalSend(data);
-  };
-
-  // Capture response finishing
-  res.on('finish', async () => {
-    if (responseStarted) return;
-    responseStarted = true;
+  const flushAuditLog = async () => {
+    if (auditLogged) return;
+    auditLogged = true;
 
     const executionTimeMs = performance.now() - startTime;
+    const currentAudit = req.auditLog ?? {};
+    const finalMethod = req.method;
+    const finalPath = req.path;
+    const finalResponseBody = responseBody ?? (req as Record<string, unknown>).responseBody ?? null;
 
     try {
       const logEntry = {
         id: entryId,
         timestamp: new Date(),
-        userId: req.auditLog?.userId,
-        userEmail: req.auditLog?.userEmail,
-        method: req.method,
-        path: req.path,
+        userId: currentAudit.userId,
+        userEmail: currentAudit.userEmail,
+        method: finalMethod,
+        path: finalPath,
         statusCode: res.statusCode,
         executionTimeMs,
         clientIp: getClientIp(req),
         userAgent: req.headers['user-agent'],
         requestBody:
-          ['POST', 'PUT', 'PATCH'].includes(req.method) && req.body
+          ['POST', 'PUT', 'PATCH'].includes(finalMethod) && req.body
             ? truncateJsonString(req.body)
             : null,
         responseBody:
-          [200, 201, 400, 409].includes(res.statusCode) && responseBody
-            ? truncateJsonString(responseBody)
+          [200, 201, 400, 409].includes(res.statusCode) && finalResponseBody
+            ? truncateJsonString(finalResponseBody)
             : null,
-        beforeSnapshot: req.auditLog?.beforeSnapshot
-          ? truncateJsonString(req.auditLog.beforeSnapshot)
+        beforeSnapshot: currentAudit.beforeSnapshot
+          ? truncateJsonString(currentAudit.beforeSnapshot as DataSnapshot)
           : null,
-        afterSnapshot: req.auditLog?.afterSnapshot
-          ? truncateJsonString(req.auditLog.afterSnapshot)
+        afterSnapshot: currentAudit.afterSnapshot
+          ? truncateJsonString(currentAudit.afterSnapshot as DataSnapshot)
           : null,
-        changesSummary: req.auditLog?.changesSummary,
-        error: res.statusCode >= 400 ? truncateJsonString(responseBody) : null,
+        changesSummary: currentAudit.changesSummary,
+        error: res.statusCode >= 400 ? truncateJsonString(finalResponseBody ?? null) : null,
         createdAt: new Date(),
       };
 
-      // Log to database (non-blocking)
       await prisma.adminAuditLog.create({
         data: logEntry,
       });
 
       logger.debug('Audit log recorded', {
         entryId,
-        method: req.method,
-        path: req.path,
+        method: finalMethod,
+        path: finalPath,
         statusCode: res.statusCode,
         executionTimeMs,
       });
     } catch (error) {
-      // Fail gracefully - don't block the response
       logger.error('Failed to record audit log', error, { entryId });
     }
+  };
+
+  res.json = function (data: unknown) {
+    responseBody = data;
+    return originalJson(data);
+  };
+
+  res.send = function (data: unknown) {
+    responseBody = data;
+    return originalSend(data);
+  };
+
+  res.on('finish', () => {
+    if (responseStarted) return;
+    responseStarted = true;
+    void flushAuditLog();
   });
 
   next();

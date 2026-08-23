@@ -1,17 +1,25 @@
+//! Test-only mock of an external lending vault, used to exercise the [`VaultInterface`]
+//! integration in [`vault`](crate::vault) without a real money-market protocol.
 #![cfg(test)]
 
 use soroban_sdk::{contract, contractimpl, contracterror, symbol_short, token, Address, Env};
 
+/// Error conditions returned by [`MockVault`] entry points.
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum VaultError {
+    /// Withdrawals are currently paused by the vault admin.
     WithdrawalsPaused = 1,
+    /// The caller does not have enough balance to withdraw the requested amount.
     InsufficientBalance = 2,
+    /// The caller is not the vault admin.
     Unauthorized = 3,
 }
 
-/// Mock Vault Contract for testing external yield integration
-/// Simulates a lending pool that can generate yield and pause withdrawals
+/// Mock vault contract for testing external yield integration.
+///
+/// Simulates a lending pool that tracks per-depositor balances, can apply a
+/// configurable yield rate, and can pause/resume withdrawals.
 #[contract]
 pub struct MockVault;
 

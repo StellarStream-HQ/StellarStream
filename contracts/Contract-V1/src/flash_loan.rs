@@ -1,20 +1,31 @@
+//! Flash loan receiver interface.
+//!
+//! Contracts that wish to borrow via Contract-V1's flash loan facility implement
+//! [`FlashLoanReceiver`] so the lending contract can hand control back to them mid-transaction.
+
 use soroban_sdk::{Address, Bytes, Env};
 
-/// Flash loan receiver interface
-/// Contracts receiving flash loans must implement this
+/// Callback interface for contracts that receive Contract-V1 flash loans.
+///
+/// The lending contract transfers the borrowed amount to the receiver, invokes
+/// [`execute_operation`](FlashLoanReceiver::execute_operation), and then requires the
+/// receiver to have transferred back `amount + fee` before the transaction ends —
+/// otherwise the whole transaction (including the initial transfer) is rolled back.
 #[allow(dead_code)]
 pub trait FlashLoanReceiver {
-    /// Called by the lending contract during flash loan execution
+    /// Invoked by the lending contract after the borrowed funds have been transferred.
     ///
-    /// # Parameters
-    /// - `initiator`: Address that initiated the flash loan
-    /// - `token`: Token being borrowed
-    /// - `amount`: Amount borrowed
-    /// - `fee`: Fee to be paid
-    /// - `params`: Additional parameters passed by initiator
+    /// # Arguments
+    /// * `env` - The contract execution environment
+    /// * `initiator` - Address that initiated the flash loan
+    /// * `token` - Address of the token contract being borrowed
+    /// * `amount` - Principal amount borrowed
+    /// * `fee` - Fee owed in addition to the principal
+    /// * `params` - Opaque, caller-defined parameters forwarded from the loan request
     ///
     /// # Returns
-    /// Must return true if loan is accepted and will be repaid
+    /// `true` if the receiver accepts the loan and will repay `amount + fee` before the
+    /// transaction ends; `false` (or a panic) aborts the loan.
     fn execute_operation(
         env: Env,
         initiator: Address,

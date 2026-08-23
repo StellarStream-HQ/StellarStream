@@ -528,6 +528,59 @@ model NotificationSubscription {
 enum NotificationPlatform {
   discord
   telegram
+  email
+}
+
+// User notification preferences — granular control over which notifications
+// are delivered via which channels (#1004)
+model NotificationPreference {
+  id             String   @id @default(cuid())
+  stellarAddress String                // Stellar address of the user
+  email          String?               // Email address for email notifications
+  emailVerified  Boolean  @default(false) // Whether email has been verified
+  platform       NotificationPlatform  // discord | telegram | email
+  // Notification type toggles
+  paymentConfirmations Boolean @default(true)  // Payment confirmation emails
+  streamStatusUpdates  Boolean @default(true)  // Stream created/paused/cancelled
+  securityAlerts       Boolean @default(true)  // Login alerts, permission changes
+  weeklySummaries      Boolean @default(false) // Weekly summary of activity
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([stellarAddress, platform])
+  @@index([stellarAddress])
+  @@index([platform])
+}
+
+// Email delivery tracking — records every email sent with its status
+model EmailDelivery {
+  id             String   @id @default(cuid())
+  stellarAddress String               // Recipient Stellar address
+  email          String               // Recipient email address
+  template       String               // payment_confirmation | stream_status | security_alert | weekly_summary
+  subject        String               // Email subject line
+  status         EmailDeliveryStatus  @default(SENT) // sent | delivered | opened | bounced | failed
+  errorMessage   String?              // Error message if failed
+  metadata       Json?                // Template-specific data (txHash, streamId, etc.)
+  sentAt         DateTime             @default(now())
+  deliveredAt    DateTime?
+  openedAt       DateTime?
+  createdAt      DateTime             @default(now())
+
+  @@index([stellarAddress])
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+  @@index([sentAt])
+}
+
+enum EmailDeliveryStatus {
+  SENT
+  DELIVERED
+  OPENED
+  BOUNCED
+  FAILED
 }
 
 // Invoice links for Nebula-Pay payment link generator (#1377)
@@ -1305,8 +1358,93 @@ model ReportAuditLog {
   details               Json?
   createdAt             DateTime     @default(now())
 
-  @@index([reportId, timestamp(sort: Desc)])
+@@index([reportId, timestamp(sort: Desc)])
   @@index([timestamp(sort: Desc)])
   @@index([action])
   @@map("ReportAuditLog")
+}
+
+// ── Payment Dispute Resolution System (#DISPUTES) ─────────────────────────────
+
+// Status lifecycle: FILED → EVIDENCE_REVIEW → RESOLVED | REJECTED → CLOSED
+enum DisputeStatus {
+  FILED
+  EVIDENCE_REVIEW
+  RESOLVED
+  REJECTED
+  CLOSED
+}
+
+// The decision reached when a dispute is resolved
+enum DisputeDecision {
+  GRANTED  // dispute upheld, funds/relief granted
+  DENIED   // dispute rejected, no action
+  PARTIAL  // partial grant / partial refund
+}
+
+// A payment dispute filed against a stream or on-chain transaction
+model PaymentDispute {
+  id                String   @id @default(cuid())
+  disputeRef        String   @unique // Human-readable reference e.g. DSP-2026-XXXXXX
+  streamId          String?  // Reference to the payment stream
+  txHash            String?  // Reference to the on-chain transaction
+  filerAddress      String   // Address that filed the dispute
+  respondentAddress String   // Counterparty address
+  reason            String   // Dispute category/reason
+  description       String?  // Detailed description
+  amount            String   // Disputed amount in stroops
+  tokenAddress      String?  // Token/asset involved
+  status            DisputeStatus  @default(FILED)
+  decision          DisputeDecision? // Resolution decision (null until resolved)
+  resolutionNotes   String?  // Notes explaining the resolution
+  resolvedBy        String?  // Address that resolved the dispute
+  resolvedAt        DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  evidence          DisputeEvidence[]
+  history           DisputeHistory[]
+
+  @@index([filerAddress])
+  @@index([respondentAddress])
+  @@index([streamId])
+  @@index([txHash])
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@map("PaymentDispute")
+}
+
+// Evidence uploaded for a dispute (receipts, logs, screenshots)
+model DisputeEvidence {
+  id              String         @id @default(cuid())
+  disputeId       String
+  dispute         PaymentDispute @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  uploaderAddress String         // Address that uploaded the evidence
+  fileName        String         // Original file name
+  fileUrl         String         // Storage URL / key
+  mimeType        String?        // e.g. application/pdf, image/png
+  fileSize        Int            @default(0)
+  description     String?        // Optional note about the evidence
+  createdAt       DateTime       @default(now())
+
+  @@index([disputeId])
+  @@index([uploaderAddress])
+  @@map("DisputeEvidence")
+}
+
+// Immutable timeline of actions on a dispute
+model DisputeHistory {
+  id            String         @id @default(cuid())
+  disputeId     String
+  dispute       PaymentDispute @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+  actorAddress  String         // Address that performed the action
+  action        String         // FILED | EVIDENCE_ADDED | STATUS_CHANGED | RESOLVED | REJECTED | CLOSED | NOTE_ADDED
+  fromStatus    String?        // Previous status (null for initial)
+  toStatus      String?        // New status (null for notes)
+  comment       String?        // Optional comment
+  createdAt     DateTime       @default(now())
+
+  @@index([disputeId])
+  @@index([createdAt])
+  @@map("DisputeHistory")
 }

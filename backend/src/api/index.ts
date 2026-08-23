@@ -12,6 +12,7 @@ import analyticsRouter from "./analytics.routes.js";
 import forecastingRouter from "./forecasting.routes.js";
 import walletAuthRouter from "./wallet-auth.routes.js";
 import notificationRouter from "./notification-subscription.routes.js";
+import emailNotificationRouter from "./email-notification.routes.js";
 import invoiceLinkRouter from "./invoice-link.routes.js";
 import webhooksRouter from "./webhooks.routes.js";
 import cachedStatsRouter from "./cached-stats.routes.js";
@@ -27,6 +28,7 @@ import reportsRouter from "./reports.routes.js";
 import auditLogRoutes from "./audit-log.routes.js";
 import clawbackRoutes from "./clawback.routes.js";
 import dashboardRouter from "./dashboard.routes.js";
+import disputeRouter from "./dispute.routes.js";
 import exportRouter from "./export.routes.js";
 import geoRouter from "./geo.routes.js";
 import feeOptimizationRouter from "./fee-optimization.routes.js";
@@ -44,6 +46,7 @@ router.use("/analytics", analyticsRouter);
 router.use("/analytics/forecasts", forecastingRouter);
 router.use("/auth", walletAuthRouter);
 router.use("/notifications", notificationRouter);
+router.use("/notifications", emailNotificationRouter);
 router.use("/invoice-links", invoiceLinkRouter);
 router.use("/webhooks", webhooksRouter);
 router.use("/stats", cachedStatsRouter);
@@ -69,6 +72,9 @@ router.use("/audit", auditLogRoutes);
 
 // ── Dashboard Routes (real-time updates) ──────────────────────────────────────
 router.use("/dashboard", dashboardRouter);
+
+// ── Payment Dispute Resolution Routes (#DISPUTES) ─────────────────────────────
+router.use("/disputes", disputeRouter);
 
 // ── Export Routes (data export in multiple formats) ──────────────────────
 router.use("/export", exportRouter);

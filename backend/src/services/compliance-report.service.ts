@@ -113,7 +113,17 @@ const ROW_ALT = "#0f0f28";
 
 function renderPDF(payload: ReportPayload): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ size: "A4", margin: 50 });
+    const doc = new PDFDocument({
+      size: "A4",
+      margin: 50,
+      compress: true,
+      info: {
+        Title: payload.title,
+        Author: "StellarStream Compliance",
+        Subject: "Compliance Report",
+        Creator: "StellarStream",
+      },
+    });
     const chunks: Buffer[] = [];
 
     doc.on("data", (chunk: Buffer) => chunks.push(chunk));
@@ -585,6 +595,7 @@ export class ComplianceReportService {
     const filename = `${reportType.toLowerCase()}-${id}.${ext}`;
     const filePath = path.join(REPORTS_DIR, filename);
     fs.writeFileSync(filePath, buffer, { mode: 0o600 });
+    fs.chmodSync(filePath, 0o600);
 
     const checksum = sha256(buffer);
 

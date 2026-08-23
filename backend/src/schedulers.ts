@@ -138,6 +138,7 @@ export function initializeSchedulers() {
   scheduleLedgerConsistencyCheck();
   scheduleV3VolumeAggregation();
   scheduleComplianceReportGeneration();
+  scheduleWeeklyEmailSummaries();
 }
 
 /**
@@ -271,4 +272,23 @@ export function scheduleComplianceReportGeneration() {
   });
 
   logger.info("Compliance report scheduler started (monthly on 1st at 04:00 UTC)");
+}
+
+/**
+ * Email Weekly Summaries (#1004): send weekly summary emails to all
+ * subscribers every Monday at 08:00 UTC.
+ */
+export function scheduleWeeklyEmailSummaries() {
+  cron.schedule("0 8 * * 1", async () => {
+    try {
+      logger.info("[EmailNotification] Starting weekly summary dispatch");
+      const { emailService } = await import("./services/email.service.js");
+      const result = await emailService.sendWeeklySummaries();
+      logger.info("[EmailNotification] Weekly summary dispatch completed", result);
+    } catch (error) {
+      logger.error("[EmailNotification] Weekly summary dispatch failed", error);
+    }
+  });
+
+  logger.info("Weekly email summary scheduler started (every Monday at 08:00 UTC)");
 }

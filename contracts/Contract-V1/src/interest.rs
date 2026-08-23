@@ -1,15 +1,27 @@
+//! Distribution of vault-earned interest among a stream's sender, receiver, and the
+//! protocol.
+
 use crate::types::{
     InterestDistribution, INTEREST_TO_PROTOCOL, INTEREST_TO_RECEIVER, INTEREST_TO_SENDER,
 };
 
-/// Calculate interest distribution based on strategy
+/// Splits `total_interest` among sender, receiver, and protocol according to `strategy`.
 ///
-/// Strategy bits:
-/// - 0b001 (1): All to sender
-/// - 0b010 (2): All to receiver  
-/// - 0b100 (4): All to protocol
-/// - 0b011 (3): 50/50 sender/receiver
-/// - 0b111 (7): 33/33/33 split among all three
+/// `strategy` is a 3-bit mask: bit 0 (`INTEREST_TO_SENDER`) routes a share to the
+/// sender, bit 1 (`INTEREST_TO_RECEIVER`) to the receiver, bit 2 (`INTEREST_TO_PROTOCOL`)
+/// to the protocol. `3` and `7` are handled as fixed 50/50 and 33/33/33 splits; any other
+/// combination of set bits splits evenly among the enabled parties, with any integer
+/// remainder given to the first enabled party in sender → receiver → protocol order. An
+/// unrecognized strategy with no bits set defaults to 100% receiver.
+///
+/// # Arguments
+/// * `total_interest` - Total interest amount to distribute; non-positive values yield
+///   an all-zero distribution
+/// * `strategy` - Bitmask selecting which parties receive a share
+///
+/// # Returns
+/// An [`InterestDistribution`] whose `to_sender + to_receiver + to_protocol` always
+/// sums to `total_interest`.
 #[allow(dead_code)]
 pub fn calculate_interest_distribution(
     total_interest: i128,
@@ -89,8 +101,16 @@ pub fn calculate_interest_distribution(
     }
 }
 
-/// Calculate the interest earned from a vault
-/// This compares the current vault balance with the original principal
+/// Computes interest earned by comparing a vault's current value to the original
+/// deposited principal.
+///
+/// # Arguments
+/// * `current_vault_value` - Current value of the vault position, in underlying tokens
+/// * `original_principal` - Amount originally deposited into the vault
+///
+/// # Returns
+/// `current_vault_value - original_principal`, floored at `0` (a vault value that has
+/// dropped below principal is reported as zero interest, never negative).
 #[allow(dead_code)]
 pub fn calculate_vault_interest(current_vault_value: i128, original_principal: i128) -> i128 {
     if current_vault_value > original_principal {
