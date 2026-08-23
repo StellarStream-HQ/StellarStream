@@ -279,6 +279,10 @@ pub enum DataKey {
     UpgradeProposal(u64),
     /// `Vec<UpgradeRecord>` log of previously executed upgrades.
     UpgradeHistory,
+    /// Recurrence configuration for a recurring stream, keyed by root stream ID.
+    Recurrence(u64),
+    /// Counter for the total number of recurring stream chains ever created.
+    RecurringStreamCount,
 }
 
 /// NFT-style ownership receipt for a stream, tracking who is entitled to manage or
@@ -802,6 +806,130 @@ pub struct DisputeResolvedEvent {
     pub stream_id: u64,
     /// The resolution that was executed.
     pub resolution: DisputeResolution,
+    /// Unix timestamp when the event was emitted.
+    pub timestamp: u64,
+}
+
+// ========== Recurring Stream Types ==========
+
+/// Configuration controlling whether and how a stream auto-renews after it
+/// completes.
+///
+/// Recurring streams simplify use-cases like monthly salary, subscription
+/// payments, or any periodic vesting schedule. When `enabled` is `true` the
+/// contract automatically creates a new stream (with the same parameters) as
+/// soon as the previous period completes and the sender still has sufficient
+/// token balance.
+///
+/// # Recurrence mechanics
+/// - On the first call to
+///   [`create_recurring_stream`](crate::StellarStreamContract::create_recurring_stream)
+///   a stream is created normally and a `RecurrenceConfig` is stored alongside
+///   it under `DataKey::Recurrence(stream_id)`.
+/// - Whenever any party (or a keeper) calls
+///   [`renew_stream`](crate::StellarStreamContract::renew_stream) on a
+///   *completed* recurring stream the contract:
+///   1. Checks `enabled` is still `true`.
+///   2. Checks `occurrences_completed < max_occurrences` (or `max_occurrences == 0`
+///      for infinite recurrence).
+///   3. Verifies the sender holds `amount_per_period` tokens.
+///   4. Creates a new stream for the next period and links its
+///      `RecurrenceConfig` back to the original `stream_id` chain.
+///   5. Increments `occurrences_completed`.
+///
+/// # Stopping a recurring stream
+/// The sender may call
+/// [`stop_recurring_stream`](crate::StellarStreamContract::stop_recurring_stream)
+/// at any time to set `enabled = false`, preventing further auto-renewal.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RecurrenceConfig {
+    /// Whether auto-renewal is still active. Set to `false` via
+    /// [`stop_recurring_stream`](crate::StellarStreamContract::stop_recurring_stream)
+    /// or automatically when `max_occurrences` is reached.
+    pub enabled: bool,
+    /// Maximum number of times the stream will renew.
+    /// `0` means unlimited (the stream renews forever until manually stopped).
+    pub max_occurrences: u32,
+    /// How many renewal periods have completed so far (starts at `0`).
+    pub occurrences_completed: u32,
+    /// The token amount for each period.
+    pub amount_per_period: i128,
+    /// Duration of each period in seconds.
+    pub period_duration: u64,
+    /// Token contract used for all periods.
+    pub token: Address,
+    /// Sender address that funds each renewal.
+    pub sender: Address,
+    /// Receiver address for all periods.
+    pub receiver: Address,
+    /// ID of the *current* (most recently created) stream in this chain.
+    pub current_stream_id: u64,
+}
+
+/// Storage key for a [`RecurrenceConfig`], indexed by the *original* stream
+/// ID that started the recurring chain.
+///
+/// All renewal streams link back to the original stream ID as the chain root,
+/// so callers can always trace a stream back to its recurrence schedule.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum RecurringKey {
+    /// Recurrence configuration for a given root stream ID.
+    Config(u64),
+    /// Counter of all root (first-period) recurring streams ever created.
+    Count,
+}
+
+/// Event emitted when a new recurring stream chain is started.
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct RecurringStreamCreatedEvent {
+    /// Root stream ID (the first period's stream).
+    pub root_stream_id: u64,
+    /// Token contract being streamed.
+    pub token: Address,
+    /// Address funding the stream.
+    pub sender: Address,
+    /// Address receiving the stream.
+    pub receiver: Address,
+    /// Amount per period.
+    pub amount_per_period: i128,
+    /// Duration of each period in seconds.
+    pub period_duration: u64,
+    /// Maximum number of occurrences (`0` = unlimited).
+    pub max_occurrences: u32,
+    /// Unix timestamp when the event was emitted.
+    pub timestamp: u64,
+}
+
+/// Event emitted when a recurring stream is automatically renewed for a new
+/// period.
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct RecurringStreamRenewedEvent {
+    /// Root stream ID (the chain anchor).
+    pub root_stream_id: u64,
+    /// Stream ID of the newly created renewal period.
+    pub new_stream_id: u64,
+    /// How many periods have completed so far (including this one).
+    pub occurrences_completed: u32,
+    /// Maximum occurrences (`0` = unlimited).
+    pub max_occurrences: u32,
+    /// Unix timestamp when the event was emitted.
+    pub timestamp: u64,
+}
+
+/// Event emitted when a recurring stream is manually stopped.
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct RecurringStreamStoppedEvent {
+    /// Root stream ID.
+    pub root_stream_id: u64,
+    /// Address that stopped the stream.
+    pub stopped_by: Address,
+    /// Number of occurrences completed before stopping.
+    pub occurrences_completed: u32,
     /// Unix timestamp when the event was emitted.
     pub timestamp: u64,
 }

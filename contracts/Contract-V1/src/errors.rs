@@ -81,4 +81,25 @@ pub enum Error {
     DisputeExpired = 36,
     /// The proposed resolution is invalid for the given dispute.
     InvalidResolution = 37,
+
+    // ──────────────────────────────────────────────
+    // Recurring stream errors (38–40)
+    // ──────────────────────────────────────────────
+
+    /// The recurring stream has been manually stopped and will not auto-renew.
+    /// Call [`create_recurring_stream`] to start a new chain.
+    RecurringStopped = 38,
+
+    /// The recurring stream has completed all scheduled occurrences
+    /// (`occurrences_completed >= max_occurrences`). No further renewal is
+    /// possible without creating a new recurring stream.
+    MaxOccurrencesReached = 39,
+
+    /// The sender does not hold enough tokens to fund the next recurring
+    /// period. Top up the sender's balance before calling [`renew_stream`].
+    InsufficientRenewalBalance = 40,
+
+    /// The current stream period has not yet ended; renewal is only allowed
+    /// after `current_time >= stream.end_time`.
+    StreamNotActive = 41,
 }

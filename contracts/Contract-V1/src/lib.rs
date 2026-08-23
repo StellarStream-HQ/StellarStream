@@ -71,6 +71,9 @@ mod bench_test;
 mod ttl_stress_test;
 
 #[cfg(test)]
+mod recurring_test;
+
+#[cfg(test)]
 mod test;
 
 use errors::Error;
@@ -82,9 +85,10 @@ use storage::{
 use types::{
     ContributorRequest, CurveType, DataKey, Dispute, DisputeRaisedEvent, DisputeResolution,
     DisputeResolvedEvent, DisputeVotedEvent, Milestone, ProposalApprovedEvent, ProposalCreatedEvent,
-    ReceiptMetadata, RequestCreatedEvent, RequestExecutedEvent, RequestKey, RequestStatus, Role,
-    Stream, StreamCreatedEvent, StreamOptions, StreamProposal, StreamReceipt, StreamRequest,
-    StreamResumedEvent, StreamState,
+    ReceiptMetadata, RecurrenceConfig, RecurringStreamCreatedEvent, RecurringStreamRenewedEvent,
+    RecurringStreamStoppedEvent, RequestCreatedEvent, RequestExecutedEvent, RequestKey,
+    RequestStatus, Role, Stream, StreamCreatedEvent, StreamOptions, StreamProposal, StreamReceipt,
+    StreamRequest, StreamResumedEvent, StreamState,
 };
 
 /// The StellarStream token-streaming contract.
@@ -2573,6 +2577,303 @@ impl StellarStreamContract {
         );
 
         Ok(())
+    }
+
+    // ========== Recurring Streams ==========
+
+    /// Creates a recurring stream that auto-renews after each period completes.
+    ///
+    /// This is the entry point for all periodic payment use-cases: monthly
+    /// salary, subscription fees, recurring grants, etc. Internally it creates
+    /// a normal stream for the first period and attaches a [`RecurrenceConfig`]
+    /// to it so future calls to [`renew_stream`] can create the next period
+    /// automatically.
+    ///
+    /// # Recurrence rules
+    /// - `max_occurrences == 0` → unlimited recurrence (stream renews forever
+    ///   until manually stopped with [`stop_recurring_stream`]).
+    /// - `max_occurrences > 0` → the stream renews at most that many *total*
+    ///   times (first period counts as occurrence 1).
+    /// - Each renewal is triggered by calling [`renew_stream`] once the
+    ///   current period has completed (`current_time >= stream.end_time`).
+    ///
+    /// # Arguments
+    /// * `env` - The contract execution environment
+    /// * `sender` - Address funding each period; must authenticate this call
+    /// * `receiver` - Address receiving tokens each period
+    /// * `token` - Token contract address (SAC-compatible)
+    /// * `amount_per_period` - Tokens to stream per period; must be > 0
+    /// * `period_duration` - Length of each period in seconds; must be > 0
+    /// * `max_occurrences` - Max renewals (`0` = unlimited)
+    ///
+    /// # Returns
+    /// The root stream ID (the first period's stream ID).
+    ///
+    /// # Errors
+    /// * [`Error::InvalidAmount`] — `amount_per_period <= 0` or `period_duration == 0`
+    /// * [`Error::InvalidTimeRange`] — propagated from underlying stream creation
+    pub fn create_recurring_stream(
+        env: Env,
+        sender: Address,
+        receiver: Address,
+        token: Address,
+        amount_per_period: i128,
+        period_duration: u64,
+        max_occurrences: u32,
+    ) -> Result<u64, Error> {
+        sender.require_auth();
+
+        if amount_per_period <= 0 {
+            return Err(Error::InvalidAmount);
+        }
+        if period_duration == 0 {
+            return Err(Error::InvalidAmount);
+        }
+
+        let now = env.ledger().timestamp();
+        let start_time = now;
+        let end_time = now + period_duration;
+
+        // Create the first period's stream (no cliff, linear vesting).
+        let milestones = Vec::new(&env);
+        let options = StreamOptions {
+            curve_type: CurveType::Linear,
+            is_soulbound: false,
+            vault_address: None,
+        };
+        let root_stream_id = Self::create_stream_internal(
+            env.clone(),
+            sender.clone(),
+            receiver.clone(),
+            token.clone(),
+            amount_per_period,
+            start_time,
+            start_time, // no cliff
+            end_time,
+            milestones,
+            options,
+        )?;
+
+        // Store the recurrence configuration alongside the root stream.
+        let config = RecurrenceConfig {
+            enabled: true,
+            max_occurrences,
+            occurrences_completed: 0,
+            amount_per_period,
+            period_duration,
+            token: token.clone(),
+            sender: sender.clone(),
+            receiver: receiver.clone(),
+            current_stream_id: root_stream_id,
+        };
+        env.storage()
+            .instance()
+            .set(&DataKey::Recurrence(root_stream_id), &config);
+
+        env.events().publish(
+            (symbol_short!("recur"), sender.clone()),
+            RecurringStreamCreatedEvent {
+                root_stream_id,
+                token,
+                sender,
+                receiver,
+                amount_per_period,
+                period_duration,
+                max_occurrences,
+                timestamp: now,
+            },
+        );
+
+        Ok(root_stream_id)
+    }
+
+    /// Renews a recurring stream by creating the next period's stream.
+    ///
+    /// Must be called after the current period has completed
+    /// (`current_time >= stream.end_time`). Anyone may call this function —
+    /// it acts as a keeper / trigger. All authorization is enforced through
+    /// the recurrence configuration stored at creation time.
+    ///
+    /// # Renewal checks (in order)
+    /// 1. A recurrence config must exist for `root_stream_id`.
+    /// 2. `config.enabled` must be `true`.
+    /// 3. `max_occurrences == 0` or `occurrences_completed < max_occurrences`.
+    /// 4. The sender must hold at least `amount_per_period` tokens (balance
+    ///    check prevents surprise failures mid-flow).
+    /// 5. The *current* stream for this chain must have ended.
+    ///
+    /// # Arguments
+    /// * `env` - The contract execution environment
+    /// * `root_stream_id` - The root stream ID returned by [`create_recurring_stream`]
+    ///
+    /// # Returns
+    /// The newly created stream ID for the next period.
+    ///
+    /// # Errors
+    /// * [`Error::StreamNotFound`] — no recurrence config exists for `root_stream_id`
+    /// * [`Error::RecurringStopped`] — the recurring stream has been manually stopped
+    /// * [`Error::MaxOccurrencesReached`] — all scheduled periods have completed
+    /// * [`Error::InsufficientRenewalBalance`] — sender lacks funds for the next period
+    /// * [`Error::StreamNotActive`] — the current period has not yet ended
+    pub fn renew_stream(env: Env, root_stream_id: u64) -> Result<u64, Error> {
+        let mut config: RecurrenceConfig = env
+            .storage()
+            .instance()
+            .get(&DataKey::Recurrence(root_stream_id))
+            .ok_or(Error::StreamNotFound)?;
+
+        // Check if recurring is still enabled.
+        if !config.enabled {
+            return Err(Error::RecurringStopped);
+        }
+
+        // Check max occurrences (0 = unlimited).
+        if config.max_occurrences > 0
+            && config.occurrences_completed >= config.max_occurrences
+        {
+            // Auto-disable and persist before returning.
+            config.enabled = false;
+            env.storage()
+                .instance()
+                .set(&DataKey::Recurrence(root_stream_id), &config);
+            return Err(Error::MaxOccurrencesReached);
+        }
+
+        // The current period's stream must have ended.
+        let current_stream: Stream = env
+            .storage()
+            .instance()
+            .get(&(STREAM_COUNT, config.current_stream_id))
+            .ok_or(Error::StreamNotFound)?;
+        let now = env.ledger().timestamp();
+        if now < current_stream.end_time {
+            return Err(Error::StreamNotActive);
+        }
+
+        // Verify the sender still has enough tokens to fund the next period.
+        // We use the token client's balance query to check before transferring.
+        let token_client = token::Client::new(&env, &config.token);
+        let sender_balance = token_client.balance(&config.sender);
+        if sender_balance < config.amount_per_period {
+            return Err(Error::InsufficientRenewalBalance);
+        }
+
+        // Create the next period's stream.
+        let start_time = now;
+        let end_time = now + config.period_duration;
+        let milestones = Vec::new(&env);
+        let options = StreamOptions {
+            curve_type: CurveType::Linear,
+            is_soulbound: false,
+            vault_address: None,
+        };
+        let new_stream_id = Self::create_stream_internal(
+            env.clone(),
+            config.sender.clone(),
+            config.receiver.clone(),
+            config.token.clone(),
+            config.amount_per_period,
+            start_time,
+            start_time,
+            end_time,
+            milestones,
+            options,
+        )?;
+
+        // Update recurrence config.
+        config.occurrences_completed += 1;
+        config.current_stream_id = new_stream_id;
+
+        // Auto-disable when max_occurrences is now reached.
+        if config.max_occurrences > 0
+            && config.occurrences_completed >= config.max_occurrences
+        {
+            config.enabled = false;
+        }
+
+        env.storage()
+            .instance()
+            .set(&DataKey::Recurrence(root_stream_id), &config);
+
+        env.events().publish(
+            (symbol_short!("renewed"), root_stream_id),
+            RecurringStreamRenewedEvent {
+                root_stream_id,
+                new_stream_id,
+                occurrences_completed: config.occurrences_completed,
+                max_occurrences: config.max_occurrences,
+                timestamp: now,
+            },
+        );
+
+        Ok(new_stream_id)
+    }
+
+    /// Manually stops a recurring stream, preventing any further auto-renewal.
+    ///
+    /// Only the stream's original `sender` may stop it. The current period's
+    /// stream is unaffected — it continues to vest normally until completion.
+    /// Future calls to [`renew_stream`] will return [`Error::RecurringStopped`].
+    ///
+    /// # Arguments
+    /// * `env` - The contract execution environment
+    /// * `root_stream_id` - The root stream ID returned by [`create_recurring_stream`]
+    /// * `caller` - Address stopping the stream; must be the original sender
+    ///
+    /// # Errors
+    /// * [`Error::StreamNotFound`] — no recurrence config for `root_stream_id`
+    /// * [`Error::Unauthorized`] — `caller` is not the original sender
+    /// * [`Error::RecurringStopped`] — already stopped
+    pub fn stop_recurring_stream(
+        env: Env,
+        root_stream_id: u64,
+        caller: Address,
+    ) -> Result<(), Error> {
+        caller.require_auth();
+
+        let mut config: RecurrenceConfig = env
+            .storage()
+            .instance()
+            .get(&DataKey::Recurrence(root_stream_id))
+            .ok_or(Error::StreamNotFound)?;
+
+        if config.sender != caller {
+            return Err(Error::Unauthorized);
+        }
+        if !config.enabled {
+            return Err(Error::RecurringStopped);
+        }
+
+        config.enabled = false;
+        env.storage()
+            .instance()
+            .set(&DataKey::Recurrence(root_stream_id), &config);
+
+        env.events().publish(
+            (symbol_short!("stopped"), root_stream_id),
+            RecurringStreamStoppedEvent {
+                root_stream_id,
+                stopped_by: caller,
+                occurrences_completed: config.occurrences_completed,
+                timestamp: env.ledger().timestamp(),
+            },
+        );
+
+        Ok(())
+    }
+
+    /// Returns the [`RecurrenceConfig`] for a recurring stream chain.
+    ///
+    /// # Arguments
+    /// * `env` - The contract execution environment
+    /// * `root_stream_id` - The root stream ID to query
+    ///
+    /// # Returns
+    /// `None` if no recurrence config exists for `root_stream_id`.
+    pub fn get_recurrence_config(env: Env, root_stream_id: u64) -> Option<RecurrenceConfig> {
+        env.storage()
+            .instance()
+            .get(&DataKey::Recurrence(root_stream_id))
     }
 }
 
