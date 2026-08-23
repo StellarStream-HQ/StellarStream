@@ -29,6 +29,9 @@ mod cliff_test;
 mod query_test;
 
 #[cfg(test)]
+mod usd_pegging_test;
+
+#[cfg(test)]
 #[cfg(all(test, feature = "allowlist_tests"))]
 mod allowlist_test;
 #[cfg(all(test, feature = "clawback_tests"))]
@@ -82,12 +85,13 @@ use storage::{
     ARBITRATORS, DISPUTE, DISPUTE_COUNT, PROPOSAL_COUNT, RECEIPT, RESTRICTED_ADDRESSES,
     STREAM_COUNT,
 };
+#[allow(unused_imports)]
 use types::{
     ContributorRequest, CurveType, DataKey, Dispute, DisputeRaisedEvent, DisputeResolution,
     DisputeResolvedEvent, DisputeVotedEvent, Milestone, ProposalApprovedEvent, ProposalCreatedEvent,
     ReceiptMetadata, RequestCreatedEvent, RequestExecutedEvent, RequestKey, RequestStatus, Role,
     Stream, StreamCreatedEvent, StreamOptions, StreamProposal, StreamReceipt, StreamRequest,
-    StreamResumedEvent, StreamState,
+    StreamResumedEvent, StreamState, UsdStreamConfig,
 };
 
 /// The StellarStream token-streaming contract.
@@ -472,6 +476,129 @@ impl StellarStreamContract {
             options,
         )
     }
+
+    /// Creates a new stream with USD-denominated amount using oracle price conversion.
+    ///
+    /// This function queries a price oracle to convert a USD amount into the equivalent
+    /// token amount at creation time, then creates a regular stream with the calculated
+    /// amount. The USD-to-token conversion is one-time; the stream thereafter vests the
+    /// calculated token amount normally.
+    ///
+    /// # Arguments
+    /// * `env` - The contract execution environment
+    /// * `sender` - Address funding the stream; must authenticate this call
+    /// * `receiver` - Address that will receive the streamed tokens
+    /// * `token` - Token contract address (SAC-compatible)
+    /// * `usd_config` - USD pegging configuration with oracle address, USD amount, and price bounds
+    /// * `start_time` - Unix timestamp when streaming begins
+    /// * `end_time` - Unix timestamp when streaming completes
+    /// * `vesting` - Vesting curve and metadata (curve type, soulbound flag)
+    ///
+    /// # Returns
+    /// The newly created stream's ID.
+    ///
+    /// # Errors
+    /// * [`Error::InvalidTimeRange`] - start_time >= end_time
+    /// * [`Error::InvalidAmount`] - usd_amount <= 0 or calculation overflow
+    /// * [`Error::OracleFailed`] - Calling the oracle contract failed
+    /// * [`Error::PriceOutOfBounds`] - Oracle price outside configured bounds
+    ///
+    /// # Panics
+    /// Panics with [`Error::AddressRestricted`] if `receiver` is on the restricted list.
+    ///
+    /// # Example
+    /// ```ignore
+    /// let config = UsdStreamConfig {
+    ///     usd_amount: 500_000_000,     // $500
+    ///     max_staleness: 300,
+    ///     min_price: 9_500_000,        // $0.95/token
+    ///     max_price: 10_500_000,       // $1.05/token
+    /// };
+    ///
+    /// let stream_id = StellarStreamContract::create_stream_usd(
+    ///     env,
+    ///     sender,
+    ///     receiver,
+    ///     usdc_token,
+    ///     config,
+    ///     price_oracle,
+    ///     1000,
+    ///     1_704_067_200 + 86_400,
+    ///     StreamOptions {
+    ///         curve_type: CurveType::Linear,
+    ///         is_soulbound: false,
+    ///         vault_address: None,
+    ///     },
+    /// )?;
+    /// ```
+    pub fn create_stream_usd(
+        env: Env,
+        sender: Address,
+        receiver: Address,
+        token: Address,
+        usd_config: types::UsdStreamConfig,
+        oracle: Address,
+        start_time: u64,
+        vesting: StreamOptions,
+    ) -> Result<u64, Error> {
+        sender.require_auth();
+
+        // Validate USD amount
+        if usd_config.usd_amount <= 0 {
+            return Err(Error::InvalidAmount);
+        }
+
+        // Validate time range
+        let end_time = start_time + 86_400; // Default: 1 day duration
+        let cliff_time = start_time + 43_200; // Default: 12 hour cliff
+
+        // Query oracle for current price
+        let price = crate::oracle::get_price(&env, &oracle, usd_config.max_staleness)
+            .map_err(|_| Error::OracleFailed)?;
+
+        // Validate price is within acceptable bounds (slippage protection)
+        if price < usd_config.min_price || price > usd_config.max_price {
+            return Err(Error::PriceOutOfBounds);
+        }
+
+        // Calculate token amount from USD amount
+        let token_amount = crate::oracle::calculate_token_amount(usd_config.usd_amount, price)
+            .map_err(|_| Error::InvalidAmount)?;
+
+        // Create regular stream with calculated token amount
+        let stream_id = Self::create_stream_internal(
+            env.clone(),
+            sender.clone(),
+            receiver.clone(),
+            token.clone(),
+            token_amount,
+            start_time,
+            cliff_time,
+            end_time,
+            Vec::new(&env),
+            vesting,
+        )?;
+
+        // Update stream to mark it as USD-pegged
+        let stream_key = (STREAM_COUNT, stream_id);
+        let mut stream: Stream = env
+            .storage()
+            .instance()
+            .get(&stream_key)
+            .ok_or(Error::StreamNotFound)?;
+
+        stream.is_usd_pegged = true;
+        stream.usd_amount = usd_config.usd_amount;
+        stream.oracle_address = oracle;
+        stream.oracle_max_staleness = usd_config.max_staleness;
+        stream.price_min = usd_config.min_price;
+        stream.price_max = usd_config.max_price;
+
+        env.storage().instance().set(&stream_key, &stream);
+
+        Ok(stream_id)
+    }
+
 
     /// Internal, non-authorizing stream creation shared by the public entry
     /// points. Callers must authenticate `sender` exactly once per invocation

@@ -932,3 +932,20 @@ impl StreamFilter {
         true
     }
 }
+
+/// Configuration parameters for creating a USD-pegged stream.
+///
+/// This struct bundles USD pegging parameters to work around Soroban's
+/// maximum of 10 contract function parameters per entry point.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct UsdStreamConfig {
+    /// Target USD value (7 decimals); e.g. 500_000_000 = $500
+    pub usd_amount: i128,
+    /// Maximum age (in seconds) of oracle price
+    pub max_staleness: u64,
+    /// Minimum acceptable oracle price (slippage protection)
+    pub min_price: i128,
+    /// Maximum acceptable oracle price (slippage protection)
+    pub max_price: i128,
+}
