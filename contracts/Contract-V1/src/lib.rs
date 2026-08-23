@@ -25,6 +25,9 @@ mod pause_resume_test;
 mod cliff_test;
 
 #[cfg(test)]
+mod query_test;
+
+#[cfg(test)]
 #[cfg(all(test, feature = "allowlist_tests"))]
 mod allowlist_test;
 #[cfg(all(test, feature = "clawback_tests"))]
@@ -1135,6 +1138,7 @@ impl StellarStreamContract {
             request.token.clone(),
             request.total_amount,
             request.start_time,
+            request.start_time, // cliff_time same as start_time (no cliff)
             request.start_time + request.duration,
             CurveType::Linear,
             false, // is_soulbound
@@ -1233,6 +1237,106 @@ impl StellarStreamContract {
         stream.receipt_owner = new_owner;
         env.storage().instance().set(&stream_key, &stream);
         Ok(())
+    }
+
+    /// Query streams with advanced filtering and pagination support.
+    ///
+    /// This function provides powerful stream search capabilities with optional filtering by:
+    /// - Token address
+    /// - Stream state (Active, Paused, Closed)
+    /// - Amount range (min_amount to max_amount)
+    /// - Time range (started after, ended before)
+    ///
+    /// Pagination prevents gas limit issues and enables efficient querying of large datasets.
+    /// Results are capped at 50 per query (enforced by MAX_QUERY_LIMIT).
+    ///
+    /// # Parameters
+    /// - `env`: Soroban environment
+    /// - `filter`: StreamFilter with optional criteria. All filters use AND logic.
+    /// - `offset`: Number of matching streams to skip (0-based)
+    /// - `limit`: Number of results to return (0-50, capped at 50)
+    ///
+    /// # Returns
+    /// Vector of Stream objects matching all filter criteria, paginated by offset/limit.
+    ///
+    /// # Examples
+    ///
+    /// Get first 50 active streams:
+    /// ```ignore
+    /// let filter = StreamFilter {
+    ///     token: None,
+    ///     state: Some(StreamState::Active),
+    ///     min_amount: None,
+    ///     max_amount: None,
+    ///     start_time_after: None,
+    ///     end_time_before: None,
+    /// };
+    /// let streams = StellarStreamContract::query_streams(env, filter, 0, 50);
+    /// ```
+    ///
+    /// Get USDC streams with amounts between 100 and 10000:
+    /// ```ignore
+    /// let filter = StreamFilter {
+    ///     token: Some(usdc_address),
+    ///     state: None,
+    ///     min_amount: Some(100),
+    ///     max_amount: Some(10000),
+    ///     start_time_after: None,
+    ///     end_time_before: None,
+    /// };
+    /// let page1 = StellarStreamContract::query_streams(env.clone(), filter.clone(), 0, 50);
+    /// let page2 = StellarStreamContract::query_streams(env, filter, 50, 50);
+    /// ```
+    pub fn query_streams(
+        env: Env,
+        filter: types::StreamFilter,
+        offset: u32,
+        limit: u32,
+    ) -> Vec<Stream> {
+        const MAX_QUERY_LIMIT: u32 = 50;
+
+        // Cap limit to prevent excessive gas usage
+        let capped_limit = if limit > MAX_QUERY_LIMIT {
+            MAX_QUERY_LIMIT
+        } else if limit == 0 {
+            MAX_QUERY_LIMIT
+        } else {
+            limit
+        };
+
+        // Get total stream count
+        let stream_count: u64 = env
+            .storage()
+            .instance()
+            .get(&STREAM_COUNT)
+            .unwrap_or(0);
+
+        let mut results: Vec<Stream> = Vec::new(&env);
+        let mut matched_count: u32 = 0;
+        let mut skipped_count: u32 = 0;
+
+        // Iterate through all stream IDs
+        for stream_id in 1..=stream_count {
+            // Try to get the stream
+            if let Ok(stream) = Self::get_stream(env.clone(), stream_id) {
+                // Check if stream matches all filter criteria
+                if filter.matches(&stream) {
+                    // Skip until we reach the offset
+                    if skipped_count < offset {
+                        skipped_count += 1;
+                    } else if matched_count < capped_limit {
+                        // Add to results
+                        results.push_back(stream);
+                        matched_count += 1;
+                    } else {
+                        // We have enough results, stop searching
+                        break;
+                    }
+                }
+            }
+        }
+
+        results
     }
 }
 

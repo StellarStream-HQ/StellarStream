@@ -356,3 +356,130 @@ pub struct RequestExecutedEvent {
     pub executor: Address,
     pub timestamp: u64,
 }
+
+/// Advanced filter for querying streams with multiple criteria.
+///
+/// This struct provides flexible filtering capabilities for searching streams across the contract.
+/// All fields are optional, allowing for powerful combination queries:
+///
+/// - **token**: Filter streams by specific token address. Useful for querying all streams for a particular token.
+/// - **state**: Filter by stream state (Active, Paused, or Closed). Enables finding only active streams or historical data.
+/// - **min_amount**: Filter streams with total_amount >= this value. Use for finding significant streams.
+/// - **max_amount**: Filter streams with total_amount <= this value. Use for finding smaller streams or within budget ranges.
+/// - **start_time_after**: Filter streams that started after this timestamp. Useful for finding recent streams.
+/// - **end_time_before**: Filter streams that end before this timestamp. Useful for finding expiring streams.
+///
+/// When multiple filters are provided, they are combined with AND logic (all must match).
+/// When all filters are None, all streams are returned (limited by pagination).
+///
+/// # Gas Efficiency
+/// Pagination with offset/limit is required to prevent exceeding gas limits when retrieving large datasets.
+/// The contract limits results to 50 per query to ensure predictable gas costs.
+///
+/// # Examples
+///
+/// ```ignore
+/// // Get all USDC streams that are currently active
+/// let filter = StreamFilter {
+///     token: Some(usdc_address),
+///     state: Some(StreamState::Active),
+///     min_amount: None,
+///     max_amount: None,
+///     start_time_after: None,
+///     end_time_before: None,
+/// };
+///
+/// // Get expired streams within a value range
+/// let filter = StreamFilter {
+///     token: None,
+///     state: None,
+///     min_amount: Some(1000),
+///     max_amount: Some(10000),
+///     start_time_after: None,
+///     end_time_before: Some(current_time),
+/// };
+/// ```
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct StreamFilter {
+    /// Filter by token address. If None, no token filtering is applied.
+    pub token: Option<Address>,
+    
+    /// Filter by stream state (Active, Paused, Closed). If None, all states are included.
+    pub state: Option<StreamState>,
+    
+    /// Minimum stream amount (inclusive). If None, no minimum bound is applied.
+    pub min_amount: Option<i128>,
+    
+    /// Maximum stream amount (inclusive). If None, no maximum bound is applied.
+    pub max_amount: Option<i128>,
+    
+    /// Filter streams started after this timestamp (exclusive). If None, no lower time bound.
+    pub start_time_after: Option<u64>,
+    
+    /// Filter streams ending before this timestamp (inclusive). If None, no upper time bound.
+    pub end_time_before: Option<u64>,
+}
+
+impl StreamFilter {
+    /// Creates an empty filter that matches all streams.
+    /// Useful for paginating through all streams in the contract.
+    pub fn all() -> Self {
+        StreamFilter {
+            token: None,
+            state: None,
+            min_amount: None,
+            max_amount: None,
+            start_time_after: None,
+            end_time_before: None,
+        }
+    }
+
+    /// Check if a stream matches all applied filter criteria.
+    /// Returns true if the stream passes all filters, false otherwise.
+    pub fn matches(&self, stream: &Stream) -> bool {
+        // Check token filter
+        if let Some(ref token_filter) = self.token {
+            if stream.token != *token_filter {
+                return false;
+            }
+        }
+
+        // Check state filter
+        if let Some(ref state_filter) = self.state {
+            if stream.state != *state_filter {
+                return false;
+            }
+        }
+
+        // Check min_amount filter
+        if let Some(min) = self.min_amount {
+            if stream.total_amount < min {
+                return false;
+            }
+        }
+
+        // Check max_amount filter
+        if let Some(max) = self.max_amount {
+            if stream.total_amount > max {
+                return false;
+            }
+        }
+
+        // Check start_time_after filter
+        if let Some(after_time) = self.start_time_after {
+            if stream.start_time <= after_time {
+                return false;
+            }
+        }
+
+        // Check end_time_before filter
+        if let Some(before_time) = self.end_time_before {
+            if stream.end_time > before_time {
+                return false;
+            }
+        }
+
+        true
+    }
+}
