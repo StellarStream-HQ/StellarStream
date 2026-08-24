@@ -81,4 +81,12 @@ pub enum Error {
     DisputeExpired = 36,
     /// The proposed resolution is invalid for the given dispute.
     InvalidResolution = 37,
+    /// The recurring stream has been manually stopped and will not auto-renew.
+    RecurringStopped = 38,
+    /// The recurring stream has reached its maximum number of occurrences.
+    MaxOccurrencesReached = 39,
+    /// The sender lacks sufficient balance to fund the next recurring period.
+    InsufficientRenewalBalance = 40,
+    /// The current stream period has not yet ended; renewal not allowed yet.
+    StreamNotActive = 41,
 }

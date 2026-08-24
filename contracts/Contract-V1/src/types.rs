@@ -279,6 +279,8 @@ pub enum DataKey {
     UpgradeProposal(u64),
     /// `Vec<UpgradeRecord>` log of previously executed upgrades.
     UpgradeHistory,
+    /// Recurrence configuration for a recurring stream, keyed by root stream ID.
+    Recurrence(u64),
 }
 
 /// NFT-style ownership receipt for a stream, tracking who is entitled to manage or
@@ -802,6 +804,96 @@ pub struct DisputeResolvedEvent {
     pub stream_id: u64,
     /// The resolution that was executed.
     pub resolution: DisputeResolution,
+    /// Unix timestamp when the event was emitted.
+    pub timestamp: u64,
+}
+
+// ========== Recurring Stream Types ==========
+
+/// Configuration that controls whether and how a stream auto-renews after its
+/// period completes.
+///
+/// Stored under [`DataKey::Recurrence(root_stream_id)`] alongside the first
+/// period's stream. Updated by [`renew_stream`] and [`stop_recurring_stream`].
+///
+/// # Recurrence mechanics
+/// - `max_occurrences == 0` → unlimited (renews until manually stopped).
+/// - `max_occurrences > 0` → stops after that many **renewal** periods.
+/// - The first period is always created by [`create_recurring_stream`] and is
+///   not counted in `occurrences_completed`; each subsequent period increments
+///   the counter by one.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RecurrenceConfig {
+    /// Whether auto-renewal is still active. `false` after manual stop or when
+    /// `max_occurrences` is reached.
+    pub enabled: bool,
+    /// Maximum renewal periods. `0` means unlimited.
+    pub max_occurrences: u32,
+    /// Number of renewal periods completed so far (not counting the first period).
+    pub occurrences_completed: u32,
+    /// Token amount streamed per period.
+    pub amount_per_period: i128,
+    /// Duration of each period in seconds.
+    pub period_duration: u64,
+    /// Token contract used for all periods.
+    pub token: Address,
+    /// Address funding every period.
+    pub sender: Address,
+    /// Address receiving tokens every period.
+    pub receiver: Address,
+    /// Stream ID of the most recently created period in this chain.
+    pub current_stream_id: u64,
+}
+
+/// Event emitted when a new recurring stream chain is started.
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct RecurringStreamCreatedEvent {
+    /// Root stream ID (first period).
+    pub root_stream_id: u64,
+    /// Token contract being streamed.
+    pub token: Address,
+    /// Funding address.
+    pub sender: Address,
+    /// Receiving address.
+    pub receiver: Address,
+    /// Amount per period.
+    pub amount_per_period: i128,
+    /// Duration of each period in seconds.
+    pub period_duration: u64,
+    /// Maximum renewals (`0` = unlimited).
+    pub max_occurrences: u32,
+    /// Unix timestamp when the event was emitted.
+    pub timestamp: u64,
+}
+
+/// Event emitted when a recurring stream renews for a new period.
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct RecurringStreamRenewedEvent {
+    /// Root stream ID (the chain anchor).
+    pub root_stream_id: u64,
+    /// Stream ID of the newly created renewal period.
+    pub new_stream_id: u64,
+    /// Total renewals completed including this one.
+    pub occurrences_completed: u32,
+    /// Maximum renewals (`0` = unlimited).
+    pub max_occurrences: u32,
+    /// Unix timestamp when the event was emitted.
+    pub timestamp: u64,
+}
+
+/// Event emitted when a recurring stream is manually stopped.
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct RecurringStreamStoppedEvent {
+    /// Root stream ID.
+    pub root_stream_id: u64,
+    /// Address that stopped the stream.
+    pub stopped_by: Address,
+    /// Renewals completed before stopping.
+    pub occurrences_completed: u32,
     /// Unix timestamp when the event was emitted.
     pub timestamp: u64,
 }
