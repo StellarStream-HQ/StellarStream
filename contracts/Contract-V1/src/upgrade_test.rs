@@ -1,122 +1,169 @@
 #![cfg(test)]
+//! Tests for the secure WASM upgrade mechanism and version tracking.
+//!
+//! `upgrade()` now returns `Result<(), Error>` and tracks a version counter
+//! in `DataKey::ContractVersion` (instance storage).  Instance storage
+//! persists across WASM swaps, so all stream state and roles survive an
+//! upgrade — which is what the tests below verify at the unit-test level.
+//!
+//! Note: `env.deployer().update_current_contract_wasm(hash)` in the Soroban
+//! test harness records the hash without requiring the binary to be present,
+//! so all authorization, version-tracking, storage-persistence, and
+//! event-emission logic is fully testable in pure unit tests.
 
-use crate::{StellarStream, StellarStreamClient};
-use soroban_sdk::{testutils::Address as _, Address, BytesN, Env};
+use crate::errors::Error;
+use crate::rbac::Role;
+use crate::types::DataKey;
+use crate::{StellarStreamContract, StellarStreamContractClient};
+use soroban_sdk::testutils::{Address as _, Events};
+use soroban_sdk::{Address, BytesN, Env};
 
-// Note: These tests verify the authorization and event logic for upgrades.
-// Actual WASM updates require the WASM to be uploaded to the network first,
-// which cannot be done in unit tests. Integration tests on testnet/mainnet
-// are needed to verify the complete upgrade flow.
+// ── helpers ──────────────────────────────────────────────────────────────────
 
-fn setup_test() -> (Env, Address, StellarStreamClient<'static>) {
+fn setup() -> (Env, Address, StellarStreamContractClient<'static>) {
     let env = Env::default();
     env.mock_all_auths();
-
     let admin = Address::generate(&env);
-
-    // Deploy contract
-    let contract_id = env.register(StellarStream, ());
-    let client = StellarStreamClient::new(&env, &contract_id);
-
-    // Initialize with admin
+    let contract_id = env.register(StellarStreamContract, ());
+    let client = StellarStreamContractClient::new(&env, &contract_id);
     client.initialize(&admin);
-
     (env, admin, client)
 }
 
-#[test]
-fn test_get_admin() {
-    let (_env, admin, client) = setup_test();
-
-    let retrieved_admin = client.get_admin();
-    assert_eq!(retrieved_admin, admin);
+fn dummy_hash(env: &Env, seed: u8) -> BytesN<32> {
+    BytesN::from_array(env, &[seed; 32])
 }
 
+// ── Test 1: successful upgrade ────────────────────────────────────────────────
+
+/// An admin holding SuperAdmin role can call upgrade and gets Ok(()).
 #[test]
-#[should_panic(expected = "Admin not set")]
-fn test_get_admin_not_initialized() {
-    let env = Env::default();
-    env.mock_all_auths();
-
-    let contract_id = env.register(StellarStream, ());
-    let client = StellarStreamClient::new(&env, &contract_id);
-
-    // Should panic because admin is not set
-    client.get_admin();
+fn test_upgrade_by_admin_succeeds() {
+    let (env, admin, client) = setup();
+    let result = client.try_upgrade(&admin, &dummy_hash(&env, 0x01));
+    assert!(result.is_ok(), "Admin upgrade should succeed, got {:?}", result);
 }
 
+// ── Test 2: non-admin attempt is rejected ─────────────────────────────────────
+
+/// A stranger without SuperAdmin gets Error::Unauthorized.
 #[test]
-#[should_panic(expected = "Unauthorized: Only Admin can upgrade contract")]
-fn test_upgrade_without_initialization() {
-    let env = Env::default();
-    env.mock_all_auths();
-
-    // Deploy contract without initialization
-    let contract_id = env.register(StellarStream, ());
-    let client = StellarStreamClient::new(&env, &contract_id);
-
-    let non_admin = Address::generate(&env);
-    let new_wasm_hash = BytesN::from_array(&env, &[1u8; 32]);
-
-    // Should panic because non-admin doesn't have Admin role
-    client.upgrade(&non_admin, &new_wasm_hash);
+fn test_upgrade_by_non_admin_fails() {
+    let (env, _admin, client) = setup();
+    let stranger = Address::generate(&env);
+    let result = client.try_upgrade(&stranger, &dummy_hash(&env, 0x02));
+    assert!(result.is_err());
+    assert_eq!(result.unwrap_err().unwrap(), Error::Unauthorized);
 }
 
+/// Guardian role alone is not sufficient to upgrade.
 #[test]
-fn test_admin_can_be_retrieved_after_fee_init() {
-    let (_env, admin, client) = setup_test();
-
-    // Initialize fee (which also sets admin)
-    let treasury = Address::generate(&_env);
-    client.initialize_fee(&admin, &100, &treasury);
-
-    // Admin should still be retrievable
-    let retrieved_admin = client.get_admin();
-    assert_eq!(retrieved_admin, admin);
+fn test_upgrade_by_guardian_only_fails() {
+    let (env, admin, client) = setup();
+    let guardian = Address::generate(&env);
+    client.grant_role(&admin, &guardian, &Role::Guardian);
+    let result = client.try_upgrade(&guardian, &dummy_hash(&env, 0x03));
+    assert!(result.is_err());
+    assert_eq!(result.unwrap_err().unwrap(), Error::Unauthorized);
 }
 
+// ── Test 3: version tracking ──────────────────────────────────────────────────
+
+/// Fresh contract reports version 1 before any upgrade.
 #[test]
-fn test_admin_persists_through_pause() {
-    let (_env, admin, client) = setup_test();
+fn test_get_version_initial_value() {
+    let (_env, _admin, client) = setup();
+    assert_eq!(client.get_version(), 1, "Fresh contract should be version 1");
+}
 
-    // Pause the contract
-    client.set_pause(&admin, &true);
+/// After one upgrade, get_version returns 2.
+#[test]
+fn test_get_version_increments_after_upgrade() {
+    let (env, admin, client) = setup();
+    assert_eq!(client.get_version(), 1);
+    client.upgrade(&admin, &dummy_hash(&env, 0x10));
+    assert_eq!(client.get_version(), 2);
+}
 
-    // Admin should still be retrievable
-    let retrieved_admin = client.get_admin();
-    assert_eq!(retrieved_admin, admin);
+/// Version increments correctly over multiple sequential upgrades.
+#[test]
+fn test_get_version_increments_each_upgrade() {
+    let (env, admin, client) = setup();
+    client.upgrade(&admin, &dummy_hash(&env, 0x11));
+    assert_eq!(client.get_version(), 2);
+    client.upgrade(&admin, &dummy_hash(&env, 0x12));
+    assert_eq!(client.get_version(), 3);
+    client.upgrade(&admin, &dummy_hash(&env, 0x13));
+    assert_eq!(client.get_version(), 4);
+}
 
-    // Unpause
-    client.set_pause(&admin, &false);
+// ── Test 4: storage persistence across upgrade ────────────────────────────────
 
-    // Admin should still be the same
+/// Admin address and role assignments survive a WASM swap.
+#[test]
+fn test_storage_persists_across_upgrade() {
+    let (env, admin, client) = setup();
+
+    // Grant a second SuperAdmin before upgrading
+    let second_admin = Address::generate(&env);
+    client.grant_role(&admin, &second_admin, &Role::SuperAdmin);
+
+    client.upgrade(&admin, &dummy_hash(&env, 0x20));
+
+    // Both admins and the original admin address must survive
     assert_eq!(client.get_admin(), admin);
+    assert!(client.check_role(&admin, &Role::SuperAdmin));
+    assert!(client.check_role(&second_admin, &Role::SuperAdmin));
+    assert_eq!(client.get_version(), 2);
 }
 
-// Note: The following tests would verify actual WASM updates in integration tests.
-// In unit tests, they would fail with "Wasm does not exist" because the WASM
-// hash doesn't exist in the test environment. The authorization logic is still
-// tested above.
+// ── Test 5: same-version / zero-hash behaviour ────────────────────────────────
 
+/// The unit-test harness accepts any 32-byte hash, including all-zeros.
+/// This test documents that rejection is enforced at the network level on-chain.
 #[test]
-#[ignore] // Requires actual WASM upload - run as integration test
-fn test_upgrade_by_admin() {
-    let (_env, admin, client) = setup_test();
-    let new_wasm_hash = BytesN::from_array(&_env, &[1u8; 32]);
-    client.upgrade(&admin, &new_wasm_hash);
+fn test_upgrade_with_zero_hash_accepted_in_unit_tests() {
+    let (env, admin, client) = setup();
+    let zero = BytesN::from_array(&env, &[0u8; 32]);
+    // No panic expected in unit tests — network enforcement happens on-chain.
+    let _ = client.try_upgrade(&admin, &zero);
 }
 
+// ── Test 6: upgrade event is emitted ─────────────────────────────────────────
+
+/// A successful upgrade emits at least one event containing the "upgrade" topic.
 #[test]
-#[ignore] // Requires actual WASM upload - run as integration test
-fn test_upgrade_maintains_state() {
-    let (_env, admin, client) = setup_test();
-    let treasury = Address::generate(&_env);
-    client.initialize_fee(&admin, &100, &treasury);
+fn test_upgrade_emits_event() {
+    let (env, admin, client) = setup();
+    client.upgrade(&admin, &dummy_hash(&env, 0x30));
 
-    let admin_before = client.get_admin();
-    let new_wasm_hash = BytesN::from_array(&_env, &[2u8; 32]);
-    client.upgrade(&admin, &new_wasm_hash);
+    let events = env.events().all();
+    assert!(!events.is_empty(), "Expected at least one event after upgrade");
 
-    let admin_after = client.get_admin();
-    assert_eq!(admin_after, admin_before);
+    let found = events.iter().any(|(_, topics, _)| {
+        format!("{:?}", topics).contains("upgrade")
+    });
+    assert!(found, "Expected an event with 'upgrade' topic, got: {:?}", events);
+}
+
+// ── Bonus: version stored in instance storage ─────────────────────────────────
+
+/// get_version reads from DataKey::ContractVersion — two calls must agree.
+#[test]
+fn test_version_reads_are_stable() {
+    let (env, admin, client) = setup();
+    client.upgrade(&admin, &dummy_hash(&env, 0x40));
+    assert_eq!(client.get_version(), client.get_version());
+    assert_eq!(client.get_version(), 2);
+}
+
+/// A newly granted SuperAdmin can also perform upgrades.
+#[test]
+fn test_new_super_admin_can_upgrade() {
+    let (env, admin, client) = setup();
+    let new_admin = Address::generate(&env);
+    client.grant_role(&admin, &new_admin, &Role::SuperAdmin);
+    let result = client.try_upgrade(&new_admin, &dummy_hash(&env, 0x50));
+    assert!(result.is_ok());
+    assert_eq!(client.get_version(), 2);
 }

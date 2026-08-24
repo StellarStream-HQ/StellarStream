@@ -74,6 +74,9 @@ mod ttl_stress_test;
 mod recurring_test;
 
 #[cfg(test)]
+mod upgrade_test;
+
+#[cfg(test)]
 mod test;
 
 use errors::Error;
@@ -901,25 +904,82 @@ impl StellarStreamContract {
     /// * `admin` - Caller; must authenticate this call and hold [`Role::SuperAdmin`]
     /// * `new_wasm_hash` - Hash of the new WASM code to upgrade to
     ///
-    /// # Note
-    /// Unlike most role-gated entry points in this contract, an unauthorized caller
-    /// causes this function to silently return without upgrading or panicking, rather
-    /// than raising [`Error::Unauthorized`].
-    pub fn upgrade(env: Env, admin: Address, new_wasm_hash: soroban_sdk::BytesN<32>) {
+    /// Upgrades the contract to new WASM code. Caller must hold [`Role::SuperAdmin`].
+    ///
+    /// # Upgrade process
+    /// 1. Caller authenticates and is verified to hold [`Role::SuperAdmin`].
+    /// 2. The current version is read from [`DataKey::ContractVersion`]
+    ///    (defaults to `1` on a deployment that has never been upgraded).
+    /// 3. `env.deployer().update_current_contract_wasm` atomically swaps the WASM.
+    ///    Instance storage — including all stream state, role assignments, and the
+    ///    version counter — is **preserved** across the swap.
+    /// 4. The version counter is incremented by one and written back to storage.
+    /// 5. An `upgrade` event is emitted carrying the new hash, new version, and caller.
+    ///
+    /// # Arguments
+    /// * `env` - The contract execution environment
+    /// * `admin` - Caller; must authenticate and hold [`Role::SuperAdmin`]
+    /// * `new_wasm_hash` - 32-byte hash of the new WASM binary
+    ///
+    /// # Returns
+    /// `Ok(())` on success.
+    ///
+    /// # Errors
+    /// * [`Error::Unauthorized`] — caller does not hold [`Role::SuperAdmin`]
+    pub fn upgrade(
+        env: Env,
+        admin: Address,
+        new_wasm_hash: soroban_sdk::BytesN<32>,
+    ) -> Result<(), Error> {
         admin.require_auth();
 
-        // Check if caller has Admin role
         if !Self::has_role(&env, &admin, Role::SuperAdmin) {
-            return; // Error::Unauthorized;
+            return Err(Error::Unauthorized);
         }
 
-        // Update the contract WASM
+        // Read current version (defaults to 1 for a first upgrade of an
+        // unversioned deployment).
+        let current_version: u32 = env
+            .storage()
+            .instance()
+            .get(&DataKey::ContractVersion)
+            .unwrap_or(1);
+        let new_version = current_version + 1;
+
+        // Atomically swap the WASM. Instance storage persists across the swap,
+        // so the version write below is still visible after the upgrade.
         env.deployer()
             .update_current_contract_wasm(new_wasm_hash.clone());
 
-        // Emit upgrade event with new WASM hash
-        env.events()
-            .publish((symbol_short!("upgrade"), admin), new_wasm_hash);
+        // Persist the incremented version.
+        env.storage()
+            .instance()
+            .set(&DataKey::ContractVersion, &new_version);
+
+        // Emit upgrade event: (topic, data = (hash, new_version, admin))
+        env.events().publish(
+            (symbol_short!("upgrade"), admin.clone()),
+            (new_wasm_hash, new_version, admin),
+        );
+
+        Ok(())
+    }
+
+    /// Returns the current contract version.
+    ///
+    /// The version starts at `1` on a fresh deployment and increments by one
+    /// each time [`upgrade`](StellarStreamContract::upgrade) succeeds.
+    ///
+    /// # Arguments
+    /// * `env` - The contract execution environment
+    ///
+    /// # Returns
+    /// Current version as `u32`. Returns `1` if the contract has never been upgraded.
+    pub fn get_version(env: Env) -> u32 {
+        env.storage()
+            .instance()
+            .get(&DataKey::ContractVersion)
+            .unwrap_or(1)
     }
 
     /// Returns the contract admin address recorded at [`initialize`](StellarStreamContract::initialize).
