@@ -155,7 +155,9 @@ describe("ComplianceReportService", () => {
 
     // Secure permissions: owner read/write only
     const stat = fs.statSync(path.join(REPORTS_DIR, files[0]));
-    expect(stat.mode & 0o777).toBe(0o600);
+    if (process.platform !== 'win32') {
+      expect(stat.mode & 0o777).toBe(0o600);
+    }
   });
 
   it("generates a CSV report with correct checksum", async () => {

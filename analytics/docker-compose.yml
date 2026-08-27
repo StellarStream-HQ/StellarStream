@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  stellarstream-analytics:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stellarstream-analytics
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - NODE_ENV=production
+      - STELLAR_NETWORK=testnet
+      - SOROBAN_RPC_URL=https://soroban-testnet.stellar.org
+      - INDEXER_POLL_INTERVAL_MS=3000
+      - RETENTION_RAW_EVENTS_DAYS=90
+      - RETENTION_HOURLY_ROLLUP_DAYS=365
+      - RETENTION_DAILY_ROLLUP_DAYS=0
+      - CORS_ORIGIN=*
+    volumes:
+      - analytics-data:/app/data
+
+volumes:
+  analytics-data:
+    driver: local

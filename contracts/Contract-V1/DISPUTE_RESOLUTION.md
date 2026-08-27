@@ -1,197 +1,135 @@
-# Dispute Resolution (Arbiter Role)
+# Dispute Resolution Framework (issue #1471)
 
 ## Overview
-Implements third-party arbitration for "Work for Hire" scenarios where sender and receiver disagree on work completion.
 
-## Issue #35 Requirements ✅
+StellarStream streams are pull-based: the sender keeps custody of un-streamed
+tokens and each withdrawal pulls funds out at vesting time. That design gives
+the receiver no unilateral claim on future balance — but it also leaves the
+parties without a neutral path when they *disagree*. The dispute framework
+(issue #1471) adds that path: either party can escalate a disagreement to a
+set of arbitrators, who review and vote; the outcome is executed
+automatically by the contract.
 
-### ✅ Arbiter Designation
-**Requirement:** Allow an optional arbiter: Address during stream creation.
+> Note: this replaces the earlier single-arbiter design sketched for issue
+> #35 (`set_arbiter` / `freeze_stream` / `resolve_dispute`), which was never
+> merged into the current contract.
 
-**Implementation:**
-- `arbiter: Option<Address>` field added to Stream struct
-- `set_arbiter(stream_id, sender, arbiter)` function allows sender to designate arbiter
-- Arbiter can be set after stream creation (avoids 10-parameter limit)
+## Roles
 
-```rust
-// Designate arbiter
-contract.set_arbiter(&stream_id, &sender, &arbiter_address);
+| Role | Constant | Powers |
+|---|---|---|
+| Sender / Receiver | — | Raise at most one dispute per stream |
+| Arbitrator | `ROLE_ARBITRATOR = 3` | Vote once per dispute |
+| Admin | `ROLE_ADMIN = 0` | Add/remove arbitrators, set the approval threshold |
+
+**Arbitration authority is separate from administration**: an admin must
+explicitly grant `ROLE_ARBITRATOR`, and holding `ROLE_ADMIN` confers no
+voting power.
+
+
+
+## Lifecycle
+
+```text
+sender or receiver          arbitrators                    anyone
+      │                          │                           │
+      │ raise_dispute            │ vote_on_dispute           │ close_expired_dispute
+      ▼                          ▼                           ▼
+ ┌─────────┐  approvals ≥ threshold ┌───────────┐    deadline passed,
+ │  Open   │────────(execute)──────▶│ Resolved  │    no threshold met
+ │ (locked)│  rejections ≥ threshold│           │          │
+ └─────────┘────────(reject)───────▶└───────────┘◀────close──┘
 ```
 
-### ✅ Actions: freeze_stream() and resolve_dispute()
-**Requirement:** Implement freeze_stream(id) and resolve_dispute(id, split_ratio) for the Arbiter.
+1. **Raise** — `raise_dispute(stream_id, caller, reason, proposed_resolution)`.
+   Only the stream's sender or receiver may call it; only one dispute may be
+   open per stream; closed streams cannot be disputed; monetary amounts are
+   validated against the remaining balance.
+2. **Vote** — `vote_on_dispute(dispute_id, arbitrator, approve)`. One vote per
+   arbitrator. While a dispute is open **every stream operation is blocked**
+   (`withdraw`, `batch_withdraw`, `cancel_stream`, `pause_stream`,
+   `resume_stream` and all clawback entry points return `StreamDisputed`),
+   so the balance a resolution acts upon is immutable during the window.
+3. **Auto-execute** — when approvals reach the threshold
+   (`set_arbitration_threshold`, default `DEFAULT_ARBITRATION_THRESHOLD = 1`)
+   the proposed resolution runs immediately and atomically. When rejections
+   reach the threshold first, the dispute finalizes without executing.
 
-**Implementation:**
+## Resolutions
 
-#### freeze_stream()
 ```rust
-pub fn freeze_stream(env: Env, stream_id: u64, arbiter: Address) -> Result<(), Error>
-```
-- Only designated arbiter can call
-- Sets `is_frozen: true` on stream
-- Emits `StreamFrozenEvent`
-- Prevents all withdrawals while frozen
-
-#### resolve_dispute()
-```rust
-pub fn resolve_dispute(
-    env: Env, 
-    stream_id: u64, 
-    arbiter: Address, 
-    split_percentage: u32
-) -> Result<(), Error>
-```
-- Only designated arbiter can call
-- `split_percentage` in basis points (0-10000 = 0%-100%)
-- Calculates split of remaining balance
-- Handles vault withdrawals if applicable
-- Transfers funds to sender and receiver
-- Marks stream as cancelled
-- Emits `DisputeResolvedEvent`
-
-### ✅ Resolution: Arbiter decides X% to sender, Y% to receiver
-**Requirement:** The arbiter can decide to give X% to the sender and Y% to the receiver to close the stream.
-
-**Implementation:**
-```rust
-// Calculate split (split_percentage goes to receiver)
-let to_receiver = (remaining_balance * split_percentage as i128) / 10000;
-let to_sender = remaining_balance - to_receiver;
-
-// Transfer to both parties
-token_client.transfer(&contract, &stream.receiver, &to_receiver);
-token_client.transfer(&contract, &stream.sender, &to_sender);
+pub enum DisputeResolution {
+    RefundSender(i128), // amount ∈ (0, remaining]: close, remainder stays with sender
+    PayReceiver(i128),  // amount ∈ (0, remaining]: pay receiver now, then close
+    FreezeStream,       // permanent lock; every operation returns StreamFrozen
+    CancelStream,       // identical to a sender cancellation
+}
 ```
 
-**Examples:**
-- `split_percentage: 6000` → 60% to receiver, 40% to sender
-- `split_percentage: 5000` → 50/50 split
-- `split_percentage: 10000` → 100% to receiver, 0% to sender
+Amounts are always against the *remaining* balance
+(`total_amount - withdrawn_amount`). StellarStream holds no escrowed tokens,
+so `RefundSender` closes the stream and lets the un-withdrawn remainder stay
+with the sender; `PayReceiver` actively transfers from sender to receiver and
+records the payout as withdrawn before closing.
 
-## Acceptance Criteria ✅
+## API
 
-### ✅ Third party can halt fund flow during conflict
-**Verified:**
-- `freeze_stream()` sets `is_frozen: true`
-- `withdraw()` checks frozen state and returns `Error::StreamFrozen`
-- Test: `test_withdraw_from_frozen_stream_fails` confirms withdrawal blocked
-
-### ✅ Arbiter cannot take funds themselves
-**Verified:**
-- `resolve_dispute()` only transfers to `stream.sender` and `stream.receiver`
-- No code path allows transfer to arbiter address
-- Split calculation ensures: `to_sender + to_receiver = remaining_balance`
-- Test: `test_resolve_dispute` verifies only sender/receiver get funds
-
-## API Reference
-
-### set_arbiter
-```rust
-pub fn set_arbiter(
-    env: Env,
-    stream_id: u64,
-    sender: Address,
-    arbiter: Address
-) -> Result<(), Error>
-```
-**Auth:** Requires sender signature  
-**Errors:** StreamNotFound, Unauthorized, AlreadyCancelled
-
-### freeze_stream
-```rust
-pub fn freeze_stream(
-    env: Env,
-    stream_id: u64,
-    arbiter: Address
-) -> Result<(), Error>
-```
-**Auth:** Requires arbiter signature  
-**Errors:** StreamNotFound, Unauthorized, AlreadyCancelled
-
-### resolve_dispute
-```rust
-pub fn resolve_dispute(
-    env: Env,
-    stream_id: u64,
-    arbiter: Address,
-    split_percentage: u32
-) -> Result<(), Error>
-```
-**Auth:** Requires arbiter signature  
-**Params:** split_percentage (0-10000 basis points)  
-**Errors:** StreamNotFound, Unauthorized, AlreadyCancelled, InvalidAmount
+| Function | Auth | Notes |
+|---|---|---|
+| `add_arbitrator(admin, arbitrator)` | Admin | Grants `ROLE_ARBITRATOR` |
+| `remove_arbitrator(admin, arbitrator)` | Admin | Immediate; past votes stay counted |
+| `get_arbitrators()` / `is_arbitrator(who)` | — | Roster introspection |
+| `set_arbitration_threshold(admin, n)` | Admin | `n ∈ [1, MAX_ARBITRATION_THRESHOLD]` |
+| `get_arbitration_threshold()` | — | Default `DEFAULT_ARBITRATION_THRESHOLD` |
+| `raise_dispute(stream_id, caller, reason, resolution)` | Sender/Receiver | Returns dispute id; locks the stream |
+| `vote_on_dispute(dispute_id, arbitrator, approve)` | Arbitrator | May auto-execute |
+| `close_expired_dispute(dispute_id)` | Anyone | Only after deadline |
+| `get_dispute(id)` / `get_active_dispute_id(stream_id)` / `has_active_dispute(stream_id)` | — | Queries |
 
 ## Events
 
-### StreamFrozenEvent
-```rust
-pub struct StreamFrozenEvent {
-    pub stream_id: u64,
-    pub arbiter: Address,
-    pub timestamp: u64,
-}
-```
+Topics use the `("dispute", action)` pair:
 
-### DisputeResolvedEvent
-```rust
-pub struct DisputeResolvedEvent {
-    pub stream_id: u64,
-    pub arbiter: Address,
-    pub to_sender: i128,
-    pub to_receiver: i128,
-    pub timestamp: u64,
-}
-```
+- `dispute/raised` → `DisputeRaisedEvent { dispute_id, stream_id, raised_by, timestamp }`
+- `dispute/voted` → `DisputeVotedEvent { dispute_id, stream_id, arbitrator, approve, approvals, rejections, threshold, timestamp }`
+- `dispute/resolved` → `DisputeResolvedEvent { dispute_id, stream_id, executed, approved, expired, timestamp }`
 
-## Use Case: Freelance Work
+## Errors
 
-```rust
-// 1. Client creates stream for $10,000 project
-let stream_id = contract.create_stream(
-    &client,
-    &freelancer,
-    &usdc_token,
-    &10_000_000000, // $10k USDC
-    &start_time,
-    &end_time,
-    ...
-);
+Dedicated dispute codes: `DisputeNotFound (50)`, `DisputeAlreadyOpen (51)`
+— also returned by any stream operation attempted on a disputed stream —,
+`DisputeNotOpen (52)` (finalized, or window not yet lapsed for closure),
+`NotArbitrator (53)`, `AlreadyVoted (54)`, `DisputeExpired (55)` and
+`StreamFrozen (56)`. Monetary resolution amounts and thresholds reuse the
+generic `InvalidAmount` and `InvalidApprovalThreshold` codes: the contract
+spec XDR format caps `#[contracterror]` enums at 50 variants.
 
-// 2. Client designates arbiter (e.g., escrow service)
-contract.set_arbiter(&stream_id, &client, &escrow_service);
+## Security notes
 
-// 3. Dispute arises at 50% completion
-// Freelancer claims work done, client disagrees
+1. **No self-dealing** — resolutions only ever move funds between the two
+   stream parties; an arbitrator address can never be a transfer destination.
+2. **Immutable balance under arbitration** — every mutating stream entry
+   point checks `ActiveDispute(stream_id)` first, so votes act on a frozen
+   balance and validation at raise time stays valid at execution time.
+3. **Atomic execution** — the finalized dispute is persisted before the
+   token transfer (checks-effects-interactions); a failed transfer reverts
+   the whole vote rather than leaving it half-applied.
+4. **Freeze is terminal** — `FreezeStream` deliberately has no in-contract
+   thaw path so a compromised arbitrator cannot release a locked stream;
+   recovery requires governance via contract upgrade.
+5. **Bounded lock-up** — the voting window guarantees the dispute lock
+   cannot outlive `DISPUTE_VOTING_PERIOD_SECS`.
 
-// 4. Arbiter freezes stream
-contract.freeze_stream(&stream_id, &escrow_service);
+## Tests
 
-// 5. Arbiter reviews work and decides 70% complete
-contract.resolve_dispute(
-    &stream_id,
-    &escrow_service,
-    &7000 // 70% to freelancer, 30% back to client
-);
+`src/dispute_test.rs` covers: raising by both parties, outsider rejection,
+single-open-dispute rule, invalid amounts/reasons, arbitrator-only voting
+(incl. admin separation), double votes, votes after finalization/deadline,
+threshold auto-execution of all four resolution types, multi-member
+thresholds, insufficient votes keeping the lock, rejection majorities,
+expired closure, blocked withdraw/batch/pause/cancel/clawback, arbitrator
+assignment lifecycle, threshold configuration, events, and balance updates.
 
-// Result:
-// - Freelancer receives $7,000
-// - Client receives $3,000 refund
-// - Stream closed
-```
-
-## Security Considerations
-
-1. **Arbiter Authority:** Only designated arbiter can freeze/resolve
-2. **No Self-Dealing:** Arbiter cannot transfer funds to themselves
-3. **Immutable Resolution:** Once resolved, stream is cancelled (irreversible)
-4. **Vault Integration:** Properly handles yield-bearing vault withdrawals
-5. **Event Transparency:** All actions emit events for audit trail
-
-## Test Coverage
-
-- ✅ `test_freeze_stream` - Arbiter can freeze stream
-- ✅ `test_withdraw_from_frozen_stream_fails` - Withdrawals blocked when frozen
-- ✅ `test_resolve_dispute` - Arbiter splits funds correctly
-- ✅ `test_non_arbiter_cannot_freeze` - Unauthorized freeze rejected
-
-All 49 contract tests passing.
+4. **Expiry** — after `DISPUTE_VOTING_PERIOD_SECS` (7 days) votes fail with
+   `DisputeExpired` and anyone may call `close_expired_dispute(dispute_id)`
+   to finalize without executing and lift the lock.

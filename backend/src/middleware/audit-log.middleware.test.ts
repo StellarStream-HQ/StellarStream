@@ -57,11 +57,12 @@ describe('auditLogMiddleware', () => {
     vi.clearAllMocks();
   });
 
-  it('should initialize audit context on request', () => {
+  it('should initialize audit context on request', async () => {
     auditLogMiddleware(req as Request, res as Response, next);
     expect(req.auditLog).toBeDefined();
     expect(req.auditLog?.entryId).toBeDefined();
     expect(next).toHaveBeenCalled();
+    await new Promise(resolve => setTimeout(resolve, 20));
   });
 
   it('should capture GET request without body', async () => {
@@ -136,7 +137,7 @@ describe('auditLogMiddleware', () => {
     expect(typeof callArgs.executionTimeMs).toBe('number');
   });
 
-  it('should set user context via setAuditContext', () => {
+  it('should set user context via setAuditContext', async () => {
     auditLogMiddleware(req as Request, res as Response, next);
 
     setAuditContext(req as Request, {
@@ -148,6 +149,7 @@ describe('auditLogMiddleware', () => {
     expect(req.auditLog?.userId).toBe('user-123');
     expect(req.auditLog?.userEmail).toBe('john@example.com');
     expect(req.auditLog?.changesSummary).toBe('Created new user');
+    await new Promise(resolve => setTimeout(resolve, 20));
   });
 
   it('should record before and after snapshots', async () => {
@@ -177,6 +179,7 @@ describe('auditLogMiddleware', () => {
     });
 
     auditLogMiddleware(req as Request, res as Response, next);
+    (res as Response).json(largeResponse);
 
     // Trigger finish event
     await new Promise(resolve => setTimeout(resolve, 50));

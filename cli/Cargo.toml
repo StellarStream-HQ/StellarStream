@@ -1,0 +1,54 @@
+[package]
+name = "stellarstream-cli"
+version = "0.1.0"
+edition = "2021"
+description = "Command-line interface for the StellarStream payment-streaming contracts"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/StellarStream-HQ/StellarStream"
+keywords = ["stellar", "soroban", "streaming", "cli"]
+categories = ["command-line-utilities"]
+
+[[bin]]
+name = "stellarstream"
+path = "src/main.rs"
+
+[lib]
+name = "stellarstream_cli"
+path = "src/lib.rs"
+
+[features]
+default = []
+# Build OpenSSL from source instead of linking the system one.
+#
+# soroban-client depends on reqwest 0.11 with native-tls, so a system OpenSSL
+# development package is needed to build. Enable this feature on machines that
+# do not have one:
+#
+#     cargo build --features vendored-tls
+vendored-tls = ["dep:openssl"]
+
+[dependencies]
+clap = { version = "4.5", features = ["derive", "env", "wrap_help"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+thiserror = "2"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
+dialoguer = "0.11"
+indicatif = "0.17"
+owo-colors = "4"
+comfy-table = "7"
+stellar-strkey = "0.0.13"
+soroban-client = "0.5.8"
+dirs = "5"
+
+# Only pulled in by the `vendored-tls` feature, to force a source build of the
+# OpenSSL that soroban-client's TLS stack requires.
+openssl = { version = "0.10", features = ["vendored"], optional = true }
+
+[dev-dependencies]
+assert_cmd = "2"
+predicates = "3"
+tempfile = "3"
+serde_json = "1"

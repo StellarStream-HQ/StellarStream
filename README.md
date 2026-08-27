@@ -164,6 +164,14 @@ cd ../backend
 docker-compose up
 ```
 
+**5. (Optional) Run the Contract Analytics Framework**
+```bash
+cd ../analytics
+npm install
+npm run seed  # Optional: generate sample activity data
+npm run dev   # Runs analytics API & visualization dashboard on http://localhost:4000
+```
+
 ---
 
 ## 📚 Learn More

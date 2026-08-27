@@ -256,6 +256,101 @@ pub fn calculate_exponential_unlocked(
     }
 }
 
+/// Calculates the unlocked amount for exponential (quadratic) vesting with
+/// pause-aware elapsed time (issue #1445).
+///
+/// Exponential vesting unlocks slowly at first and then accelerates over time:
+/// at 50% of the duration only 25% is unlocked, at ≈70.7% of the duration 50%
+/// is unlocked, and at 100% the full amount is unlocked.
+///
+/// Formula: `unlocked = total_amount * (elapsed² / duration²)` where
+/// `elapsed = current_time - start_time - paused_duration` and
+/// `duration = end_time - start_time`.
+///
+/// # Pause handling
+///
+/// Time spent paused is excluded from the elapsed time, so a stream that was
+/// paused for N seconds behaves exactly like one that started N seconds later.
+/// The `paused_duration` is subtracted from the raw elapsed time; if it is at
+/// least as large as the raw elapsed time, the effective elapsed time is `0`
+/// and nothing has unlocked yet.
+///
+/// # Guarantees
+///
+/// - **Before `start_time`**: returns `0`.
+/// - **At or after `end_time`**: returns `total_amount` in full.
+/// - **Checked arithmetic**: every multiply uses `checked_mul` so any
+///   intermediate overflow returns `0` instead of wrapping or panicking.
+/// - **Rounds down consistently**: integer division truncates toward zero, so
+///   fractional tokens are always discarded, never rounded up.
+/// - **Bounded by `total_amount`**: since `elapsed <= duration` in the unlocked
+///   range, `elapsed² <= duration²` and the result is always `≤ total_amount`.
+///
+/// Compare with [`calculate_unlocked`] (linear): exponential is below linear at
+/// the early/mid stages (slow start) and above it in the late stage (fast
+/// finish). At the exact midpoint linear grants 50% while quadratic grants only
+/// 25%.
+///
+/// # Examples
+///
+/// ```no_run
+/// use stellarstream_contracts::math::calculate_unlocked_exponential;
+/// let total = 10_000_i128;
+/// let start = 0u64;
+/// let end = 100u64;
+/// // At 50% time, only 25% (2_500) is unlocked.
+/// assert_eq!(calculate_unlocked_exponential(total, start, end, 50, 0), 2_500);
+/// ```
+#[inline(always)]
+pub fn calculate_unlocked_exponential(
+    total_amount: i128,
+    start_time: u64,
+    end_time: u64,
+    current_time: u64,
+    paused_duration: u64,
+) -> i128 {
+    // Fast path: before the stream starts (or a non-positive amount).
+    if current_time < start_time || total_amount <= 0 {
+        return 0;
+    }
+
+    // Fast path: at or past the end -> everything is unlocked.
+    if current_time >= end_time {
+        return total_amount;
+    }
+
+    let duration = end_time - start_time;
+    // Zero (or impossible) duration -> fully unlocked.
+    if duration == 0 {
+        return total_amount;
+    }
+
+    // Elapsed time excludes any paused periods, clamped at zero floor.
+    let elapsed = (current_time - start_time).saturating_sub(paused_duration);
+
+    // Anything at or beyond the duration is fully unlocked.
+    if elapsed >= duration {
+        return total_amount;
+    }
+
+    // Quadratic curve: total_amount * (elapsed² / duration²), with checked
+    // arithmetic so any intermediate overflow yields `0` rather than a wrap.
+    let elapsed_i = elapsed as i128;
+    let elapsed_sq = match elapsed_i.checked_mul(elapsed_i) {
+        Some(v) => v,
+        None => return 0,
+    };
+    let numerator = match total_amount.checked_mul(elapsed_sq) {
+        Some(v) => v,
+        None => return 0,
+    };
+    let duration_sq = (duration as i128).checked_mul(duration as i128);
+    match duration_sq {
+        Some(d) if d > 0 => numerator / d,
+        _ => 0,
+    }
+}
+
 /// Calculates split share for batch disbursements or multi-recipient distributions.
 ///
 /// # Optimizations

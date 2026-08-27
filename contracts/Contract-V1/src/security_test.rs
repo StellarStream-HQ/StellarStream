@@ -11,8 +11,8 @@ use crate::common::*;
 use soroban_sdk::testutils::{Address as _, Ledger as _};
 use soroban_sdk::{contract, contractimpl, symbol_short, Address};
 
-/// Malicious token that re-enters the stream contract's `withdraw` when its
-/// `transfer` hook is invoked. Used to prove re-entrancy safety.
+/// Malicious token that re-enters the stream contract's ,withdraw, when its
+/// ,transfer, hook is invoked. Used to prove re-entrancy safety.
 #[contract]
 pub struct MaliciousToken;
 
@@ -43,6 +43,7 @@ fn make_stream(f: &Fixture) -> u64 {
         &1_000u64,
         &CURVE_LINEAR,
         &false,
+        &false,
         &None,
     )
 }
@@ -62,12 +63,13 @@ fn test_reentrancy_protection() {
         &1_000u64,
         &CURVE_LINEAR,
         &false,
+        &false,
         &None,
     );
     MaliciousTokenClient::new(&f.env, &mt).init(&f.contract, &id);
     f.env.ledger().set_timestamp(500);
 
-    // The malicious token re-enters `withdraw`, but the lock + checks-effects
+    // The malicious token re-enters ,withdraw,, but the lock + checks-effects
     // pattern means only a single withdrawal of the unlocked amount occurs.
     let w = client(&f.env, &f.contract).withdraw(&id, &f.receiver);
     let s = client(&f.env, &f.contract).get_stream(&id);
@@ -89,13 +91,14 @@ fn test_integer_overflow_protection() {
         &1_000_000u64,
         &CURVE_LINEAR,
         &false,
+        &false,
         &None,
     );
     f.env.ledger().set_timestamp(500_000);
     // Overflowing math must be handled with checked operations, never panic or
     // produce a wrong (huge) number.
     let unlocked = client(&f.env, &f.contract).get_unlocked_amount(&id);
-    assert!(unlocked >= 0 && unlocked <= i128::MAX);
+    assert!(unlocked >= 0);
     let w = client(&f.env, &f.contract).withdraw(&id, &f.receiver);
     assert_eq!(w, 0i128);
 }
@@ -112,6 +115,7 @@ fn test_exponential_overflow_protection() {
         &1_000_000u64,
         &CURVE_EXP,
         &false,
+        &false,
         &None,
     );
     f.env.ledger().set_timestamp(500_000);
@@ -125,14 +129,18 @@ fn test_exponential_overflow_protection() {
 fn test_unauthorized_cancel() {
     let f = setup();
     let id = make_stream(&f);
-    assert!(client(&f.env, &f.contract).try_cancel_stream(&id, &f.receiver).is_err());
+    assert!(client(&f.env, &f.contract)
+        .try_cancel_stream(&id, &f.receiver)
+        .is_err());
 }
 
 #[test]
 fn test_unauthorized_pause() {
     let f = setup();
     let id = make_stream(&f);
-    assert!(client(&f.env, &f.contract).try_pause_stream(&id, &f.receiver).is_err());
+    assert!(client(&f.env, &f.contract)
+        .try_pause_stream(&id, &f.receiver)
+        .is_err());
 }
 
 #[test]
@@ -140,7 +148,9 @@ fn test_unauthorized_resume() {
     let f = setup();
     let id = make_stream(&f);
     client(&f.env, &f.contract).pause_stream(&id, &f.sender);
-    assert!(client(&f.env, &f.contract).try_resume_stream(&id, &f.receiver).is_err());
+    assert!(client(&f.env, &f.contract)
+        .try_resume_stream(&id, &f.receiver)
+        .is_err());
 }
 
 #[test]
@@ -162,14 +172,18 @@ fn test_unauthorized_restrict() {
 #[test]
 fn test_unauthorized_pause_contract() {
     let f = setup();
-    assert!(client(&f.env, &f.contract).try_pause_contract(&f.receiver).is_err());
+    assert!(client(&f.env, &f.contract)
+        .try_pause_contract(&f.receiver)
+        .is_err());
 }
 
 #[test]
 fn test_unauthorized_unpause_contract() {
     let f = setup();
     client(&f.env, &f.contract).pause_contract(&f.pauser);
-    assert!(client(&f.env, &f.contract).try_unpause_contract(&f.receiver).is_err());
+    assert!(client(&f.env, &f.contract)
+        .try_unpause_contract(&f.receiver)
+        .is_err());
 }
 
 #[test]
@@ -177,7 +191,9 @@ fn test_unauthorized_withdraw() {
     let f = setup();
     let id = make_stream(&f);
     f.env.ledger().set_timestamp(500);
-    assert!(client(&f.env, &f.contract).try_withdraw(&id, &f.sender).is_err());
+    assert!(client(&f.env, &f.contract)
+        .try_withdraw(&id, &f.sender)
+        .is_err());
 }
 
 #[test]
@@ -196,7 +212,9 @@ fn test_withdraw_after_cancel() {
     let id = make_stream(&f);
     f.env.ledger().set_timestamp(500);
     client(&f.env, &f.contract).cancel_stream(&id, &f.sender);
-    assert!(client(&f.env, &f.contract).try_withdraw(&id, &f.receiver).is_err());
+    assert!(client(&f.env, &f.contract)
+        .try_withdraw(&id, &f.receiver)
+        .is_err());
 }
 
 #[test]
@@ -205,7 +223,9 @@ fn test_withdraw_from_paused_stream() {
     let id = make_stream(&f);
     f.env.ledger().set_timestamp(500);
     client(&f.env, &f.contract).pause_stream(&id, &f.sender);
-    assert!(client(&f.env, &f.contract).try_withdraw(&id, &f.receiver).is_err());
+    assert!(client(&f.env, &f.contract)
+        .try_withdraw(&id, &f.receiver)
+        .is_err());
 }
 
 #[test]
@@ -262,6 +282,7 @@ fn test_create_invalid_time_range() {
             &100u64,
             &CURVE_LINEAR,
             &false,
+            &false,
             &None
         )
         .is_err());
@@ -279,6 +300,7 @@ fn test_create_invalid_amount() {
             &0u64,
             &100u64,
             &CURVE_LINEAR,
+            &false,
             &false,
             &None
         )
@@ -299,6 +321,7 @@ fn test_create_restricted_sender() {
             &100u64,
             &CURVE_LINEAR,
             &false,
+            &false,
             &None
         )
         .is_err());
@@ -318,6 +341,7 @@ fn test_create_restricted_receiver() {
             &100u64,
             &CURVE_LINEAR,
             &false,
+            &false,
             &None
         )
         .is_err());
@@ -336,6 +360,7 @@ fn test_invalid_curve_rejected() {
             &100u64,
             &99u32,
             &false,
+            &false,
             &None
         )
         .is_err());
@@ -352,7 +377,9 @@ fn test_invalid_role_rejected() {
 #[test]
 fn test_withdraw_nonexistent_stream() {
     let f = setup();
-    assert!(client(&f.env, &f.contract).try_withdraw(&999u64, &f.receiver).is_err());
+    assert!(client(&f.env, &f.contract)
+        .try_withdraw(&999u64, &f.receiver)
+        .is_err());
 }
 
 #[test]
@@ -368,7 +395,9 @@ fn test_cancel_already_cancelled() {
     let f = setup();
     let id = make_stream(&f);
     client(&f.env, &f.contract).cancel_stream(&id, &f.sender);
-    assert!(client(&f.env, &f.contract).try_cancel_stream(&id, &f.sender).is_err());
+    assert!(client(&f.env, &f.contract)
+        .try_cancel_stream(&id, &f.sender)
+        .is_err());
 }
 
 #[test]
@@ -376,20 +405,26 @@ fn test_pause_already_paused() {
     let f = setup();
     let id = make_stream(&f);
     client(&f.env, &f.contract).pause_stream(&id, &f.sender);
-    assert!(client(&f.env, &f.contract).try_pause_stream(&id, &f.sender).is_err());
+    assert!(client(&f.env, &f.contract)
+        .try_pause_stream(&id, &f.sender)
+        .is_err());
 }
 
 #[test]
 fn test_resume_not_paused() {
     let f = setup();
     let id = make_stream(&f);
-    assert!(client(&f.env, &f.contract).try_resume_stream(&id, &f.sender).is_err());
+    assert!(client(&f.env, &f.contract)
+        .try_resume_stream(&id, &f.sender)
+        .is_err());
 }
 
 #[test]
 fn test_initialize_twice_rejected() {
     let f = setup();
-    assert!(client(&f.env, &f.contract).try_initialize(&f.admin).is_err());
+    assert!(client(&f.env, &f.contract)
+        .try_initialize(&f.admin)
+        .is_err());
 }
 
 #[test]
@@ -421,6 +456,7 @@ fn test_soulbound_flag_persists() {
         &1_000u64,
         &CURVE_LINEAR,
         &true,
+        &false,
         &None,
     );
     let s = client(&f.env, &f.contract).get_stream(&id);
@@ -441,6 +477,7 @@ fn test_restricted_address_blocks_all_streams() {
         &100u64,
         &CURVE_LINEAR,
         &false,
+        &false,
         &None,
     );
     assert!(ok_id > 0);
@@ -453,6 +490,7 @@ fn test_restricted_address_blocks_all_streams() {
             &0u64,
             &100u64,
             &CURVE_LINEAR,
+            &false,
             &false,
             &None
         )
@@ -474,6 +512,7 @@ fn test_next_id_never_collides() {
             &100u64,
             &CURVE_LINEAR,
             &false,
+            &false,
             &None,
         );
         assert!(!seen.contains(id));
@@ -493,6 +532,7 @@ fn test_cannot_withdraw_before_vesting_starts() {
         &2_000u64,
         &CURVE_LINEAR,
         &false,
+        &false,
         &None,
     );
     f.env.ledger().set_timestamp(500);
@@ -506,5 +546,7 @@ fn test_upgrade_path_not_public() {
     // upgrades must go through governance. Verify admins are required for every
     // privileged operation (proxy for "no unauthorized upgrade").
     let f = setup();
-    assert!(client(&f.env, &f.contract).try_pause_contract(&f.admin).is_err());
+    assert!(client(&f.env, &f.contract)
+        .try_pause_contract(&f.admin)
+        .is_err());
 }

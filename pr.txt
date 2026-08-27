@@ -1,0 +1,128 @@
+# Pull Request: Exponential (Quadratic) Vesting for Accelerated Token Unlocking
+
+## Overview
+
+This PR implements **exponential (quadratic) vesting** for accelerated token unlocking in the StellarStream Contract-V1 (Closes #1445). It adds a new `calculate_unlocked_exponential` function to the math module that computes the unlocked amount using quadratic acceleration, and routes the `CURVE_EXP` path in `unlocked_amount` (which backs `withdraw` and `cancel`) through it so it is pause-aware.
+
+Exponential vesting unlocks slowly at first and accelerates over time:
+- At 50% of the duration, only **25%** is unlocked.
+- At ~70.7% of the duration, **~50%** is unlocked.
+- At 100% of the duration, the **full amount** is unlocked.
+
+---
+
+## Summary
+
+Unlock formula:
+
+```
+unlocked = total_amount * (elapsed^2 / duration^2)
+```
+
+where
+
+```
+elapsed   = current_time - start_time - paused_duration
+duration  = end_time - start_time
+```
+
+**Key properties:**
+- Returns `0` before `start_time`, and `total_amount` in full at/after `end_time`.
+- Subtracts `paused_duration` from elapsed time, clamped at zero via `saturating_sub`, so time spent paused is excluded from vesting.
+- Uses **checked arithmetic** throughout, so any intermediate overflow returns `0` instead of wrapping or panicking.
+- Rounds down consistently (integer truncation), so the result is always `<= total_amount`.
+
+---
+
+## Files Changed
+
+| File | Change |
+|------|--------|
+| `contracts/Contract-V1/src/math.rs` | Added `calculate_unlocked_exponential(total_amount, start_time, end_time, current_time, paused_duration) -> i128` with full rustdoc documentation |
+| `contracts/Contract-V1/src/lib.rs` | Routed the `CURVE_EXP` branch of `unlocked_amount` through `calculate_unlocked_exponential`, passing `stream.paused_duration` (used by `withdraw` and `cancel`) |
+| `contracts/Contract-V1/src/test.rs` | Added 13 unit tests covering the exponential curve, boundaries, pause handling, overflow protection, and comparison with linear |
+
+---
+
+## Implementation Details (math.rs)
+
+`calculate_unlocked_exponential` implements:
+
+**Formula:**
+```
+unlocked = total_amount * (elapsed^2 / duration^2)
+elapsed  = current_time - start_time  (paused_duration subtracted, floored at 0)
+duration = end_time - start_time
+```
+
+**Fast paths & guarantees:**
+- **Before `start_time` / non-positive amount** -> returns `0` immediately.
+- **At or after `end_time`** -> returns `total_amount` in full.
+- **Zero duration** -> returns `total_amount` (fully unlocked).
+- **Elapsed at or beyond duration** -> returns `total_amount` in full.
+- **Checked arithmetic**: every multiply uses `checked_mul`, so any intermediate overflow returns `0` (never wraps or panics).
+- **Bounded by `total_amount`**: since `elapsed <= duration` in the unlocked range, `elapsed^2 <= duration^2`, so the result is always `<= total_amount`.
+
+**Pause handling:**
+- Time spent paused is excluded from elapsed time, so a stream paused for N seconds behaves exactly like one that started N seconds later.
+- `paused_duration` is subtracted from the raw elapsed time via `saturating_sub`; if it is at least as large as the raw elapsed time, the effective elapsed time is `0` and nothing has unlocked yet.
+
+**Curve comparison with linear:**
+- Exponential is below linear in the early/mid stages (slow start) and above it in the late stage (fast finish).
+- At the exact midpoint linear grants 50% while quadratic grants only 25%.
+- Both curves converge to the full amount at 100% of the duration.
+
+---
+
+## lib.rs Wiring
+
+The `CURVE_EXP` branch previously computed the quadratic inline. This PR replaces it with a call to the new `calculate_unlocked_exponential`, passing `stream.paused_duration` so the exponential path is now **pause-aware** (`withdraw`, `cancel`, and `get_unlocked_amount` all benefit from accurate pause handling).
+---
+
+## Test Coverage (test.rs)
+
+13 unit tests added:
+
+1. **Before start -> 0** `test_exponential_before_start_is_zero`
+2. **At start -> 0** `test_exponential_at_start_is_zero`
+3. **After end -> full** `test_exponential_after_end_is_full`
+4. **Early stage slow unlock** (10% time -> 1%) `test_exponential_early_stage_slow_unlock`
+5. **Mid stage 25% at 50% time** `test_exponential_mid_stage_quarter`
+6. **~70.7% time -> ~50% unlocked** `test_exponential_seventy_percent_checkpoint_half`
+7. **Late stage fast unlock (90% -> 81%)** `test_exponential_late_stage_fast_unlock`
+8. **Paused-duration subtraction (incl. pause >= elapsed)** `test_exponential_subtracts_paused_duration`
+9. **Large amounts with no overflow** `test_exponential_large_amounts_no_overflow`
+10. **Forced-overflow prevention -> 0** `test_exponential_overflow_prevention`
+11. **Result always within [0, total_amount] across the whole curve** `test_exponential_always_within_total`
+12. **Comparison with linear (early < linear < late) + final full unlock match** `test_exponential_early_less_than_linear_less_than_late`
+13. **Monotonic non-decreasing** `test_exponential_monotonic`
+
+---
+
+## Acceptance Criteria Met
+
+- [x] `calculate_unlocked_exponential` added to `math.rs` with signature `(total_amount, start_time, end_time, current_time, paused_duration) -> i128`
+- [x] Returns `0` before `start_time`
+- [x] Returns `total_amount` in full at/after `end_time`
+- [x] `paused_duration` subtracted from elapsed time, clamped at zero (`saturating_sub`)
+- [x] Checked arithmetic throughout; intermediate overflow returns `0`
+- [x] Rounds down consistently; result always `<= total_amount`
+- [x] `CURVE_EXP` branch of `unlocked_amount` routed through the new function with `stream.paused_duration`
+- [x] Rustdoc added to the public function including curve comparison with linear
+- [x] 13 unit tests passing
+- [x] Contract-level exponential overflow protection test passing
+
+---
+
+## Verification
+
+- `cargo test --lib exponential` -> **15 passed, 0 failed** (13 new + 2 related existing contract tests)
+- Contract-level exponential path (`security_test::test_exponential_overflow_protection`) -> passed
+- `cargo clippy --lib` -> clean, no warnings
+- No debug leftovers / print statements
+
+---
+
+## Issues Closed
+
+- Closes #1445 - Implement exponential (quadratic) vesting for accelerated token unlocking

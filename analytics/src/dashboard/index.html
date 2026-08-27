@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StellarStream | Contract Analytics Framework</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="header-title">StellarStream Analytics</h1>
+          <p class="header-subtitle">Real-time Soroban Smart Contract Usage & Economics</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div class="live-status">
+          <span class="pulse-dot"></span>
+          <span id="indexer-status-text">Indexer: Active (Ledger #624,912)</span>
+        </div>
+
+        <select id="timeframe-select" class="control-select">
+          <option value="day">Daily View</option>
+          <option value="week">Weekly View</option>
+          <option value="month">Monthly View</option>
+        </select>
+
+        <select id="token-select" class="control-select">
+          <option value="">All Tokens</option>
+          <option value="XLM">XLM (Native)</option>
+          <option value="USDC">USDC</option>
+          <option value="EURC">EURC</option>
+        </select>
+
+        <button id="refresh-btn" class="btn btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+          </svg>
+          Refresh
+        </button>
+
+        <button id="export-btn" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
+          </svg>
+          Export Report
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-tab="overview">Overview</button>
+      <button class="tab-btn" data-tab="tvl-streams">TVL & Streams</button>
+      <button class="tab-btn" data-tab="stream-metrics">Durations & Amounts</button>
+      <button class="tab-btn" data-tab="withdrawals-cancellations">Withdrawals & Churn</button>
+      <button class="tab-btn" data-tab="retention">Cohort Retention</button>
+      <button class="tab-btn" data-tab="gas-features">Gas & Feature Adoption</button>
+      <button class="tab-btn" data-tab="live-events">Live Stream Events</button>
+    </nav>
+
+    <!-- KPI Summary Grid -->
+    <section class="kpi-grid">
+      <div class="kpi-card" id="card-tvl">
+        <div class="kpi-label">Active Total Value Locked (TVL)</div>
+        <div class="kpi-value" id="kpi-tvl">$0.00</div>
+        <div class="kpi-badge positive" id="kpi-tvl-change">+3.2% 24h</div>
+      </div>
+
+      <div class="kpi-card" id="card-volume">
+        <div class="kpi-label">Total Streamed Volume</div>
+        <div class="kpi-value" id="kpi-volume">$0.00</div>
+        <div class="kpi-badge positive" id="kpi-volume-change">+4.8% 24h</div>
+      </div>
+
+      <div class="kpi-card" id="card-streams">
+        <div class="kpi-label">Active / Total Streams</div>
+        <div class="kpi-value" id="kpi-streams">0 / 0</div>
+        <div class="kpi-subtext" id="kpi-completed-streams">0 completed</div>
+      </div>
+
+      <div class="kpi-card" id="card-duration">
+        <div class="kpi-label">Average Stream Duration</div>
+        <div class="kpi-value" id="kpi-duration">0d 0h</div>
+        <div class="kpi-subtext" id="kpi-avg-amount">Avg: $0.00</div>
+      </div>
+
+      <div class="kpi-card" id="card-cancellation">
+        <div class="kpi-label">Stream Cancellation Rate</div>
+        <div class="kpi-value" id="kpi-cancellation">0.0%</div>
+        <div class="kpi-subtext" id="kpi-cancelled-count">0 cancelled</div>
+      </div>
+
+      <div class="kpi-card" id="card-gas">
+        <div class="kpi-label">Gas & Fees (Stellar)</div>
+        <div class="kpi-value" id="kpi-gas">0.00 XLM</div>
+        <div class="kpi-subtext" id="kpi-avg-gas">~100 Stroops / tx</div>
+      </div>
+    </section>
+
+    <!-- TAB 1: OVERVIEW -->
+    <main id="tab-overview" class="tab-content active">
+      <div class="dashboard-row">
+        <div class="chart-card flex-2">
+          <div class="card-header">
+            <div>
+              <h3>Total Value Locked Over Time</h3>
+              <p>Combined and token-segregated protocol TVL</p>
+            </div>
+            <span class="pill">Real-time</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="tvlOverviewChart" width="800" height="280"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card flex-1">
+          <div class="card-header">
+            <div>
+              <h3>Token TVL Distribution</h3>
+              <p>Asset breakdown</p>
+            </div>
+          </div>
+          <div class="token-list" id="token-tvl-list">
+            <!-- Dynamic tokens -->
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-row">
+        <div class="chart-card flex-1">
+          <div class="card-header">
+            <div>
+              <h3>Stream Creation Trajectory</h3>
+              <p>New payment streams created over time</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="streamsVolumeChart" width="500" height="260"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card flex-1">
+          <div class="card-header">
+            <div>
+              <h3>Protocol Health & Efficiency</h3>
+              <p>Key operational performance indicators</p>
+            </div>
+          </div>
+          <div class="health-metrics-grid">
+            <div class="health-item">
+              <span class="health-title">Active Stream Retention</span>
+              <span class="health-val" id="health-retention">84.2%</span>
+              <div class="progress-bar"><div class="progress-fill" style="width: 84.2%;"></div></div>
+            </div>
+            <div class="health-item">
+              <span class="health-title">Contract V2 Adoption</span>
+              <span class="health-val" id="health-v2-adoption">92.0%</span>
+              <div class="progress-bar"><div class="progress-fill cyan" style="width: 92.0%;"></div></div>
+            </div>
+            <div class="health-item">
+              <span class="health-title">Average Gas Consumption</span>
+              <span class="health-val" id="health-avg-cpu">174.5k CPU</span>
+              <div class="progress-bar"><div class="progress-fill emerald" style="width: 25%;"></div></div>
+            </div>
+            <div class="health-item">
+              <span class="health-title">Unique Users (Senders + Receivers)</span>
+              <span class="health-val" id="health-unique-users">0</span>
+              <div class="progress-bar"><div class="progress-fill purple" style="width: 70%;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 2: TVL & STREAMS -->
+    <main id="tab-tvl-streams" class="tab-content">
+      <div class="dashboard-row">
+        <div class="chart-card flex-1">
+          <div class="card-header">
+            <div>
+              <h3>Multi-Token TVL Time Series</h3>
+              <p>Historical TVL trajectory for XLM, USDC, and EURC</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="multiTokenTvlChart" width="800" height="320"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="dashboard-row">
+        <div class="chart-card flex-1">
+          <div class="card-header">
+            <div>
+              <h3>Stream Volume & Capital Inflow</h3>
+              <p>Total deposited capital vs streaming release rate</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="capitalFlowChart" width="800" height="280"></canvas>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 3: DURATIONS & AMOUNTS -->
+    <main id="tab-stream-metrics" class="tab-content">
+      <div class="dashboard-row">
+        <div class="chart-card flex-1">
+          <div class="card-header">
+            <div>
+              <h3>Stream Duration Distribution</h3>
+              <p>Bucketed by stream lifespan</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="durationDistChart" width="500" height="280"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card flex-1">
+          <div class="card-header">
+            <div>
+              <h3>Stream Amount Size Tiers</h3>
+              <p>Micro, Small, Medium, Large, and Whale streams</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="amountTiersChart" width="500" height="280"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-row">
+        <div class="chart-card flex-1">
+          <div class="card-header">
+            <div>
+              <h3>Amount Percentile Spectrum</h3>
+              <p>P25, Median (P50), P75, P90, P99 amount distribution</p>
+            </div>
+          </div>
+          <div class="percentiles-row" id="percentiles-container">
+            <!-- Dynamic percentiles -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 4: WITHDRAWALS & CHURN -->
+    <main id="tab-withdrawals-cancellations" class="tab-content">
+      <div class="dashboard-row">
+        <div class="chart-card flex-1">
+          <div class="card-header">
+            <div>
+              <h3>Withdrawal Timing in Stream Lifecycle</h3>
+              <p>When recipients claim unlocked tokens (Quarters of stream duration)</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="withdrawalTimingChart" width="500" height="280"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card flex-1">
+          <div class="card-header">
+            <div>
+              <h3>Withdrawal Size Patterns</h3>
+              <p>Micro claims vs partial withdrawals vs lump sum exits</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="withdrawalSizeChart" width="500" height="280"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-row">
+        <div class="chart-card flex-2">
+          <div class="card-header">
+            <div>
+              <h3>Cancellation Rate & Lifespan Before Churn</h3>
+              <p>Monthly cancellation trends and average active duration before cancellation</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="cancellationTrendsChart" width="800" height="260"></canvas>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 5: COHORT RETENTION -->
+    <main id="tab-retention" class="tab-content">
+      <div class="dashboard-row">
+        <div class="chart-card flex-1">
+          <div class="card-header">
+            <div>
+              <h3>Monthly User Cohort Retention Matrix</h3>
+              <p>Percentage of stream creators continuing to create streams over time</p>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table" id="cohort-table">
+              <thead>
+                <tr>
+                  <th>Cohort Month</th>
+                  <th>New Users</th>
+                  <th>Day 1</th>
+                  <th>Day 7</th>
+                  <th>Day 14</th>
+                  <th>Day 30</th>
+                  <th>Day 60</th>
+                  <th>Day 90</th>
+                  <th>Repeat Rate</th>
+                </tr>
+              </thead>
+              <tbody id="cohort-table-body">
+                <!-- Cohorts inserted here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 6: GAS & FEATURE ADOPTION -->
+    <main id="tab-gas-features" class="tab-content">
+      <div class="dashboard-row">
+        <div class="chart-card flex-1">
+          <div class="card-header">
+            <div>
+              <h3>Gas & CPU Consumption by Operation</h3>
+              <p>Average instructions for create, withdraw, cancel, pause</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="gasActionChart" width="500" height="280"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card flex-1">
+          <div class="card-header">
+            <div>
+              <h3>Contract Feature & Version Adoption</h3>
+              <p>V1 Linear Vesting vs V2 Advanced Curves vs V3 Instant Release</p>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="featureAdoptionChart" width="500" height="280"></canvas>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 7: LIVE STREAM EVENTS -->
+    <main id="tab-live-events" class="tab-content">
+      <div class="dashboard-row">
+        <div class="chart-card flex-1">
+          <div class="card-header">
+            <div>
+              <h3>Real-Time Contract Event Stream</h3>
+              <p>Live events captured by the Soroban event indexer</p>
+            </div>
+            <button id="clear-events-btn" class="btn btn-secondary">Clear View</button>
+          </div>
+          <div class="events-log-container" id="events-log">
+            <!-- Events log -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Export Modal -->
+    <div class="modal-backdrop" id="export-modal">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Export Analytics Report</h3>
+          <button class="modal-close" id="close-export-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Report Dataset</label>
+            <select id="export-type-select" class="form-control">
+              <option value="streams">Payment Streams (Full List)</option>
+              <option value="daily_rollups">Daily Metrics Aggregations</option>
+              <option value="tvl">TVL Snapshots</option>
+              <option value="retention">Cohort Retention Matrix</option>
+              <option value="gas">Gas Usage Records</option>
+              <option value="full">Complete Database Dump</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Format</label>
+            <div class="radio-group">
+              <label><input type="radio" name="export-format" value="csv" checked /> CSV</label>
+              <label><input type="radio" name="export-format" value="json" /> JSON</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="cancel-export-btn">Cancel</button>
+          <button class="btn btn-primary" id="download-export-btn">Download Report</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

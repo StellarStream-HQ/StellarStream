@@ -29,6 +29,36 @@ fn create_many(
             &1_000u64,
             &CURVE_LINEAR,
             &false,
+            &false,
+            &None,
+        );
+        ids.push_back(id);
+    }
+    ids
+}
+
+/// Create `n` streams from `sender` to one fixed `receiver`, so that a single
+/// account can withdraw from all of them.
+fn create_many_to(
+    env: &Env,
+    contract: &Address,
+    sender: &Address,
+    receiver: &Address,
+    token: &Address,
+    n: u64,
+) -> Vec<u64> {
+    let mut ids = Vec::new(env);
+    for _ in 0..n {
+        let id = client(env, contract).create_stream(
+            sender,
+            receiver,
+            token,
+            &1_000_000i128,
+            &0u64,
+            &1_000u64,
+            &CURVE_LINEAR,
+            &false,
+            &false,
             &None,
         );
         ids.push_back(id);
@@ -91,6 +121,7 @@ fn test_100_users() {
             &0u64,
             &1_000_000u64,
             &CURVE_LINEAR,
+            &false,
             &false,
             &None,
         );
@@ -166,6 +197,7 @@ fn test_mixed_curves_large() {
             &1_000u64,
             &curve,
             &false,
+            &false,
             &None,
         );
         ids.push_back(id);
@@ -208,6 +240,7 @@ fn test_realistic_data_distribution() {
             &0u64,
             &end,
             &CURVE_LINEAR,
+            &false,
             &false,
             &None,
         );

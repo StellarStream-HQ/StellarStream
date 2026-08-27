@@ -1,2 +1,4 @@
 /target
 Cargo.lock
+# Soroban test harness snapshot fixtures (auto-generated on every `cargo test`)
+/test_snapshots
