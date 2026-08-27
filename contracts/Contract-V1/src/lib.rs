@@ -164,13 +164,24 @@ mod stress_test;
 mod advanced_test;
 
 use soroban_sdk::{
-    contract, contractclient, contracterror, contractimpl, contracttype, symbol_short, Address,
-    Env, Map, String, Vec, Bytes,
+    contract, contractclient, contracterror, contractimpl, contracttype, Address, Env, Map,
+    String, Symbol, Vec, symbol_short,
 };
-use storage::{
-    bump_persistent_ttl_if_present, extend_dispute_ttl, extend_history_ttl, extend_instance_ttl,
-    extend_metadata_ttl, extend_proposal_ttl, extend_stream_ttl, extend_user_streams_ttl, DataKey,
-};
+
+// ---------------------------------------------------------------------------
+// Storage keys
+// ---------------------------------------------------------------------------
+const ADMIN: Symbol = symbol_short!("ADMIN");
+const PAUSED: Symbol = symbol_short!("PAUSED");
+const NEXTID: Symbol = symbol_short!("NEXTID");
+const ROLES: Symbol = symbol_short!("ROLES");
+const RESTRICT: Symbol = symbol_short!("RESTRICT");
+const LOCK: Symbol = symbol_short!("LOCK");
+const STREAMS: Symbol = symbol_short!("STREAMS");
+const USTREAMS: Symbol = symbol_short!("USTREAMS");
+const PROPOSALS: Symbol = symbol_short!("PROPOSALS");
+const NEXTPROPOSAL: Symbol = symbol_short!("NEXTPROP");
+const METADATA: Symbol = symbol_short!("METADATA");
 
 // Stream state
 pub const STATE_ACTIVE: u32 = 0;
@@ -185,27 +196,8 @@ pub const CURVE_LINEAR: u32 = 0;
 pub const CURVE_EXP: u32 = 1;
 pub const CURVE_MILESTONE: u32 = 2;
 
-// Protocol fee
-/// Denominator for basis-point math: 10_000 bps == 100%.
-pub const BPS_DENOMINATOR: i128 = 10_000;
-/// Hard ceiling on the protocol fee: 1_000 bps == 10%.
-pub const MAX_FEE_BPS: u32 = 1_000;
-
-// Monitoring
-/// Compile-time version marker. The runtime version (stored in instance
-/// storage and incremented on each upgrade) is the source of truth for
-/// [`StellarStreamContract::get_version`].
-pub const CONTRACT_VERSION: u32 = 1;
-
-/// Initial version written to instance storage on first deployment.
-const INITIAL_VERSION: u32 = 1;
-/// Width of the rolling metrics window, in hourly buckets.
-pub const METRICS_WINDOW_HOURS: u64 = 24;
-/// Seconds per metrics bucket.
-pub const SECONDS_PER_HOUR: u64 = 3_600;
-/// Ceiling on addresses tracked for `unique_users_24h`, so that both the
-/// bookkeeping and the read stay bounded regardless of traffic.
-pub const MAX_TRACKED_USERS: u32 = 64;
+// Maximum number of streams allowed in a single batch creation call.
+pub const MAX_BATCH_SIZE: u32 = 20;
 
 // Roles
 pub const ROLE_ADMIN: u32 = 0;
@@ -267,83 +259,29 @@ pub enum Error {
     MetadataLabelTooLong = 35,
     TooManyTags = 36,
     TagTooLong = 37,
-    FeeTooHigh = 38,
-    TreasuryNotSet = 39,
-    InvalidMilestones = 40,
-    InvalidMilestonePercentages = 41,
-
-    // ===== Clawback errors =====
-    /// No clawback request exists for the given ID.
-    ClawbackNotFound = 42,
-    /// The stream was not created with clawback enabled.
-    ClawbackNotEnabled = 43,
-    /// The requested clawback amount exceeds the amount already withdrawn.
-    ClawbackExceedsWithdrawn = 44,
-    /// The clawback request has already been executed.
-    ClawbackAlreadyExecuted = 45,
-    /// The clawback request has not yet received sufficient approvals.
-    ClawbackInsufficientApprovals = 46,
-    /// The approver has already approved this clawback request.
-    ClawbackAlreadyApproved = 47,
-    /// The clawback request has expired and can no longer be approved or executed.
-    ClawbackExpired = 48,
-    /// The clawback request was rejected.
-    ClawbackRejected = 49,
-
-    // ===== Oracle/USD errors =====
-    /// Oracle price is outside the acceptable slippage bounds.
-    OraclePriceOutOfBounds = 50,
-    /// Oracle returned an invalid price (e.g., zero or negative).
-    OraclePriceInvalid = 51,
-    /// USD amount is invalid or too small to convert to tokens.
-    InvalidUsdAmount = 52,
-    // ===== Dispute resolution errors (issue #1471) =====
-    //
-    // NOTE: `#[contracterror]` enums are capped at 50 variants by the
-    // contract spec XDR format (`VecM<_, 50>`), so these deliberately reuse
-    // the generic `InvalidAmount` / `InvalidApprovalThreshold` codes instead
-    // of adding dedicated variants.
-    /// No dispute exists with the given id.
-    DisputeNotFound = 50,
-    /// A dispute is already open on this stream: a second one cannot be
-    /// raised, and stream operations stay blocked until it concludes.
-    DisputeAlreadyOpen = 51,
-    /// The dispute cannot accept votes or closure right now (already
-    /// finalized, or its voting window has not lapsed yet).
-    DisputeNotOpen = 52,
-    /// Only addresses holding `ROLE_ARBITRATOR` may vote on disputes.
-    NotArbitrator = 53,
-    /// This arbitrator has already cast a vote on the dispute.
-    AlreadyVoted = 54,
-    /// The voting window has lapsed: votes are no longer accepted.
-    DisputeExpired = 55,
-    /// The stream is frozen by arbitration; all operations are blocked.
-    StreamFrozen = 56,
-    // Flash loan errors (101-110)
-    InsufficientFlashLiquidity = 101,
-    InvalidFlashBorrowAmount = 102,
-    FlashLoanInProgress = 103,
-    InsufficientFlashRepayment = 104,
-    FlashLoanCallbackFailed = 105,
-    FlashLoanFeeOverflow = 106,
-
-    // ===== Upgrade errors =====
-    /// The provided WASM hash is invalid or cannot be used for upgrade.
-    InvalidWasmHash = 120,
-    /// The upgrade failed at the deployer level.
-    UpgradeFailed = 121,
-    // ===== Recurrence errors =====
-    /// The maximum number of recurring stream occurrences has been reached.
-    MaxOccurrencesReached = 110,
-    /// The stream is not configured for recurrence.
-    RecurrenceNotEnabled = 111,
-    /// Insufficient contract balance to auto-renew the recurring stream.
-    InsufficientRenewalBalance = 112,
 }
 
 // ---------------------------------------------------------------------------
 // Data structures
 // ---------------------------------------------------------------------------
+
+// Stream metadata for categorization (issue #1466)
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct StreamMetadata {
+    pub label: String,
+    pub tags: Vec<String>,
+    pub external_ref: Option<String>,
+}
+
+#[contracttype]
+#[derive(Clone, Debug)]
+pub struct StreamMetadataUpdatedEvent {
+    pub stream_id: u64,
+    pub sender: Address,
+    pub timestamp: u64,
+}
+
 #[contracttype]
 #[derive(Clone)]
 pub struct Stream {
@@ -360,127 +298,22 @@ pub struct Stream {
     pub is_soulbound: bool,
     pub paused_duration: u64,
     pub last_paused_at: u64,
-    /// Present only when `curve_type == CURVE_MILESTONE`; see [`Milestone`].
-    pub milestones: Option<Vec<Milestone>>,
-    /// If true, the sender may raise clawback requests on this stream.
-    pub clawback_enabled: bool,
-    /// Whether this stream is part of a recurring series.
-    pub is_recurring: bool,
-    /// Recurrence configuration, present only when `is_recurring == true`.
-    pub recurrence_config: Option<RecurrenceConfig>,
 }
 
-// ---------------------------------------------------------------------------
-// Recurring stream configuration
-// ---------------------------------------------------------------------------
-
-/// Configuration for a recurring stream that auto-renews after each period.
+/// Parameters for a single stream within a `batch_create_streams` call.
 ///
-/// When a recurring stream completes and the sender fully withdraws, the
-/// contract automatically creates a new stream for the next period using
-/// the parameters stored here. Renewal stops when:
-///
-/// - [`max_occurrences`] is reached (if non-zero), or
-/// - [`stop_recurring_stream`] is called by the sender, or
-/// - the contract balance is insufficient for the next period.
-///
-/// Set `max_occurrences = 0` for infinite recurrence.
-#[contracttype]
-#[derive(Clone, Debug)]
-pub struct RecurrenceConfig {
-    /// Whether recurrence is enabled for this stream.
-    pub enabled: bool,
-    /// Maximum number of periods (0 = infinite).
-    pub max_occurrences: u32,
-    /// Number of periods that have been completed so far.
-    pub occurrences_completed: u32,
-    /// Duration of each period in seconds.
-    pub period_duration: u64,
-    /// Amount unlocked per period.
-    pub amount_per_period: i128,
-    /// Start timestamp of the current period.
-    pub current_period_start: u64,
-    /// End timestamp of the current period.
-    pub current_period_end: u64,
-    /// Whether the sender has manually stopped recurrence.
-    pub stopped: bool,
-}
-
-/// Emitted when a recurring stream auto-renews into the next period.
-#[contracttype]
-#[derive(Clone, Debug)]
-pub struct RecurringStreamRenewedEvent {
-    /// ID of the completed stream.
-    pub parent_stream_id: u64,
-    /// ID of the newly created child stream.
-    pub child_stream_id: u64,
-    /// Number of occurrences completed after this renewal.
-    pub occurrences_completed: u32,
-    /// Timestamp of the renewal.
-    pub timestamp: u64,
-}
-
-/// Emitted when a recurring stream is manually stopped.
-#[contracttype]
-#[derive(Clone, Debug)]
-pub struct RecurringStreamStoppedEvent {
-    /// ID of the recurring stream.
-    pub stream_id: u64,
-    /// Address that stopped it.
-    pub stopped_by: Address,
-    /// Timestamp of the stop.
-    pub timestamp: u64,
-}
-
-// ---------------------------------------------------------------------------
-// Stream metadata for categorization (issue #1466)
-//
-// Metadata lives in its own `StreamMetadata(stream_id)` persistent entry keyed
-// by stream id rather than as an `Option<StreamMetadata>` field on `Stream`:
-// soroban-sdk 22 cannot convert an `Option<T>` whose `T` is a user
-// `#[contracttype]` struct, which makes any struct carrying such a field fail
-// to build under `testutils`.
-
-/// A single unlock checkpoint in a milestone-vesting schedule.
-///
-/// Milestone vesting unlocks tokens in discrete steps at fixed timestamps
-/// instead of continuously over time. Each milestone's `percentage` is a
-/// **cumulative** basis-point share (out of 10,000) of the stream's total
-/// amount — not an incremental slice on top of the previous milestone. For
-/// example, the schedule `[(3mo, 2500), (6mo, 5000), (12mo, 10000)]` means
-/// 25% is unlocked at 3 months, a *total* of 50% at 6 months, and 100% at 12
-/// months (not 25% + 25% + 50%).
-///
-/// A valid schedule must have strictly ascending `timestamp`s, strictly
-/// ascending `percentage`s, and a final `percentage` of exactly 10,000 bps.
-/// Before the first milestone's timestamp is reached, nothing is unlocked;
-/// between two reached milestones, the most recently reached milestone's
-/// percentage holds (no partial/gradual unlock in between).
+/// Mirrors the arguments of `create_stream` (minus the shared `sender`, which is
+/// passed once for the whole batch). `curve_type` uses the `CURVE_*` constants.
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Milestone {
-    /// Ledger timestamp (seconds) at which this checkpoint is reached.
-    pub timestamp: u64,
-    /// Cumulative basis points (out of 10,000) unlocked once `timestamp` is reached.
-    pub percentage: u32,
-}
-
-// Stream metadata for categorization (issue #1466)
-// ---------------------------------------------------------------------------
-#[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct StreamMetadata {
-    pub label: String,
-    pub tags: Vec<String>,
-    pub external_ref: Option<String>,
-}
-
-#[contracttype]
-#[derive(Clone, Debug)]
-pub struct StreamMetadataUpdatedEvent {
-    pub stream_id: u64,
-    pub sender: Address,
-    pub timestamp: u64,
+pub struct StreamParams {
+    pub receiver: Address,
+    pub token: Address,
+    pub total_amount: i128,
+    pub start_time: u64,
+    pub end_time: u64,
+    pub curve_type: u32,
+    pub is_soulbound: bool,
 }
 
 /// Point-in-time health of the contract, for liveness checks and alerting.
@@ -1074,6 +907,25 @@ impl StellarStreamContract {
         Ok(stream_id)
     }
 
+    /// Create multiple streams atomically in a single transaction for gas efficiency.
+    ///
+    /// All streams in the batch share the same `sender`, which is authenticated
+    /// exactly once. Every parameter is validated before any state is written, so
+    /// the operation is all-or-nothing: either the entire batch is created or none
+    /// of it is. Returns the newly allocated stream ids in the same order as `params`.
+    ///
+    /// Compared to calling `create_stream` repeatedly, this saves gas by requiring
+    /// a single authentication, a single read/write of the `NEXTID` counter, and a
+    /// single read/write of the stream map and user profiles.
+    pub fn batch_create_streams(
+        env: Env,
+        sender: Address,
+        params: Vec<StreamParams>,
+    ) -> Result<Vec<u64>, Error> {
+        sender.require_auth();
+        batch_create_streams_internal(&env, &sender, &params)
+    }
+
     /// Create a multi-signature proposal for a stream.
     ///
     /// The stream is not created immediately. Instead a proposal is stored
@@ -1242,55 +1094,16 @@ impl StellarStreamContract {
         result
     }
 
-    /// Execute a flash loan, borrowing idle tokens for a single transaction.
-    ///
-    /// Allows a borrower to atomically:
-    /// 1. Borrow idle tokens (not allocated to active streams)
-    /// 2. Execute callback logic (received_tokens are transferred to the callback contract)
-    /// 3. Repay the loan + fee before the transaction ends
-    ///
-    /// # Arguments
-    /// * `env` - The Soroban environment
-    /// * `borrower` - Address requesting the flash loan
-    /// * `token` - Address of the token to borrow
-    /// * `amount` - Amount to borrow (must be non-negative and available)
-    /// * `callback_contract` - Address of the contract to call back
-    /// * `callback_data` - Arbitrary data passed to the callback
-    ///
-    /// # Returns
-    /// `Result<(), Error>` - Success if loan was executed and repaid, error otherwise
-    ///
-    /// # Errors
-    /// - `InsufficientFlashLiquidity` - Not enough idle tokens available
-    /// - `InvalidFlashBorrowAmount` - Amount is invalid (zero or negative)
-    /// - `FlashLoanInProgress` - Flash loan already executing (re-entrancy)
-    /// - `InsufficientFlashRepayment` - Callback didn't repay principal + fee
-    /// - `FlashLoanCallbackFailed` - Callback execution failed
-    /// - `FlashLoanFeeOverflow` - Fee calculation overflowed
-    ///
-    /// # Implementation Details
-    /// - Re-entrancy protected: only one flash loan can execute per transaction
-    /// - Fee is calculated as: `amount * 50 bps / 10_000` (0.5% default)
-    /// - Borrows only from idle tokens (total TVL is already reserved for streams)
-    /// - Transfers tokens to callback contract, which must transfer back `amount + fee`
-    pub fn flash_loan(
-        env: Env,
-        borrower: Address,
-        token: Address,
-        amount: i128,
-        callback_contract: Address,
-        callback_data: Bytes,
-    ) -> Result<(), Error> {
-        borrower.require_auth();
-        extend_instance_ttl(&env);
-
-        // Check for re-entrancy: only one flash loan per transaction
-        if env.storage()
-            .temporary()
-            .get::<_, bool>(&DataKey::ActiveFlashLoan(token.clone()))
-            .unwrap_or(false)
-        {
-            return Err(Error::FlashLoanInProgress);
+    /// Cancel a stream. Only the sender may cancel; refunds are implicit because
+    /// the receiver can no longer withdraw unlocked funds once the stream is closed.
+    pub fn cancel_stream(env: Env, stream_id: u64, sender: Address) -> Result<(), Error> {
+        sender.require_auth();
+        let mut stream = get_stream(&env, stream_id)?;
+        if stream.sender != sender {
+            return Err(Error::Unauthorized);
+        }
+        if stream.state == STATE_CLOSED {
+            return Err(Error::AlreadyCancelled);
         }
 
         // Validate borrow amount is positive
@@ -1472,6 +1285,12 @@ impl StellarStreamContract {
     /// Query a stream by id.
     pub fn get_stream(env: Env, stream_id: u64) -> Result<Stream, Error> {
         get_stream(&env, stream_id)
+    }
+
+    /// Query the metadata attached to a stream. Returns `None` when no metadata
+    /// has been set for the stream.
+    pub fn get_stream_metadata(env: Env, stream_id: u64) -> Option<StreamMetadata> {
+        get_metadata(&env).get(stream_id)
     }
 
     /// Calculate the total unlocked amount for a stream at the current ledger time.
@@ -1828,20 +1647,11 @@ impl StellarStreamContract {
         external_ref: Option<String>,
     ) -> Result<(), Error> {
         sender.require_auth();
-        extend_instance_ttl(&env);
         let stream = get_stream(&env, stream_id)?;
-        if stream.sender != sender {
-            return Err(Error::Unauthorized);
-        }
-        if stream.state == STATE_CLOSED {
-            return Err(Error::StreamEnded);
-        }
-        if label.len() > 64 {
-            return Err(Error::MetadataLabelTooLong);
-        }
-        if tags.len() > 5 {
-            return Err(Error::TooManyTags);
-        }
+        if stream.sender != sender { return Err(Error::Unauthorized); }
+        if stream.state == STATE_CLOSED { return Err(Error::StreamEnded); }
+        if label.len() > 64 { return Err(Error::MetadataLabelTooLong); }
+        if tags.len() > 5 { return Err(Error::TooManyTags); }
         for i in 0..tags.len() {
             if let Some(tag) = tags.get(i) {
                 if tag.len() > 32 {
@@ -1849,15 +1659,9 @@ impl StellarStreamContract {
                 }
             }
         }
-        env.storage().persistent().set(
-            &DataKey::StreamMetadata(stream_id),
-            &StreamMetadata {
-                label,
-                tags,
-                external_ref,
-            },
-        );
-        extend_metadata_ttl(&env, stream_id);
+        let mut metadata = get_metadata(&env);
+        metadata.set(stream_id, StreamMetadata { label, tags, external_ref });
+        env.storage().persistent().set(&METADATA, &metadata);
         env.events().publish(
             (symbol_short!("meta_upd"), sender.clone()),
             StreamMetadataUpdatedEvent {
@@ -2136,14 +1940,18 @@ impl StellarStreamContract {
         clawback::approve_clawback(&env, clawback_id, &approver)
     }
 
-    /// Execute an approved clawback, transferring tokens from receiver back to sender.
-    ///
-    /// May be called by anyone once the request is in `Approved` status.
-    pub fn execute_clawback(env: Env, clawback_id: u64, executor: Address) -> Result<(), Error> {
-        executor.require_auth();
-        extend_instance_ttl(&env);
-        clawback::execute_clawback(&env, clawback_id)
-    }
+fn get_metadata(env: &Env) -> Map<u64, StreamMetadata> {
+    env.storage()
+        .persistent()
+        .get(&METADATA)
+        .unwrap_or(Map::new(env))
+}
+
+fn get_stream(env: &Env, stream_id: u64) -> Result<Stream, Error> {
+    get_streams(env)
+        .get(stream_id)
+        .ok_or(Error::StreamNotFound)
+}
 
     /// Fetch a clawback request by ID. Returns `None` if it does not exist.
     pub fn get_clawback_request(env: Env, clawback_id: u64) -> Option<ClawbackRequest> {
@@ -2892,44 +2700,101 @@ fn create_stream_internal(
     Ok(id)
 }
 
-/// Validates a milestone-vesting schedule before it is attached to a stream.
+/// Shared batch-creation path for `batch_create_streams`.
 ///
-/// Requires: a non-empty schedule, strictly ascending timestamps, strictly
-/// ascending cumulative percentages, a final percentage of exactly
-/// `math::BPS_DENOMINATOR` (10,000 bps = 100%), and a last-milestone timestamp
-/// no later than the stream's `end_time` (otherwise the stream's end-of-term
-/// fast path in `unlocked_amount` could release 100% before the schedule says
-/// it should).
-fn validate_milestones(milestones: &Option<Vec<Milestone>>, end_time: u64) -> Result<(), Error> {
-    let milestones = milestones.as_ref().ok_or(Error::InvalidMilestones)?;
-    if milestones.is_empty() {
-        return Err(Error::InvalidMilestones);
+/// Validates the entire batch up-front (before any state mutation) and then
+/// persists every stream in a single pass. Returns the allocated ids in order.
+fn batch_create_streams_internal(
+    env: &Env,
+    sender: &Address,
+    params: &Vec<StreamParams>,
+) -> Result<Vec<u64>, Error> {
+    if params.is_empty() {
+        return Err(Error::InvalidAmount);
+    }
+    if params.len() > MAX_BATCH_SIZE {
+        return Err(Error::BatchSizeExceeded);
+    }
+    if is_contract_paused(env) {
+        return Err(Error::ContractPaused);
+    }
+    if env.storage().instance().get::<_, Address>(&ADMIN).is_none() {
+        return Err(Error::Unauthorized);
     }
 
-    let mut prev_timestamp: Option<u64> = None;
-    let mut prev_percentage: u32 = 0;
-    for i in 0..milestones.len() {
-        let m = milestones.get(i).unwrap();
-        if let Some(prev) = prev_timestamp {
-            if m.timestamp <= prev {
-                return Err(Error::InvalidMilestones);
-            }
+    // Validate every parameter and accumulate the combined total (overflow guard)
+    // BEFORE mutating any state, so a single bad entry rolls back the whole batch.
+    let mut total: i128 = 0;
+    for i in 0..params.len() {
+        let p = params.get(i).unwrap();
+        if p.curve_type != CURVE_LINEAR && p.curve_type != CURVE_EXP {
+            return Err(Error::InvalidCurve);
         }
-        if m.percentage <= prev_percentage {
-            return Err(Error::InvalidMilestonePercentages);
+        if p.total_amount <= 0 {
+            return Err(Error::InvalidAmount);
         }
-        prev_timestamp = Some(m.timestamp);
-        prev_percentage = m.percentage;
+        if p.start_time >= p.end_time {
+            return Err(Error::InvalidTimeRange);
+        }
+        if is_restricted(env, sender) || is_restricted(env, &p.receiver) {
+            return Err(Error::AddressRestricted);
+        }
+        total = total.checked_add(p.total_amount).ok_or(Error::Overflow)?;
     }
 
-    if prev_percentage as i128 != math::BPS_DENOMINATOR {
-        return Err(Error::InvalidMilestonePercentages);
-    }
-    if prev_timestamp.unwrap() > end_time {
-        return Err(Error::InvalidTimeRange);
-    }
+    // Allocate ids and build the streams in one pass, then persist once.
+    let mut next = env.storage().instance().get::<_, u64>(&NEXTID).unwrap_or(1);
+    let mut ids: Vec<u64> = Vec::new(env);
+    let mut streams = get_streams(env);
 
-    Ok(())
+    for i in 0..params.len() {
+        let p = params.get(i).unwrap();
+        let id = next;
+        next = next.checked_add(1).ok_or(Error::Overflow)?;
+
+        let stream = Stream {
+            id,
+            sender: sender.clone(),
+            receiver: p.receiver.clone(),
+            token: p.token.clone(),
+            total_amount: p.total_amount,
+            start_time: p.start_time,
+            end_time: p.end_time,
+            withdrawn_amount: 0,
+            state: STATE_ACTIVE,
+            curve_type: p.curve_type,
+            is_soulbound: p.is_soulbound,
+            paused_duration: 0,
+            last_paused_at: 0,
+        };
+        streams.set(id, stream);
+        ids.push_back(id);
+    }
+    env.storage().persistent().set(&STREAMS, &streams);
+
+    // Update sender + receiver profiles in a single read/write of the map.
+    let mut profiles: Map<Address, Vec<u64>> = env
+        .storage()
+        .persistent()
+        .get(&USTREAMS)
+        .unwrap_or(Map::new(env));
+    for i in 0..params.len() {
+        let id = ids.get(i).unwrap();
+        push_stream_id(env, &mut profiles, sender, id);
+        let p = params.get(i).unwrap();
+        push_stream_id(env, &mut profiles, &p.receiver, id);
+    }
+    env.storage().persistent().set(&USTREAMS, &profiles);
+
+    env.storage().instance().set(&NEXTID, &next);
+    Ok(ids)
+}
+
+/// Append `id` to `user`'s stream list inside the in-memory profiles map.
+fn push_stream_id(env: &Env, profiles: &mut Map<Address, Vec<u64>>, user: &Address, id: u64) {
+    let mut list = profiles.get(user.clone()).unwrap_or(Vec::new(env));
+    list.push_back(id);
+    profiles.set(user.clone(), list);
 }
 
 fn get_proposal(env: &Env, proposal_id: u64) -> Result<StreamProposal, Error> {
@@ -3531,19 +3396,4 @@ mod stress_test;
 mod security_test;
 
 #[cfg(test)]
-mod dispute_test;
-#[cfg(test)]
-mod fee_test;
-#[cfg(test)]
-mod metrics_test;
-mod metrics_test;
-
-#[cfg(test)]
-mod fee_test;
-
-#[cfg(test)]
-mod flash_loan_test;
--e 
-#[cfg(test)]
-mod upgrade_test;
-mod recurring_test;
+mod batch_test;

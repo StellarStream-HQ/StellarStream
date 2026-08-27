@@ -9,24 +9,24 @@ use super::*;
 use crate::common::*;
 use soroban_sdk::testutils::{Address as _, Ledger as _};
 
-/// Create `n` streams from `sender` to freshly generated receivers.
+/// Create `n` streams from `sender` to `receiver`.
 fn create_many(
     env: &Env,
     contract: &Address,
     sender: &Address,
+    receiver: &Address,
     token: &Address,
     n: u64,
 ) -> Vec<u64> {
     let mut ids = Vec::new(env);
     for _ in 0..n {
-        let receiver = Address::generate(env);
         let id = client(env, contract).create_stream(
             sender,
-            &receiver,
+            receiver,
             token,
             &1_000_000i128,
             &0u64,
-            &1_000_000u64,
+            &1_000u64,
             &CURVE_LINEAR,
             &false,
             &false,
@@ -70,7 +70,7 @@ fn create_many_to(
 #[test]
 fn test_1000_active_streams() {
     let f = setup();
-    let ids = create_many(&f.env, &f.contract, &f.sender, &f.token, 1000);
+    let ids = create_many(&f.env, &f.contract, &f.sender, &f.receiver, &f.token, 1000);
     assert_eq!(ids.len(), 1000);
     let c = client(&f.env, &f.contract);
     for id in ids.iter() {
@@ -83,7 +83,7 @@ fn test_1000_active_streams() {
 #[test]
 fn test_100_concurrent_withdrawals() {
     let f = setup();
-    let ids = create_many_to(&f.env, &f.contract, &f.sender, &f.receiver, &f.token, 100);
+    let ids = create_many(&f.env, &f.contract, &f.sender, &f.receiver, &f.token, 100);
     f.env.ledger().set_timestamp(500);
     let c = client(&f.env, &f.contract);
     let mut total = 0i128;
@@ -100,7 +100,7 @@ fn test_100_concurrent_withdrawals() {
 #[test]
 fn test_large_user_profile() {
     let f = setup();
-    create_many(&f.env, &f.contract, &f.sender, &f.token, 200);
+    create_many(&f.env, &f.contract, &f.sender, &f.receiver, &f.token, 200);
     let list = client(&f.env, &f.contract).get_user_streams(&f.sender);
     assert_eq!(list.len(), 200);
 }
@@ -135,7 +135,7 @@ fn test_100_users() {
 #[test]
 fn test_query_performance_large_dataset() {
     let f = setup();
-    create_many(&f.env, &f.contract, &f.sender, &f.token, 1000);
+    create_many(&f.env, &f.contract, &f.sender, &f.receiver, &f.token, 1000);
     f.env.ledger().set_timestamp(500);
     let c = client(&f.env, &f.contract);
     let ids = client(&f.env, &f.contract).get_user_streams(&f.sender);
@@ -149,7 +149,7 @@ fn test_query_performance_large_dataset() {
 #[test]
 fn test_withdraw_batch_at_limits() {
     let f = setup();
-    let ids = create_many_to(&f.env, &f.contract, &f.sender, &f.receiver, &f.token, 100);
+    let ids = create_many(&f.env, &f.contract, &f.sender, &f.receiver, &f.token, 100);
     f.env.ledger().set_timestamp(1_000_000);
     let c = client(&f.env, &f.contract);
     for id in ids.iter() {
@@ -162,7 +162,7 @@ fn test_withdraw_batch_at_limits() {
 #[test]
 fn test_create_scales_monotonic_ids() {
     let f = setup();
-    let ids = create_many(&f.env, &f.contract, &f.sender, &f.token, 500);
+    let ids = create_many(&f.env, &f.contract, &f.sender, &f.receiver, &f.token, 500);
     for (i, id) in ids.iter().enumerate() {
         assert_eq!(id, (i as u64) + 1);
     }
@@ -172,7 +172,7 @@ fn test_create_scales_monotonic_ids() {
 #[test]
 fn test_1000_streams_partial_withdraw() {
     let f = setup();
-    let ids = create_many_to(&f.env, &f.contract, &f.sender, &f.receiver, &f.token, 1000);
+    let ids = create_many(&f.env, &f.contract, &f.sender, &f.receiver, &f.token, 1000);
     f.env.ledger().set_timestamp(250);
     let c = client(&f.env, &f.contract);
     for id in ids.iter() {
@@ -214,7 +214,7 @@ fn test_mixed_curves_large() {
 #[test]
 fn test_storage_access_pattern() {
     let f = setup();
-    let ids = create_many(&f.env, &f.contract, &f.sender, &f.token, 800);
+    let ids = create_many(&f.env, &f.contract, &f.sender, &f.receiver, &f.token, 800);
     let c = client(&f.env, &f.contract);
     for _ in 0..5 {
         for id in ids.iter() {
@@ -260,7 +260,7 @@ fn test_realistic_data_distribution() {
 #[test]
 fn test_unlocked_monotonic_at_scale() {
     let f = setup();
-    let ids = create_many(&f.env, &f.contract, &f.sender, &f.token, 600);
+    let ids = create_many(&f.env, &f.contract, &f.sender, &f.receiver, &f.token, 600);
     let c = client(&f.env, &f.contract);
     f.env.ledger().set_timestamp(0);
     for id in ids.iter() {
@@ -278,7 +278,7 @@ fn test_unlocked_monotonic_at_scale() {
 #[test]
 fn bench_create_1000_streams() {
     let f = setup();
-    let ids = create_many(&f.env, &f.contract, &f.sender, &f.token, 1000);
+    let ids = create_many(&f.env, &f.contract, &f.sender, &f.receiver, &f.token, 1000);
     assert_eq!(ids.len(), 1000);
     assert_eq!(client(&f.env, &f.contract).next_stream_id(), 1001);
 }
