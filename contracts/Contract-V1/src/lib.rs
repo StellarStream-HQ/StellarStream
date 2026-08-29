@@ -141,6 +141,7 @@ pub mod storage;
 pub mod clawback;
 pub mod compliance;
 pub mod vault;
+pub mod migration;
 pub mod oracle;
 pub mod math;
 pub mod storage;
@@ -153,6 +154,8 @@ mod clawback_test;
 mod compliance_test;
 #[cfg(test)]
 mod vault_test;
+#[cfg(test)]
+mod migration_test;
 mod fee_test;
 #[cfg(test)]
 mod metrics_test;
@@ -172,6 +175,7 @@ use soroban_sdk::{
 use storage::{
     bump_persistent_ttl_if_present, extend_history_ttl, extend_instance_ttl, extend_metadata_ttl,
     extend_proposal_ttl, extend_stream_ttl, extend_user_streams_ttl, extend_vault_shares_ttl,
+    extend_interest_ttl, bump_stream_versions_ttl, extend_migration_ttl, DataKey,
     extend_interest_ttl, DataKey,
     bump_persistent_ttl_if_present, extend_dispute_ttl, extend_history_ttl, extend_instance_ttl,
     extend_metadata_ttl, extend_proposal_ttl, extend_stream_ttl, extend_user_streams_ttl, DataKey,
@@ -226,6 +230,14 @@ pub const STRATEGY_COMPOUND: u32 = 2;
 pub const STRATEGY_PERFORMANCE: u32 = 4;
 /// All valid strategy bits.
 pub const STRATEGY_VALID_MASK: u32 = 0x7;
+
+// Migration framework
+/// Current stream format version.
+pub const CURRENT_STREAM_VERSION: u32 = 2;
+/// Maximum streams in a single batch migration.
+pub const MAX_BATCH_MIGRATION_SIZE: u32 = 20;
+/// Version when vault fields were added to Stream.
+pub const VAULT_FEATURE_VERSION: u32 = 2;
 
 /// Arbitrators review disputes and vote on their resolution. Deliberately a
 /// separate role from [`ROLE_ADMIN`]: holding the admin key does not confer
@@ -323,6 +335,16 @@ pub enum Error {
     InsufficientVaultedShares = 56,
     /// Cannot deposit to vault: stream is closed or paused.
     CannotDepositToClosedStream = 57,
+
+    // ===== Migration errors =====
+    /// Stream has already been migrated to the current format.
+    AlreadyMigrated = 58,
+    /// Batch migration size exceeds maximum limit.
+    BatchSizeExceeded = 59,
+    /// Migration data validation failed.
+    MigrationValidationFailed = 60,
+    /// Stream version is incompatible or unknown.
+    IncompatibleStreamVersion = 61,
     // ===== Oracle/USD errors =====
     /// Oracle price is outside the acceptable slippage bounds.
     OraclePriceOutOfBounds = 50,
@@ -2313,6 +2335,81 @@ impl StellarStreamContract {
         }
 
         interest
+    }
+
+    // ===== Migration Framework Entry Points =====
+
+    /// Migrate a single stream to the current format after contract upgrade.
+    ///
+    /// # Behavior
+    ///
+    /// - If stream already at current version, returns success (idempotent)
+    /// - Adds new fields with safe defaults (e.g., vault_address = None)
+    /// - Preserves all existing stream data
+    /// - Records migration version for tracking
+    ///
+    /// # Requirements
+    ///
+    /// - Caller must have admin role
+    /// - Stream must exist
+    pub fn migrate_stream(env: Env, admin: Address, stream_id: u64) -> Result<(), Error> {
+        admin.require_auth();
+        extend_instance_ttl(&env);
+        require_admin(&env, &admin)?;
+
+        migration::migrate_stream(&env, stream_id)
+    }
+
+    /// Migrate multiple streams in a single batch.
+    ///
+    /// # Returns
+    ///
+    /// The number of streams actually migrated (excludes already-migrated streams).
+    ///
+    /// # Requirements
+    ///
+    /// - Caller must have admin role
+    /// - All streams must exist
+    /// - Batch size must not exceed MAX_BATCH_MIGRATION_SIZE (20)
+    ///
+    /// # Behavior
+    ///
+    /// - Skips streams already at current version (idempotent)
+    /// - Migrates streams in order, stopping on error
+    /// - Returns count of newly-migrated streams
+    pub fn batch_migrate_streams(
+        env: Env,
+        admin: Address,
+        stream_ids: Vec<u64>,
+    ) -> Result<u32, Error> {
+        admin.require_auth();
+        extend_instance_ttl(&env);
+        require_admin(&env, &admin)?;
+
+        migration::batch_migrate_streams(&env, &stream_ids)
+    }
+
+    /// Query migration status for a stream.
+    ///
+    /// # Returns
+    ///
+    /// Tuple of (current_version, needs_migration, target_version).
+    ///
+    /// # Example
+    ///
+    /// If stream is at version 1 and current is 2, returns (1, true, 2).
+    pub fn get_migration_status(env: Env, stream_id: u64) -> (u32, bool, u32) {
+        migration::get_migration_info(&env, stream_id)
+    }
+
+    /// Check if any streams in a list need migration.
+    pub fn any_streams_need_migration(env: Env, stream_ids: Vec<u64>) -> bool {
+        migration::any_need_migration(&env, &stream_ids)
+    }
+
+    /// Count how many streams in a list need migration.
+    pub fn count_streams_needing_migration(env: Env, stream_ids: Vec<u64>) -> u32 {
+        migration::count_needing_migration(&env, &stream_ids)
     // ===== Upgrade entry points =====
 
     /// Upgrade the contract WASM to a new version.
