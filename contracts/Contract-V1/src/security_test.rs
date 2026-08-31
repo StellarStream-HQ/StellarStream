@@ -45,6 +45,7 @@ fn make_stream(f: &Fixture) -> u64 {
         &1_000u64,
         &CURVE_LINEAR,
         &false,
+        &false,
         &None,
     )
 }
@@ -63,6 +64,7 @@ fn test_reentrancy_protection() {
         &0u64,
         &1_000u64,
         &CURVE_LINEAR,
+        &false,
         &false,
         &None,
     );
@@ -91,6 +93,7 @@ fn test_integer_overflow_protection() {
         &1_000_000u64,
         &CURVE_LINEAR,
         &false,
+        &false,
         &None,
     );
     f.env.ledger().set_timestamp(500_000);
@@ -113,6 +116,7 @@ fn test_exponential_overflow_protection() {
         &0u64,
         &1_000_000u64,
         &CURVE_EXP,
+        &false,
         &false,
         &None,
     );
@@ -264,6 +268,7 @@ fn test_create_invalid_time_range() {
             &100u64,
             &CURVE_LINEAR,
             &false,
+            &false,
             &None
         )
         .is_err());
@@ -281,6 +286,7 @@ fn test_create_invalid_amount() {
             &0u64,
             &100u64,
             &CURVE_LINEAR,
+            &false,
             &false,
             &None
         )
@@ -301,6 +307,7 @@ fn test_create_restricted_sender() {
             &100u64,
             &CURVE_LINEAR,
             &false,
+            &false,
             &None
         )
         .is_err());
@@ -320,6 +327,7 @@ fn test_create_restricted_receiver() {
             &100u64,
             &CURVE_LINEAR,
             &false,
+            &false,
             &None
         )
         .is_err());
@@ -337,6 +345,7 @@ fn test_invalid_curve_rejected() {
             &0u64,
             &100u64,
             &99u32,
+            &false,
             &false,
             &None
         )
@@ -423,6 +432,7 @@ fn test_soulbound_flag_persists() {
         &1_000u64,
         &CURVE_LINEAR,
         &true,
+        &false,
         &None,
     );
     let s = client(&f.env, &f.contract).get_stream(&id);
@@ -443,6 +453,7 @@ fn test_restricted_address_blocks_all_streams() {
         &100u64,
         &CURVE_LINEAR,
         &false,
+        &false,
         &None,
     );
     assert!(ok_id > 0);
@@ -455,6 +466,7 @@ fn test_restricted_address_blocks_all_streams() {
             &0u64,
             &100u64,
             &CURVE_LINEAR,
+            &false,
             &false,
             &None
         )
@@ -476,6 +488,7 @@ fn test_next_id_never_collides() {
             &100u64,
             &CURVE_LINEAR,
             &false,
+            &false,
             &None,
         );
         assert!(!seen.contains(id));
@@ -494,6 +507,7 @@ fn test_cannot_withdraw_before_vesting_starts() {
         &1_000u64,
         &2_000u64,
         &CURVE_LINEAR,
+        &false,
         &false,
         &None,
     );
