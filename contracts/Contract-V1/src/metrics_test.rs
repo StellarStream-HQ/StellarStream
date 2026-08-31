@@ -19,6 +19,7 @@ fn create(f: &Fixture, amount: i128, start: u64, duration: u64) -> u64 {
         &(start + duration),
         &CURVE_LINEAR,
         &false,
+        &false,
         &None,
     )
 }
@@ -75,6 +76,7 @@ fn test_tvl_is_per_token() {
         &0u64,
         &1_000u64,
         &CURVE_LINEAR,
+        &false,
         &false,
         &None,
     );
@@ -262,6 +264,7 @@ fn test_unique_users_is_capped() {
             &0u64,
             &1_000u64,
             &CURVE_LINEAR,
+            &false,
             &false,
             &None,
         );

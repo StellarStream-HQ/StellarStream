@@ -36,7 +36,7 @@ fn test_restricted_list_starts_empty() {
 fn test_admin_can_restrict_address() {
     let f = setup();
     let c = client(&f.env, &f.contract);
-    c.restrict_address(&f.admin, &f.receiver).unwrap();
+    c.restrict_address(&f.admin, &f.receiver);
     assert!(c.is_address_restricted(&f.receiver));
 }
 
@@ -44,8 +44,8 @@ fn test_admin_can_restrict_address() {
 fn test_admin_can_unrestrict_address() {
     let f = setup();
     let c = client(&f.env, &f.contract);
-    c.restrict_address(&f.admin, &f.receiver).unwrap();
-    c.unrestrict_address(&f.admin, &f.receiver).unwrap();
+    c.restrict_address(&f.admin, &f.receiver);
+    c.unrestrict_address(&f.admin, &f.receiver);
     assert!(!c.is_address_restricted(&f.receiver));
 }
 
@@ -54,8 +54,8 @@ fn test_restrict_multiple_addresses() {
     let f = setup();
     let c = client(&f.env, &f.contract);
     let addr2 = soroban_sdk::Address::generate(&f.env);
-    c.restrict_address(&f.admin, &f.receiver).unwrap();
-    c.restrict_address(&f.admin, &addr2).unwrap();
+    c.restrict_address(&f.admin, &f.receiver);
+    c.restrict_address(&f.admin, &addr2);
     assert!(c.is_address_restricted(&f.receiver));
     assert!(c.is_address_restricted(&addr2));
 }
@@ -64,8 +64,8 @@ fn test_restrict_multiple_addresses() {
 fn test_restrict_same_address_is_idempotent() {
     let f = setup();
     let c = client(&f.env, &f.contract);
-    c.restrict_address(&f.admin, &f.receiver).unwrap();
-    c.restrict_address(&f.admin, &f.receiver).unwrap(); // no-op
+    c.restrict_address(&f.admin, &f.receiver);
+    c.restrict_address(&f.admin, &f.receiver); // no-op
     assert!(c.is_address_restricted(&f.receiver));
 }
 
@@ -74,9 +74,9 @@ fn test_unrestrict_removes_only_target() {
     let f = setup();
     let c = client(&f.env, &f.contract);
     let addr2 = soroban_sdk::Address::generate(&f.env);
-    c.restrict_address(&f.admin, &f.receiver).unwrap();
-    c.restrict_address(&f.admin, &addr2).unwrap();
-    c.unrestrict_address(&f.admin, &f.receiver).unwrap();
+    c.restrict_address(&f.admin, &f.receiver);
+    c.restrict_address(&f.admin, &addr2);
+    c.unrestrict_address(&f.admin, &f.receiver);
     assert!(!c.is_address_restricted(&f.receiver));
     assert!(c.is_address_restricted(&addr2));
 }
@@ -87,7 +87,7 @@ fn test_non_admin_cannot_restrict() {
     let f = setup();
     let c = client(&f.env, &f.contract);
     let stranger = soroban_sdk::Address::generate(&f.env);
-    c.restrict_address(&stranger, &f.receiver).unwrap();
+    c.restrict_address(&stranger, &f.receiver);
 }
 
 #[test]
@@ -96,7 +96,7 @@ fn test_non_admin_cannot_unrestrict() {
     let f = setup();
     let c = client(&f.env, &f.contract);
     let stranger = soroban_sdk::Address::generate(&f.env);
-    c.unrestrict_address(&stranger, &f.receiver).unwrap();
+    c.unrestrict_address(&stranger, &f.receiver);
 }
 
 #[test]
@@ -113,7 +113,7 @@ fn test_unrestrict_unknown_address_is_noop() {
     let c = client(&f.env, &f.contract);
     let unknown = soroban_sdk::Address::generate(&f.env);
     // Should not panic
-    c.unrestrict_address(&f.admin, &unknown).unwrap();
+    c.unrestrict_address(&f.admin, &unknown);
 }
 
 #[test]
@@ -121,7 +121,7 @@ fn test_unrestrict_unknown_address_is_noop() {
 fn test_cannot_create_stream_to_restricted_receiver() {
     let f = setup();
     let c = client(&f.env, &f.contract);
-    c.restrict_address(&f.admin, &f.receiver).unwrap();
+    c.restrict_address(&f.admin, &f.receiver);
 
     set_time(&f.env, 100);
     c.create_stream(
@@ -135,8 +135,7 @@ fn test_cannot_create_stream_to_restricted_receiver() {
         &false,
         &false,
         &None,
-    )
-    .unwrap();
+    );
 }
 
 #[test]
@@ -144,7 +143,7 @@ fn test_cannot_create_stream_to_restricted_receiver() {
 fn test_cannot_create_proposal_to_restricted_receiver() {
     let f = setup();
     let c = client(&f.env, &f.contract);
-    c.restrict_address(&f.admin, &f.receiver).unwrap();
+    c.restrict_address(&f.admin, &f.receiver);
 
     set_time(&f.env, 100);
     c.create_proposal(
@@ -156,16 +155,15 @@ fn test_cannot_create_proposal_to_restricted_receiver() {
         &200_u64,
         &1_u32,
         &1000_u64,
-    )
-    .unwrap();
+    );
 }
 
 #[test]
 fn test_stream_creation_allowed_after_unrestriction() {
     let f = setup();
     let c = client(&f.env, &f.contract);
-    c.restrict_address(&f.admin, &f.receiver).unwrap();
-    c.unrestrict_address(&f.admin, &f.receiver).unwrap();
+    c.restrict_address(&f.admin, &f.receiver);
+    c.unrestrict_address(&f.admin, &f.receiver);
 
     set_time(&f.env, 100);
     let result = c.create_stream(
@@ -180,7 +178,7 @@ fn test_stream_creation_allowed_after_unrestriction() {
         &false,
         &None,
     );
-    assert!(result.is_ok());
+    assert!(result > 0);
 }
 
 #[test]
@@ -188,7 +186,7 @@ fn test_restricting_one_address_does_not_block_others() {
     let f = setup();
     let c = client(&f.env, &f.contract);
     let other_receiver = soroban_sdk::Address::generate(&f.env);
-    c.restrict_address(&f.admin, &f.receiver).unwrap();
+    c.restrict_address(&f.admin, &f.receiver);
 
     set_time(&f.env, 100);
     // Creating a stream to a different, unrestricted receiver should succeed
@@ -204,5 +202,5 @@ fn test_restricting_one_address_does_not_block_others() {
         &false,
         &None,
     );
-    assert!(result.is_ok());
+    assert!(result > 0);
 }

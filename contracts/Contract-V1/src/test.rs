@@ -33,6 +33,7 @@ fn test_create_and_get_stream() {
         &1_000u64,
         &CURVE_LINEAR,
         &false,
+        &false,
         &None,
     );
     let s = c.get_stream(&id);
@@ -58,6 +59,7 @@ fn test_get_time_remaining_and_percentage() {
         &100u64, // start time
         &1100u64, // end time (1000s duration)
         &CURVE_LINEAR,
+        &false,
         &false,
         &None,
     );
@@ -536,6 +538,7 @@ fn test_milestone_simple_schedule() {
         &365u64,
         &CURVE_MILESTONE,
         &false,
+        &false,
         &Some(schedule),
     );
 
@@ -557,6 +560,7 @@ fn test_milestone_before_first_returns_zero() {
         &0u64,
         &365u64,
         &CURVE_MILESTONE,
+        &false,
         &false,
         &Some(schedule),
     );
@@ -581,6 +585,7 @@ fn test_milestone_at_milestone_returns_cumulative_percentage() {
         &0u64,
         &365u64,
         &CURVE_MILESTONE,
+        &false,
         &false,
         &Some(schedule),
     );
@@ -609,6 +614,7 @@ fn test_milestone_between_milestones_holds_previous_percentage() {
         &365u64,
         &CURVE_MILESTONE,
         &false,
+        &false,
         &Some(schedule),
     );
 
@@ -634,6 +640,7 @@ fn test_milestone_after_last_returns_total() {
         &0u64,
         &365u64,
         &CURVE_MILESTONE,
+        &false,
         &false,
         &Some(schedule),
     );
@@ -663,6 +670,7 @@ fn test_milestone_invalid_order_rejected() {
             &365u64,
             &CURVE_MILESTONE,
             &false,
+            &false,
             &Some(bad_schedule),
         ),
         Err(Ok(Error::InvalidMilestones))
@@ -686,6 +694,7 @@ fn test_milestone_invalid_percentages_rejected() {
             &365u64,
             &CURVE_MILESTONE,
             &false,
+            &false,
             &Some(non_ascending),
         ),
         Err(Ok(Error::InvalidMilestonePercentages))
@@ -702,6 +711,7 @@ fn test_milestone_invalid_percentages_rejected() {
             &0u64,
             &365u64,
             &CURVE_MILESTONE,
+            &false,
             &false,
             &Some(incomplete),
         ),
@@ -722,6 +732,7 @@ fn test_milestone_withdrawal() {
         &0u64,
         &365u64,
         &CURVE_MILESTONE,
+        &false,
         &false,
         &Some(schedule),
     );
@@ -757,6 +768,7 @@ fn test_milestone_cancellation() {
         &365u64,
         &CURVE_MILESTONE,
         &false,
+        &false,
         &Some(schedule),
     );
 
@@ -791,6 +803,7 @@ fn test_milestone_vs_linear_comparison() {
         &365u64,
         &CURVE_MILESTONE,
         &false,
+        &false,
         &Some(schedule),
     );
     let linear_id = c.create_stream(
@@ -801,6 +814,7 @@ fn test_milestone_vs_linear_comparison() {
         &0u64,
         &365u64,
         &CURVE_LINEAR,
+        &false,
         &false,
         &None,
     );
@@ -834,6 +848,7 @@ fn test_milestone_curve_requires_schedule() {
             &365u64,
             &CURVE_MILESTONE,
             &false,
+            &false,
             &None,
         ),
         Err(Ok(Error::InvalidMilestones))
@@ -855,6 +870,7 @@ fn test_non_milestone_curve_rejects_schedule() {
             &0u64,
             &365u64,
             &CURVE_LINEAR,
+            &false,
             &false,
             &Some(schedule),
         ),
@@ -878,6 +894,7 @@ fn test_milestone_end_time_before_last_milestone_rejected() {
             &0u64,
             &200u64,
             &CURVE_MILESTONE,
+            &false,
             &false,
             &Some(schedule),
         ),
@@ -903,6 +920,7 @@ fn test_get_active_streams_count() {
         &1_000u64,
         &CURVE_LINEAR,
         &false,
+        &false,
         &None,
     );
 
@@ -916,6 +934,7 @@ fn test_get_active_streams_count() {
         &0u64,
         &1_000u64,
         &CURVE_LINEAR,
+        &false,
         &false,
         &None,
     );
@@ -945,6 +964,7 @@ fn test_get_user_active_streams_count() {
         &1_000u64,
         &CURVE_LINEAR,
         &false,
+        &false,
         &None,
     );
 
@@ -959,6 +979,7 @@ fn test_get_user_active_streams_count() {
         &0u64,
         &1_000u64,
         &CURVE_LINEAR,
+        &false,
         &false,
         &None,
     );
@@ -983,6 +1004,7 @@ fn test_get_total_streams_count() {
         &1_000u64,
         &CURVE_LINEAR,
         &false,
+        &false,
         &None,
     );
 
@@ -996,6 +1018,7 @@ fn test_get_total_streams_count() {
         &0u64,
         &1_000u64,
         &CURVE_LINEAR,
+        &false,
         &false,
         &None,
     );
@@ -1019,6 +1042,7 @@ fn test_get_user_total_streams_count() {
         &1_000u64,
         &CURVE_LINEAR,
         &false,
+        &false,
         &None,
     );
 
@@ -1033,6 +1057,7 @@ fn test_get_user_total_streams_count() {
         &0u64,
         &1_000u64,
         &CURVE_LINEAR,
+        &false,
         &false,
         &None,
     );
@@ -1056,6 +1081,7 @@ fn test_get_paused_streams_count() {
         &0u64,
         &1_000u64,
         &CURVE_LINEAR,
+        &false,
         &false,
         &None,
     );
@@ -1084,6 +1110,7 @@ fn test_get_user_paused_streams_count() {
         &0u64,
         &1_000u64,
         &CURVE_LINEAR,
+        &false,
         &false,
         &None,
     );
@@ -1116,6 +1143,7 @@ fn test_get_closed_streams_count() {
         &1_000u64,
         &CURVE_LINEAR,
         &false,
+        &false,
         &None,
     );
 
@@ -1140,6 +1168,7 @@ fn test_get_user_closed_streams_count() {
         &0u64,
         &1_000u64,
         &CURVE_LINEAR,
+        &false,
         &false,
         &None,
     );
@@ -1168,6 +1197,7 @@ fn test_stream_history_created() {
         &1_000u64,
         &CURVE_LINEAR,
         &false,
+        &false,
         &None,
     );
 
@@ -1189,6 +1219,7 @@ fn test_stream_history_pause_resume() {
         &0u64,
         &1_000u64,
         &CURVE_LINEAR,
+        &false,
         &false,
         &None,
     );
@@ -1216,6 +1247,7 @@ fn test_stream_history_cancel() {
         &0u64,
         &1_000u64,
         &CURVE_LINEAR,
+        &false,
         &false,
         &None,
     );
@@ -1245,6 +1277,7 @@ fn test_stream_history_withdraw() {
         &100u64,
         &1_100u64,
         &CURVE_LINEAR,
+        &false,
         &false,
         &None,
     );
@@ -1287,6 +1320,7 @@ fn test_stream_history_ordered_by_timestamp() {
         &100u64,
         &1_100u64,
         &CURVE_LINEAR,
+        &false,
         &false,
         &None,
     );

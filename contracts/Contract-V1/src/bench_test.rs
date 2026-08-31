@@ -248,8 +248,8 @@ fn test_exponential_curve_calculations() {
 
     // Equivalence check
     for t in (0..=end_p2).step_by(16) {
-        let opt = calculate_exponential_unlocked(total_p2, 0, end_p2, t).unwrap();
-        let base = baseline_calculate_exponential(total_p2, 0, end_p2, t).unwrap();
+        let opt = calculate_exponential_unlocked(total_p2, 0, end_p2, t);
+        let base = baseline_calculate_exponential(total_p2, 0, end_p2, t);
         assert_eq!(opt, base, "Exponential mismatch at t={}", t);
     }
 }
